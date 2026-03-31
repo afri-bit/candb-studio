@@ -1,0 +1,15 @@
+---
+description: TypeScript conventions for vscode-canbus extension host and shared code
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# TypeScript (extension + tests)
+
+- Prefer **explicit types** on public APIs and exported functions; avoid `any`; use `unknown` + narrowing at boundaries (e.g. webview `changes` payloads).
+- **Imports**: match existing style (path depth, named vs default). Do not reorder unrelated imports in drive-by edits.
+- **Errors**: throw `Error` with clear messages for domain violations; log in presentation layer with `Logger` where the codebase already does.
+- **Async**: use `async`/`await`; handle rejections in extension commands and webview handler branches; do not swallow errors silently.
+- **VS Code**: acquire resources via `context.subscriptions`; return `Disposable` or register cleanup for listeners.
+- **Tests** (where Mocha is used): `assert` strict; keep fixtures minimal and local to test files or `test/fixtures/`.
+- **No** `console.log` in production extension paths unless debugging — prefer `Logger` if present.
