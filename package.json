@@ -1,0 +1,125 @@
+{
+  "name": "vscode-canbus",
+  "displayName": "CAN Bus Tools",
+  "description": "CAN database editor and bus connectivity tools for VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:dbc",
+    "onCustomEditor:vscode-canbus.canDatabaseEditor"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "dbc",
+        "aliases": [
+          "DBC",
+          "CAN Database"
+        ],
+        "extensions": [
+          ".dbc"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "dbc",
+        "scopeName": "source.dbc",
+        "path": "./syntaxes/dbc.tmLanguage.json"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "vscode-canbus.canDatabaseEditor",
+        "displayName": "CAN Database Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.dbc"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "canbus-explorer",
+          "title": "CAN Bus Explorer",
+          "icon": "resources/canbus.svg"
+        }
+      ]
+    },
+    "views": {
+      "canbus-explorer": [
+        {
+          "id": "vscode-canbus.canDatabaseExplorer",
+          "name": "CAN Database"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vscode-canbus.openDatabase",
+        "title": "Open CAN Database",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.connectBus",
+        "title": "Connect to CAN Bus",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.disconnectBus",
+        "title": "Disconnect from CAN Bus",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.startMonitor",
+        "title": "Start CAN Monitor",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.stopMonitor",
+        "title": "Stop CAN Monitor",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.transmitMessage",
+        "title": "Transmit CAN Message",
+        "category": "CAN Bus"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "build:webview": "npm run build --prefix webview-ui",
+    "compile": "npm run build:webview && webpack",
+    "watch": "webpack --watch",
+    "package": "npm run build:webview && webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p ./tsconfig.test.json --outDir out",
+    "watch-tests": "tsc -p ./tsconfig.test.json -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.110.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "ts-loader": "^9.5.4",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
