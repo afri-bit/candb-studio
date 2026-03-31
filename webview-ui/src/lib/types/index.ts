@@ -9,8 +9,8 @@ export type SignalValueType = 'integer' | 'float' | 'double';
 /** Multiplexing indicator for a signal. */
 export type MultiplexIndicator = 'none' | 'multiplexor' | number;
 
-/** CAN bus connection state. */
-export type CanBusState = 'disconnected' | 'connecting' | 'connected' | 'error';
+/** CAN bus connection state (align with extension `CanBusState`). */
+export type CanBusState = 'disconnected' | 'connecting' | 'connected' | 'bus_off' | 'error';
 
 /* ── Webview-side domain shapes (plain objects, not classes) ── */
 
@@ -113,7 +113,8 @@ export type WebviewInboundMessage =
     | { type: 'monitor.frame'; frame: DecodedFrameDescriptor }
     | { type: 'monitor.clear' }
     | { type: 'connection.stateChanged'; state: CanBusState; adapterType?: string }
-    | { type: 'transmit.result'; success: boolean; messageId: number; error?: string };
+    | { type: 'transmit.result'; success: boolean; messageId: number; error?: string }
+    | { type: 'signalLab.context'; sessions: string[]; activeUri: string | null };
 
 export type WebviewOutboundMessage =
     | { type: 'database.ready' }
@@ -125,4 +126,6 @@ export type WebviewOutboundMessage =
     | { type: 'connection.disconnect' }
     | { type: 'transmit.send'; messageId: number; data: number[] }
     | { type: 'transmit.startPeriodic'; messageId: number; data: number[]; intervalMs: number }
-    | { type: 'transmit.stopPeriodic'; messageId: number };
+    | { type: 'transmit.stopPeriodic'; messageId: number }
+    | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
+    | { type: 'signalLab.openDatabase' };

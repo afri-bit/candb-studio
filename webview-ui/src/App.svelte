@@ -3,8 +3,6 @@
     import { vscode } from './lib/vscode';
     import { databaseStore } from './lib/stores/databaseStore';
     import { documentUri } from './lib/stores/editorContext';
-    import { connectionStore } from './lib/stores/connectionStore';
-    import { monitorStore } from './lib/stores/monitorStore';
     import MessageEditor from './lib/components/database/MessageEditor.svelte';
     import SignalEditor from './lib/components/database/SignalEditor.svelte';
     import NodeEditor from './lib/components/database/NodeEditor.svelte';
@@ -12,8 +10,6 @@
     import ValueTablesEditor from './lib/components/database/ValueTablesEditor.svelte';
     import ArchitectureView from './lib/components/database/ArchitectureView.svelte';
     import DatabaseExplorer from './lib/components/database/DatabaseExplorer.svelte';
-    import MonitorPanel from './lib/components/bus/MonitorPanel.svelte';
-    import TransmitPanel from './lib/components/bus/TransmitPanel.svelte';
     import type { WebviewInboundMessage } from './lib/types';
 
     type Tab =
@@ -22,9 +18,7 @@
         | 'nodes'
         | 'attributes'
         | 'valueTables'
-        | 'architecture'
-        | 'monitor'
-        | 'transmit';
+        | 'architecture';
 
     const SIDEBAR_MIN = 180;
     const SIDEBAR_DEFAULT = 264;
@@ -161,15 +155,6 @@
                     documentUri.set(message.documentUri);
                     databaseStore.setDatabase(message.database);
                     break;
-                case 'monitor.frame':
-                    monitorStore.addFrame(message.frame);
-                    break;
-                case 'monitor.clear':
-                    monitorStore.clear();
-                    break;
-                case 'connection.stateChanged':
-                    connectionStore.setState(message.state, message.adapterType);
-                    break;
             }
         };
 
@@ -234,8 +219,6 @@
                 Text view
             </button>
             <button class="save-btn" type="button" title="Save (writes the .dbc file)" onclick={saveActiveDocument}>Save</button>
-            <button class:active={activeTab === 'monitor'} onclick={() => (activeTab = 'monitor')}>Monitor</button>
-            <button class:active={activeTab === 'transmit'} onclick={() => (activeTab = 'transmit')}>Transmit</button>
         </nav>
 
         <div class="tab-content">
@@ -347,14 +330,6 @@
                         />
                     </div>
                 </div>
-            {:else if activeTab === 'monitor'}
-                <div class="aux-tab-panel flush">
-                    <MonitorPanel />
-                </div>
-            {:else if activeTab === 'transmit'}
-                <div class="aux-tab-panel flush">
-                    <TransmitPanel messages={$databaseStore.messages} />
-                </div>
             {/if}
         </div>
     </div>
@@ -454,18 +429,6 @@
         flex: 1;
         min-height: 0;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .flush {
-        padding: 0 !important;
-    }
-
-    .aux-tab-panel {
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
         display: flex;
         flex-direction: column;
     }
