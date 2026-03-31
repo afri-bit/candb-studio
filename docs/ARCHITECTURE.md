@@ -113,7 +113,25 @@ The **CAN Database** sidebar tree lists **Unlinked signals** separately, with a 
 | Custom editor | `src/presentation/editors/CanDatabaseEditorProvider.ts` |
 | Sidebar tree | `src/presentation/views/treeview/` |
 | Webview UI | `webview-ui/src/` |
+| Signal Lab webview | `webview-ui/signal-lab.html`, `SignalLabApp.svelte` |
 
 In the **DBC custom editor**, the **Architecture** tab (`ArchitectureView.svelte`) shows the same layered extension overview plus a **live network map**: every **BU_** node from the loaded file, with messages grouped by **transmitter**, plus frames whose transmitter is missing or not in the node list.
+
+## Signal Lab (singleton webview)
+
+**Signal Lab** is the instrumentation surface: live frames, decoded signals, and transmit. It is separate from the **CAN Database Editor** webview, which is for authoring the DBC (messages, signals, nodes, value tables, attributes). One Signal Lab panel is opened via the status bar or Command Palette; a second invocation reveals the existing panel.
+
+**Active database for the bus**: `CanDatabaseService` tracks which loaded session (`TextDocument` URI) decodes traffic and fills the transmit message list. The user selects this in Signal Lab; `MonitorService` uses `getDatabaseForBus()` after connect and when the active URI changes.
+
+Bus traffic is posted to the Signal Lab webview only (not broadcast to every custom editor), to avoid duplicate work when multiple `.dbc` tabs are open.
+
+### Signal Lab graphs (future)
+
+Charts are not implemented yet. The intended approach:
+
+- **Data**: Reuse decoded signal values from the same pipeline as Monitor (`bus:messageDecoded` / `monitor.frame` shape). In the webview, maintain **ring buffers per signal** (timestamp + physical value) with a **maximum length** so memory stays bounded.
+- **UI throttle**: Update the chart layer at roughly **10–30 Hz** (requestAnimationFrame or a timer), not on every decoded frame, so `postMessage` and DOM work stay smooth.
+- **Library**: Prefer a **lightweight** chart (for example uPlot) in the Signal Lab bundle; avoid heavy dependencies in the extension host.
+- **Optional later**: If profiling shows pressure, aggregate samples in `MonitorService` before sending to the webview.
 
 Diagrams in this file use [Mermaid](https://mermaid.js.org/); they render on GitHub and in many Markdown preview tools.

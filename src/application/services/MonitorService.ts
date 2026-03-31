@@ -65,11 +65,12 @@ export class MonitorService implements ICanBusMonitor {
   }
 
   private handleFrame(frame: CanFrame): void {
-    this.eventBus.emit('bus:frameReceived', frame);
-
     for (const cb of this.frameCallbacks) {
       cb(frame);
     }
+
+    /** Host receive time (ms since epoch). Reused frames from transmit keep a stale bus timestamp otherwise. */
+    const receiveTime = Date.now();
 
     if (this.database) {
       const messageDef = this.database.findMessageById(frame.id);
@@ -84,10 +85,13 @@ export class MonitorService implements ICanBusMonitor {
           signalPool: this.database.signalPool,
           database: this.database,
           signalValues,
-          timestamp: frame.timestamp,
+          timestamp: receiveTime,
         });
         this.eventBus.emit('bus:messageDecoded', decoded);
+        return;
       }
     }
+
+    this.eventBus.emit('bus:frameReceived', frame);
   }
 }

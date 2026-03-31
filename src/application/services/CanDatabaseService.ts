@@ -32,6 +32,11 @@ export class CanDatabaseService {
   private readonly sessions = new Map<string, CanDatabase>();
   /** Last URI passed to `load` / `loadFromTextDocument` (fallback for commands). */
   private lastUri: string | null = null;
+  /**
+   * Which loaded `.dbc` session decodes bus traffic. Set on each load, and when
+   * the user picks another session (Signal Lab). `null` only before any session exists.
+   */
+  private activeBusDatabaseUri: string | null = null;
 
   constructor(
     private readonly repository: ICanDatabaseRepository,
@@ -46,6 +51,7 @@ export class CanDatabaseService {
     const uri = vscode.Uri.file(filePath).toString();
     this.sessions.set(uri, database);
     this.lastUri = uri;
+    this.setActiveBusDatabaseUriInternal(uri);
     this.eventBus.emit('database:loaded', { database, uri });
     return database;
   }
@@ -68,6 +74,7 @@ export class CanDatabaseService {
     const uri = document.uri.toString();
     this.sessions.set(uri, database);
     this.lastUri = uri;
+    this.setActiveBusDatabaseUriInternal(uri);
     this.eventBus.emit('database:loaded', { database, uri });
     return database;
   }
@@ -110,7 +117,44 @@ export class CanDatabaseService {
     this.sessions.delete(key);
     this.sessions.set(newUri, db);
     this.lastUri = newUri;
+    if (this.activeBusDatabaseUri === key) {
+      this.setActiveBusDatabaseUriInternal(newUri);
+    }
     this.eventBus.emit('database:saved', { uri: newUri });
+  }
+
+  /** URIs of all in-memory DBC sessions (open buffers / loaded files). */
+  getSessionUris(): string[] {
+    return [...this.sessions.keys()].sort();
+  }
+
+  /** Which database is used for bus decode; mirrors the last loaded session until changed in Signal Lab. */
+  getActiveBusDatabaseUri(): string | null {
+    return this.activeBusDatabaseUri;
+  }
+
+  /**
+   * Select which loaded `.dbc` decodes traffic on the bus. Pass `null` only to clear when no sessions exist.
+   */
+  setActiveBusDatabaseUri(uri: string | null): void {
+    if (uri !== null && !this.sessions.has(uri)) {
+      throw new Error('Active bus database URI must refer to a loaded session');
+    }
+    this.setActiveBusDatabaseUriInternal(uri);
+  }
+
+  /** Database used for monitoring / transmit decode; follows {@link getActiveBusDatabaseUri}. */
+  getDatabaseForBus(): CanDatabase | null {
+    const u = this.activeBusDatabaseUri;
+    return u ? this.sessions.get(u) ?? null : null;
+  }
+
+  private setActiveBusDatabaseUriInternal(uri: string | null): void {
+    if (this.activeBusDatabaseUri === uri) {
+      return;
+    }
+    this.activeBusDatabaseUri = uri;
+    this.eventBus.emit('bus:activeDatabaseUriChanged', { uri });
   }
 
   /**

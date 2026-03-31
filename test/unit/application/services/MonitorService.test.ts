@@ -125,7 +125,7 @@ suite('MonitorService', () => {
   });
 
   suite('event bus emissions', () => {
-    test('emits bus:frameReceived for every received frame', () => {
+    test('emits bus:frameReceived when the frame ID is not defined in the database', () => {
       const frames: CanFrame[] = [];
       eventBus.on('bus:frameReceived', (f) => frames.push(f));
       service.start();
@@ -151,10 +151,13 @@ suite('MonitorService', () => {
       service.start();
 
       let decodedCount = 0;
+      let rawCount = 0;
       eventBus.on('bus:messageDecoded', () => { decodedCount++; });
+      eventBus.on('bus:frameReceived', () => { rawCount++; });
 
       adapter.pushFrame(new CanFrame({ id: 0x100, data: new Uint8Array(8) }));
       assert.strictEqual(decodedCount, 1);
+      assert.strictEqual(rawCount, 0);
     });
 
     test('does not emit bus:messageDecoded for unknown frame IDs', () => {

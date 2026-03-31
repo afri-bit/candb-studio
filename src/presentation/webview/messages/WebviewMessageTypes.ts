@@ -64,7 +64,11 @@ export type WebviewToExtensionMessage =
   | { type: 'stopMonitor' }
   | { type: 'sendFrame'; payload: { id: number; data: number[]; dlc: number } }
   | { type: 'startPeriodicTransmit'; payload: { taskId: string; id: number; data: number[]; dlc: number; intervalMs: number } }
-  | { type: 'stopPeriodicTransmit'; payload: { taskId: string } };
+  | { type: 'stopPeriodicTransmit'; payload: { taskId: string } }
+  /** Signal Lab: set which loaded session decodes the bus. */
+  | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
+  /** Signal Lab: open a DBC via the extension command (Quick Open / file dialog). */
+  | { type: 'signalLab.openDatabase' };
 
 /** Messages sent FROM the extension host TO the webview. */
 export type ExtensionToWebviewMessage =
@@ -75,4 +79,28 @@ export type ExtensionToWebviewMessage =
   | { type: 'frameReceived'; payload: { id: number; data: number[]; dlc: number; timestamp: number } }
   | { type: 'decodedMessage'; payload: { messageName: string; signals: Array<{ name: string; value: number; unit: string }> } }
   | { type: 'busStateChanged'; payload: { state: string } }
-  | { type: 'error'; payload: { message: string } };
+  | { type: 'error'; payload: { message: string } }
+  /** Normalized monitor row for Signal Lab (matches webview `monitor.frame` shape). */
+  | {
+      type: 'monitor.frame';
+      frame: {
+        frame: {
+          id: number;
+          data: number[];
+          dlc: number;
+          timestamp: number;
+          isExtended: boolean;
+        };
+        messageName: string;
+        signals: Array<{
+          signalName: string;
+          rawValue: number;
+          physicalValue: number;
+          unit: string;
+        }>;
+      };
+    }
+  /** VS Code–style connection update (Signal Lab). */
+  | { type: 'connection.stateChanged'; state: string; adapterType?: string }
+  /** Loaded DBC sessions and which one is active for decode. */
+  | { type: 'signalLab.context'; sessions: string[]; activeUri: string | null };

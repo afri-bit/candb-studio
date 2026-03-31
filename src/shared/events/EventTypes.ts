@@ -11,6 +11,8 @@ export interface EventMap {
   'bus:frameReceived': CanFrame;
   'bus:messageDecoded': DecodedMessage;
   'bus:stateChanged': CanBusState;
+  /** Explicit DBC session used for bus decode (Monitor / Signal Lab). */
+  'bus:activeDatabaseUriChanged': { uri: string | null };
   'database:loaded': { database: CanDatabase; uri: string };
   'database:changed': { database: CanDatabase; uri: string };
   'database:saved': { uri: string };

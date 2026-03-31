@@ -21,7 +21,9 @@ import { CompletionProvider } from './presentation/providers/CompletionProvider'
 import { DiagnosticProvider } from './presentation/providers/DiagnosticProvider';
 import { HoverProvider } from './presentation/providers/HoverProvider';
 import { ConnectionStatusBar } from './presentation/statusbar/ConnectionStatusBar';
+import { SignalLabPanel } from './presentation/signalLab/SignalLabPanel';
 import { WebviewMessageHandler } from './presentation/webview/WebviewMessageHandler';
+import { Commands } from './shared/constants';
 
 export function activate(context: vscode.ExtensionContext): void {
   Logger.initialize();
@@ -67,13 +69,37 @@ export function activate(context: vscode.ExtensionContext): void {
       adapter,
       signalDecoder,
       eventBus,
-      databaseService.getDatabase(),
+      databaseService.getDatabaseForBus(),
     );
     const transmitService = new TransmitService(adapter);
 
-    // Keep the monitor database in sync when a new database is loaded.
-    const unsub = eventBus.on('database:loaded', (payload) => monitorService.setDatabase(payload.database));
-    context.subscriptions.push({ dispose: unsub });
+    const syncMonitorDatabase = (): void => {
+      const db = databaseService.getDatabaseForBus();
+      if (db) {
+        monitorService.setDatabase(db);
+      }
+    };
+
+    const unsubLoaded = eventBus.on('database:loaded', (payload) => {
+      if (databaseService.getActiveBusDatabaseUri() === payload.uri) {
+        monitorService.setDatabase(payload.database);
+      }
+    });
+    const unsubChanged = eventBus.on('database:changed', (payload) => {
+      if (databaseService.getActiveBusDatabaseUri() === payload.uri) {
+        monitorService.setDatabase(payload.database);
+      }
+    });
+    const unsubActiveUri = eventBus.on('bus:activeDatabaseUriChanged', () => {
+      syncMonitorDatabase();
+    });
+    context.subscriptions.push({
+      dispose: () => {
+        unsubLoaded();
+        unsubChanged();
+        unsubActiveUri();
+      },
+    });
 
     commandRegistrar.setMonitorService(monitorService);
     messageHandler.setMonitorService(monitorService);
@@ -114,6 +140,20 @@ export function activate(context: vscode.ExtensionContext): void {
   // ── Presentation: connection status bar ────────────────────────────────
   const statusBar = new ConnectionStatusBar(eventBus);
   context.subscriptions.push({ dispose: () => statusBar.dispose() });
+
+  const signalLabStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+  signalLabStatusBar.text = '$(pulse) CAN Signal Lab';
+  signalLabStatusBar.tooltip =
+    'Open CAN Signal Lab — live frames, decode, and transmit. Also: Command Palette → “CAN Bus: Open CAN Signal Lab”.';
+  signalLabStatusBar.command = Commands.OPEN_SIGNAL_LAB;
+  signalLabStatusBar.show();
+  context.subscriptions.push(signalLabStatusBar);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.OPEN_SIGNAL_LAB, () =>
+      SignalLabPanel.show(context, messageHandler),
+    ),
+  );
 
   Logger.info('vscode-canbus extension activated');
 }

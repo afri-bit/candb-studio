@@ -8,8 +8,11 @@ import type { EventBus } from '../../shared/events/EventBus';
 import { Message } from '../../core/models/database/Message';
 import { Node } from '../../core/models/database/Node';
 import { CanFrame } from '../../core/models/bus/CanFrame';
+import { CanBusState } from '../../core/enums/CanBusState';
+import { DecodedMessage } from '../../core/models/bus/DecodedMessage';
 import { TransmitTask } from '../../core/models/bus/TransmitTask';
 import { Logger } from '../../shared/utils/Logger';
+import { Commands } from '../../shared/constants';
 import { serializeDatabaseForWebview } from './serializeDatabaseForWebview';
 import type { WebviewSignalInput } from './webviewDescriptorsToDomain';
 import { DocumentTextSync } from '../editors/DocumentTextSync';
@@ -28,6 +31,10 @@ export class WebviewMessageHandler {
   private readonly editorContexts = new Map<string, EditorContext>();
   private monitorService: MonitorService | null;
   private transmitService: TransmitService | null;
+  /** Singleton Signal Lab panel — bus traffic is posted only here. */
+  private signalLabPanel: vscode.WebviewPanel | null = null;
+  /** Last emitted bus state so Signal Lab can sync if opened after connect. */
+  private lastBusState: CanBusState = CanBusState.Disconnected;
 
   constructor(
     private readonly databaseService: CanDatabaseService,
@@ -48,6 +55,29 @@ export class WebviewMessageHandler {
   /** Update the transmit service after a hardware connection is established. */
   setTransmitService(service: TransmitService | null): void {
     this.transmitService = service;
+  }
+
+  /**
+   * Attach the singleton Signal Lab webview (monitor / transmit / active DB).
+   */
+  attachSignalLab(panel: vscode.WebviewPanel): vscode.Disposable {
+    this.signalLabPanel = panel;
+    const sub = panel.webview.onDidReceiveMessage((message: WebviewToExtensionMessage) => {
+      void this.handleSignalLabMessage(message);
+    });
+    const disposePanel = panel.onDidDispose(() => {
+      if (this.signalLabPanel === panel) {
+        this.signalLabPanel = null;
+      }
+    });
+    this.pushSignalLabState();
+    return new vscode.Disposable(() => {
+      sub.dispose();
+      disposePanel.dispose();
+      if (this.signalLabPanel === panel) {
+        this.signalLabPanel = null;
+      }
+    });
   }
 
   /**
@@ -93,33 +123,128 @@ export class WebviewMessageHandler {
     });
   }
 
-  private async handleMessage(message: WebviewToExtensionMessage, documentUri: string): Promise<void> {
-    Logger.info(`Webview message: ${message.type}`);
+  private postToSignalLab(message: ExtensionToWebviewMessage): void {
+    const w = this.signalLabPanel?.webview;
+    if (!w) {
+      return;
+    }
+    void w.postMessage(message);
+  }
+
+  private buildMonitorFrameFromDecoded(decoded: DecodedMessage): ExtensionToWebviewMessage {
+    const signals: Array<{
+      signalName: string;
+      rawValue: number;
+      physicalValue: number;
+      unit: string;
+    }> = [];
+    decoded.signalValues.forEach((physicalValue, signalName) => {
+      const signal = decoded.message.findSignalByName(signalName, decoded.signalPool, decoded.database);
+      signals.push({
+        signalName,
+        rawValue: physicalValue,
+        physicalValue,
+        unit: signal?.unit ?? '',
+      });
+    });
+    const f = decoded.frame;
+    return {
+      type: 'monitor.frame',
+      frame: {
+        frame: {
+          id: f.id,
+          data: Array.from(f.data),
+          dlc: f.dlc,
+          /** Host receive instant (ms), not the raw frame field (periodic transmit reuses one CanFrame). */
+          timestamp: decoded.timestamp,
+          isExtended: f.isExtended,
+        },
+        messageName: decoded.message.name,
+        signals,
+      },
+    };
+  }
+
+  private buildMonitorFrameFromRaw(frame: CanFrame): ExtensionToWebviewMessage {
+    const receiveTime = Date.now();
+    return {
+      type: 'monitor.frame',
+      frame: {
+        frame: {
+          id: frame.id,
+          data: Array.from(frame.data),
+          dlc: frame.dlc,
+          timestamp: receiveTime,
+          isExtended: frame.isExtended,
+        },
+        messageName: '(unknown)',
+        signals: [],
+      },
+    };
+  }
+
+  /** Push session list, active URI, and serialized DB for Signal Lab. */
+  pushSignalLabState(): void {
+    const w = this.signalLabPanel?.webview;
+    if (!w) {
+      return;
+    }
+    void w.postMessage({
+      type: 'connection.stateChanged',
+      state: String(this.lastBusState),
+    } satisfies ExtensionToWebviewMessage);
+
+    const sessions = this.databaseService.getSessionUris();
+    const activeUri = this.databaseService.getActiveBusDatabaseUri();
+    void w.postMessage({
+      type: 'signalLab.context',
+      sessions,
+      activeUri,
+    } satisfies ExtensionToWebviewMessage);
+
+    const empty = {
+      version: '',
+      nodes: [],
+      messages: [],
+      signalPool: [],
+      attributes: [],
+      environmentVariables: [],
+      valueTables: [],
+    };
+    const key = activeUri ?? '';
+    const db = activeUri ? this.databaseService.getDatabase(activeUri) : null;
+    void w.postMessage({
+      type: 'database.update',
+      database: db ? serializeDatabaseForWebview(db) : empty,
+      documentUri: key,
+    } satisfies ExtensionToWebviewMessage);
+  }
+
+  private async handleSignalLabMessage(message: WebviewToExtensionMessage): Promise<void> {
+    Logger.info(`Signal Lab webview message: ${message.type}`);
 
     switch (message.type) {
       case 'ready':
       case 'database.ready':
       case 'requestDatabase':
-        this.sendDatabaseToWebviewForUri(documentUri);
+        this.pushSignalLabState();
         break;
 
-      case 'saveDocument': {
-        const saveUri = message.documentUri;
-        await this.persistEditorDocument(saveUri);
-        await vscode.workspace.save(vscode.Uri.parse(saveUri));
-        break;
-      }
-
-      case 'openTextEditorView':
+      case 'signalLab.setActiveDatabaseUri':
         try {
-          await vscode.commands.executeCommand(
-            'vscode.openWith',
-            vscode.Uri.parse(message.documentUri),
-            'default',
-          );
+          this.databaseService.setActiveBusDatabaseUri(message.uri);
+          const db = this.databaseService.getDatabaseForBus();
+          if (db) {
+            this.monitorService?.setDatabase(db);
+          }
         } catch (e) {
-          Logger.error('openTextEditorView failed', e);
+          Logger.error('signalLab.setActiveDatabaseUri failed', e);
         }
+        this.pushSignalLabState();
+        break;
+
+      case 'signalLab.openDatabase':
+        await vscode.commands.executeCommand(Commands.OPEN_DATABASE);
         break;
 
       case 'monitor.start':
@@ -166,6 +291,81 @@ export class WebviewMessageHandler {
         this.transmitService?.stopPeriodic(taskId);
         break;
       }
+
+      case 'startMonitor':
+        this.monitorService?.start();
+        break;
+
+      case 'stopMonitor':
+        this.monitorService?.stop();
+        break;
+
+      case 'sendFrame': {
+        const frame = new CanFrame({
+          id: message.payload.id,
+          data: new Uint8Array(message.payload.data),
+          dlc: message.payload.dlc,
+          timestamp: Date.now(),
+        });
+        await this.transmitService?.sendOnce(frame);
+        break;
+      }
+
+      case 'startPeriodicTransmit': {
+        const p = message.payload;
+        const frame = new CanFrame({
+          id: p.id,
+          data: new Uint8Array(p.data),
+          dlc: p.dlc,
+          timestamp: Date.now(),
+        });
+        const task = new TransmitTask({
+          id: p.taskId,
+          frame,
+          isPeriodic: true,
+          intervalMs: p.intervalMs,
+        });
+        this.transmitService?.startPeriodic(task);
+        break;
+      }
+
+      case 'stopPeriodicTransmit':
+        this.transmitService?.stopPeriodic(message.payload.taskId);
+        break;
+
+      default:
+        Logger.warn(`Unhandled Signal Lab message: ${(message as { type: string }).type}`);
+    }
+  }
+
+  private async handleMessage(message: WebviewToExtensionMessage, documentUri: string): Promise<void> {
+    Logger.info(`Webview message: ${message.type}`);
+
+    switch (message.type) {
+      case 'ready':
+      case 'database.ready':
+      case 'requestDatabase':
+        this.sendDatabaseToWebviewForUri(documentUri);
+        break;
+
+      case 'saveDocument': {
+        const saveUri = message.documentUri;
+        await this.persistEditorDocument(saveUri);
+        await vscode.workspace.save(vscode.Uri.parse(saveUri));
+        break;
+      }
+
+      case 'openTextEditorView':
+        try {
+          await vscode.commands.executeCommand(
+            'vscode.openWith',
+            vscode.Uri.parse(message.documentUri),
+            'default',
+          );
+        } catch (e) {
+          Logger.error('openTextEditorView failed', e);
+        }
+        break;
 
       case 'updateMessage': {
         const { documentUri: u, messageId, changes } = message.payload;
@@ -355,47 +555,6 @@ export class WebviewMessageHandler {
         }
         break;
 
-      case 'startMonitor':
-        this.monitorService?.start();
-        break;
-
-      case 'stopMonitor':
-        this.monitorService?.stop();
-        break;
-
-      case 'sendFrame': {
-        const frame = new CanFrame({
-          id: message.payload.id,
-          data: new Uint8Array(message.payload.data),
-          dlc: message.payload.dlc,
-          timestamp: Date.now(),
-        });
-        await this.transmitService?.sendOnce(frame);
-        break;
-      }
-
-      case 'startPeriodicTransmit': {
-        const p = message.payload;
-        const frame = new CanFrame({
-          id: p.id,
-          data: new Uint8Array(p.data),
-          dlc: p.dlc,
-          timestamp: Date.now(),
-        });
-        const task = new TransmitTask({
-          id: p.taskId,
-          frame,
-          isPeriodic: true,
-          intervalMs: p.intervalMs,
-        });
-        this.transmitService?.startPeriodic(task);
-        break;
-      }
-
-      case 'stopPeriodicTransmit':
-        this.transmitService?.stopPeriodic(message.payload.taskId);
-        break;
-
       default:
         Logger.warn(`Unhandled webview message: ${(message as { type: string }).type}`);
     }
@@ -446,59 +605,35 @@ export class WebviewMessageHandler {
     });
   }
 
-  private broadcastToAllEditors(message: ExtensionToWebviewMessage): void {
-    const seen = new Set<vscode.Webview>();
-    for (const { panel } of this.editorContexts.values()) {
-      if (!seen.has(panel.webview)) {
-        seen.add(panel.webview);
-        void panel.webview.postMessage(message);
-      }
-    }
-  }
-
   private subscribeToEvents(): void {
     this.eventBus.on('database:loaded', (payload) => {
       this.postDatabaseUpdate(payload.uri, payload.database);
+      this.pushSignalLabState();
     });
 
     this.eventBus.on('database:changed', (payload) => {
       this.postDatabaseUpdate(payload.uri, payload.database);
+      this.pushSignalLabState();
+    });
+
+    this.eventBus.on('bus:activeDatabaseUriChanged', () => {
+      this.pushSignalLabState();
     });
 
     this.eventBus.on('bus:stateChanged', (state) => {
-      this.broadcastToAllEditors({ type: 'busStateChanged', payload: { state } });
+      this.lastBusState = state;
+      this.postToSignalLab({
+        type: 'connection.stateChanged',
+        state: String(state),
+      });
     });
 
     this.eventBus.on('bus:frameReceived', (frame) => {
-      this.broadcastToAllEditors({
-        type: 'frameReceived',
-        payload: {
-          id: frame.id,
-          data: Array.from(frame.data),
-          dlc: frame.dlc,
-          timestamp: frame.timestamp,
-        },
-      });
+      this.postToSignalLab(this.buildMonitorFrameFromRaw(frame));
     });
 
     this.eventBus.on('bus:messageDecoded', (decoded) => {
-      const signals: Array<{ name: string; value: number; unit: string }> = [];
-      decoded.signalValues.forEach((physicalValue, signalName) => {
-        const signal = decoded.message.findSignalByName(signalName, decoded.signalPool, decoded.database);
-        signals.push({
-          name: signalName,
-          value: physicalValue,
-          unit: signal?.unit ?? '',
-        });
-      });
-
-      this.broadcastToAllEditors({
-        type: 'decodedMessage',
-        payload: {
-          messageName: decoded.message.name,
-          signals,
-        },
-      });
+      this.postToSignalLab(this.buildMonitorFrameFromDecoded(decoded));
     });
   }
 }

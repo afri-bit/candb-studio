@@ -1,5 +1,5 @@
 import type { ICanBusAdapter } from '../../core/interfaces/bus/ICanBusAdapter';
-import type { CanFrame } from '../../core/models/bus/CanFrame';
+import { CanFrame } from '../../core/models/bus/CanFrame';
 import type { CanChannel } from '../../core/models/bus/CanChannel';
 import type { Disposable } from '../../core/types';
 import { CanBusState } from '../../core/enums/CanBusState';
@@ -37,9 +37,16 @@ export class VirtualCanAdapter implements ICanBusAdapter {
       throw new ConnectionError('Cannot send: not connected', 'virtual');
     }
     Logger.info(`VirtualCAN: loopback frame ${frame.idHex}`);
-    // Loopback: echo the sent frame back to all receivers
+    // Echo a copy with a fresh timestamp so each loopback looks like a distinct receive.
+    const loopback = new CanFrame({
+      id: frame.id,
+      data: new Uint8Array(frame.data),
+      dlc: frame.dlc,
+      isExtended: frame.isExtended,
+      timestamp: Date.now(),
+    });
     for (const cb of this.frameCallbacks) {
-      cb(frame);
+      cb(loopback);
     }
   }
 

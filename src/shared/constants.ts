@@ -26,6 +26,7 @@ export const DEFAULT_BITRATE = 500000;
 /** Command IDs. */
 export const Commands = {
   OPEN_DATABASE: `${EXTENSION_ID}.openDatabase`,
+  OPEN_SIGNAL_LAB: `${EXTENSION_ID}.openSignalLab`,
   CONNECT_BUS: `${EXTENSION_ID}.connectBus`,
   DISCONNECT_BUS: `${EXTENSION_ID}.disconnectBus`,
   START_MONITOR: `${EXTENSION_ID}.startMonitor`,

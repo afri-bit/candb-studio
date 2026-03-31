@@ -12,7 +12,8 @@
   ],
   "activationEvents": [
     "onLanguage:dbc",
-    "onCustomEditor:vscode-canbus.canDatabaseEditor"
+    "onCustomEditor:vscode-canbus.canDatabaseEditor",
+    "onCommand:vscode-canbus.openSignalLab"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -68,6 +69,11 @@
       {
         "command": "vscode-canbus.openDatabase",
         "title": "Open CAN Database",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.openSignalLab",
+        "title": "Open CAN Signal Lab",
         "category": "CAN Bus"
       },
       {
