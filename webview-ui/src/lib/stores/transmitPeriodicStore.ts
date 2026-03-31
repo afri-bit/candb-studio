@@ -31,6 +31,13 @@ function createTransmitPeriodicStore() {
             });
         },
 
+        updateInterval(messageId: number, intervalMs: number) {
+            update((s) => {
+                if (!(messageId in s.intervals)) return s;
+                return { intervals: { ...s.intervals, [messageId]: intervalMs } };
+            });
+        },
+
         stopAll() {
             set({ intervals: {} });
         },

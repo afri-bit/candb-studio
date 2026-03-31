@@ -58,4 +58,44 @@ export class TransmitService implements ICanBusTransmitter {
       this.stopPeriodic(id);
     }
   }
+
+  /**
+   * Replace the payload of an active periodic task so the next tick (and following) use new bytes.
+   * Task id matches `periodic-${messageId}` from {@link startPeriodic}.
+   */
+  updatePeriodicPayload(messageId: number, data: number[]): boolean {
+    const taskId = `periodic-${messageId}`;
+    const entry = this.tasks.get(taskId);
+    if (!entry) {
+      return false;
+    }
+    entry.task.frame.data = new Uint8Array(data);
+    entry.task.frame.dlc = data.length;
+    return true;
+  }
+
+  /**
+   * Reschedule an active periodic task at a new interval without stopping the task or changing payload.
+   */
+  updatePeriodicInterval(messageId: number, intervalMs: number): boolean {
+    const taskId = `periodic-${messageId}`;
+    const entry = this.tasks.get(taskId);
+    if (!entry) {
+      return false;
+    }
+    const ms = Math.max(1, Math.round(intervalMs));
+    Logger.info(`Transmit: rescheduling periodic task ${taskId} (interval=${ms}ms)`);
+    clearInterval(entry.timer);
+    entry.task.intervalMs = ms;
+    const timer = setInterval(async () => {
+      try {
+        await this.adapter.send(entry.task.frame);
+      } catch (error) {
+        Logger.error(`Transmit: periodic send failed for task ${taskId}`, error);
+        this.stopPeriodic(taskId);
+      }
+    }, ms);
+    entry.timer = timer;
+    return true;
+  }
 }

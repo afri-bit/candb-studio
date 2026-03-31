@@ -16,6 +16,10 @@ export type WebviewToExtensionMessage =
   | { type: 'transmit.send'; messageId: number; data: number[] }
   | { type: 'transmit.startPeriodic'; messageId: number; data: number[]; intervalMs: number }
   | { type: 'transmit.stopPeriodic'; messageId: number }
+  /** Signal Lab: update payload of a running periodic task without restarting the timer. */
+  | { type: 'transmit.updatePeriodicPayload'; messageId: number; data: number[] }
+  /** Signal Lab: change repeat interval of a running periodic task without stop/start. */
+  | { type: 'transmit.updatePeriodicInterval'; messageId: number; intervalMs: number }
   | {
       type: 'updateMessage';
       payload: { documentUri: string; messageId: number; changes: Record<string, unknown> };

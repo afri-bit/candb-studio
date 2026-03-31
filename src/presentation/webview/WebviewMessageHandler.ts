@@ -292,6 +292,16 @@ export class WebviewMessageHandler {
         break;
       }
 
+      case 'transmit.updatePeriodicPayload': {
+        this.transmitService?.updatePeriodicPayload(message.messageId, message.data);
+        break;
+      }
+
+      case 'transmit.updatePeriodicInterval': {
+        this.transmitService?.updatePeriodicInterval(message.messageId, message.intervalMs);
+        break;
+      }
+
       case 'startMonitor':
         this.monitorService?.start();
         break;

@@ -127,5 +127,7 @@ export type WebviewOutboundMessage =
     | { type: 'transmit.send'; messageId: number; data: number[] }
     | { type: 'transmit.startPeriodic'; messageId: number; data: number[]; intervalMs: number }
     | { type: 'transmit.stopPeriodic'; messageId: number }
+    | { type: 'transmit.updatePeriodicPayload'; messageId: number; data: number[] }
+    | { type: 'transmit.updatePeriodicInterval'; messageId: number; intervalMs: number }
     | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
     | { type: 'signalLab.openDatabase' };
