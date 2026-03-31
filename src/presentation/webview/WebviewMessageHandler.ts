@@ -103,9 +103,12 @@ export class WebviewMessageHandler {
         this.sendDatabaseToWebviewForUri(documentUri);
         break;
 
-      case 'saveDocument':
-        await vscode.workspace.save(vscode.Uri.parse(message.documentUri));
+      case 'saveDocument': {
+        const saveUri = message.documentUri;
+        await this.persistEditorDocument(saveUri);
+        await vscode.workspace.save(vscode.Uri.parse(saveUri));
         break;
+      }
 
       case 'openTextEditorView':
         try {
@@ -187,9 +190,11 @@ export class WebviewMessageHandler {
       }
 
       case 'linkSignalToMessage': {
-        const { documentUri: u, messageId, signalName } = message.payload;
+        const { documentUri: u, messageId, signalName, startBit } = message.payload;
         try {
-          this.databaseService.linkSignalToMessage(u, messageId, signalName);
+          this.databaseService.linkSignalToMessage(u, messageId, signalName, {
+            startBit: typeof startBit === 'number' ? startBit : undefined,
+          });
           await this.persistEditorDocument(u);
         } catch (e) {
           Logger.error('linkSignalToMessage failed', e);
@@ -259,6 +264,17 @@ export class WebviewMessageHandler {
           await this.persistEditorDocument(u);
         } catch (e) {
           Logger.error('updateAttribute failed', e);
+        }
+        break;
+      }
+
+      case 'addAttributeDefinition': {
+        const { documentUri: u } = message.payload;
+        try {
+          this.databaseService.addAttributeDefinition(u);
+          await this.persistEditorDocument(u);
+        } catch (e) {
+          Logger.error('addAttributeDefinition failed', e);
         }
         break;
       }

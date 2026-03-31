@@ -2,7 +2,10 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
 import { DbcParser } from '../../../../src/infrastructure/parsers/dbc/DbcParser';
+import { DbcSerializer } from '../../../../src/infrastructure/parsers/dbc/DbcSerializer';
 import { ParseError } from '../../../../src/shared/errors/ParseError';
+import { ObjectType } from '../../../../src/core/enums/ObjectType';
+import { AttributeValueType } from '../../../../src/core/enums/AttributeValueType';
 
 const FIXTURES_DIR = path.join(__dirname, '../../../fixtures');
 
@@ -150,6 +153,53 @@ suite('DbcParser', () => {
     test('returns empty database for whitespace-only input', () => {
       const db = parser.parse('   \n   \n');
       assert.strictEqual(db.messages.length, 0);
+    });
+  });
+
+  suite('parse — BA_DEF_ / BA_DEF_DEF_', () => {
+    test('parses INT attribute definition and default', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'BU_: N1',
+        '',
+        'BA_DEF_ BO_ "MyAttr" INT 0 100;',
+        'BA_DEF_DEF_ "MyAttr" 42;',
+        '',
+        'BO_ 1 M: 8 N1',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.attributeDefinitions.length, 1);
+      const ad = db.attributeDefinitions[0];
+      assert.strictEqual(ad.name, 'MyAttr');
+      assert.strictEqual(ad.objectType, ObjectType.Message);
+      assert.strictEqual(ad.valueType, AttributeValueType.Integer);
+      assert.strictEqual(ad.minimum, 0);
+      assert.strictEqual(ad.maximum, 100);
+      assert.strictEqual(ad.defaultValue, 42);
+    });
+
+    test('round-trips attribute definitions through DbcSerializer', () => {
+      const serializer = new DbcSerializer();
+      const dbc = [
+        'VERSION ""',
+        '',
+        'BU_: N1',
+        '',
+        'BA_DEF_ BO_ "Cycle" INT 0 65535;',
+        'BA_DEF_DEF_ "Cycle" 100;',
+        '',
+        'BO_ 1 M: 8 N1',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      const text = serializer.serialize(db);
+      const db2 = parser.parse(text);
+      assert.strictEqual(db2.attributeDefinitions.length, 1);
+      const a = db2.findAttributeDefinition('Cycle')!;
+      assert.strictEqual(a.defaultValue, 100);
+      assert.strictEqual(a.objectType, ObjectType.Message);
     });
   });
 

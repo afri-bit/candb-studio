@@ -16,6 +16,8 @@ export class AttributeDefinition {
   public maximum?: number;
   public defaultValue: string | number;
   public enumValues?: string[];
+  /** Optional documentation (not written to DBC until CM_ / BA_DEF_ comment support is added). */
+  public comment: string;
 
   constructor(params: {
     name: string;
@@ -25,6 +27,7 @@ export class AttributeDefinition {
     maximum?: number;
     defaultValue: string | number;
     enumValues?: string[];
+    comment?: string;
   }) {
     this.name = params.name;
     this.objectType = params.objectType;
@@ -33,6 +36,7 @@ export class AttributeDefinition {
     this.maximum = params.maximum;
     this.defaultValue = params.defaultValue;
     this.enumValues = params.enumValues;
+    this.comment = params.comment ?? '';
   }
 
   /** Whether the value is constrained by a numeric range. */

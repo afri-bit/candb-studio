@@ -135,6 +135,13 @@ export class CanDatabase {
     return this.attributeDefinitions.find(ad => ad.name === name);
   }
 
+  addAttributeDefinition(def: AttributeDefinition): void {
+    if (this.findAttributeDefinition(def.name)) {
+      throw new Error(`Attribute definition "${def.name}" already exists`);
+    }
+    this.attributeDefinitions.push(def);
+  }
+
   /* ── Environment Variable operations ───────────────────── */
 
   findEnvironmentVariable(name: string): EnvironmentVariable | undefined {

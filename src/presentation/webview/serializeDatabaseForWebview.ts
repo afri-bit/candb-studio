@@ -187,7 +187,7 @@ function serializeAttributeDefinition(def: AttributeDefinition): SerializedAttri
     maximum: def.maximum,
     defaultValue: def.defaultValue,
     values: def.enumValues,
-    comment: '',
+    comment: def.comment ?? '',
   };
 }
 

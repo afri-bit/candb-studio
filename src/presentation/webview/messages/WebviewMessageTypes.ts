@@ -26,7 +26,7 @@ export type WebviewToExtensionMessage =
     }
   | {
       type: 'linkSignalToMessage';
-      payload: { documentUri: string; messageId: number; signalName: string };
+      payload: { documentUri: string; messageId: number; signalName: string; startBit?: number };
     }
   | { type: 'addPoolSignal'; payload: { documentUri: string; signal: Record<string, unknown> } }
   | { type: 'removePoolSignal'; payload: { documentUri: string; signalName: string } }
@@ -44,6 +44,7 @@ export type WebviewToExtensionMessage =
       type: 'updateAttribute';
       payload: { documentUri: string; index: number; changes: Record<string, unknown> };
     }
+  | { type: 'addAttributeDefinition'; payload: { documentUri: string } }
   | {
       type: 'addValueTable';
       payload: {

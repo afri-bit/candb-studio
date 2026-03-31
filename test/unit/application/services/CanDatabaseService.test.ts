@@ -10,6 +10,8 @@ import type { ICanDatabaseRepository } from '../../../../src/core/interfaces/dat
 import type { IValidationService } from '../../../../src/core/interfaces/database/IValidationService';
 import { DiagnosticSeverity } from '../../../../src/core/types';
 import type { DiagnosticItem } from '../../../../src/core/types';
+import { ObjectType } from '../../../../src/core/enums/ObjectType';
+import { AttributeValueType } from '../../../../src/core/enums/AttributeValueType';
 
 /** Minimal in-memory repository stub. */
 function makeRepository(initial?: CanDatabase): ICanDatabaseRepository {
@@ -191,6 +193,122 @@ suite('CanDatabaseService', () => {
       service.addMessage(new Message({ id: 0x200, name: 'M2', dlc: 8 }));
       service.updateMessage(uri, 0x200, { transmitter: 'Existing' });
       assert.strictEqual(service.getDatabase()!.nodes.filter((n) => n.name === 'Existing').length, 1);
+    });
+  });
+
+  suite('updatePoolSignal', () => {
+    test('propagates layout fields to every message ref for that signal', async () => {
+      await service.load('/fake/path.dbc');
+      const uri = vscode.Uri.file('/fake/path.dbc').toString();
+      const poolInput = {
+        name: 'S1',
+        startBit: 0,
+        bitLength: 8,
+        byteOrder: 'little_endian' as const,
+        isSigned: false,
+        factor: 1,
+        offset: 0,
+        minimum: 0,
+        maximum: 255,
+        unit: '',
+        receivers: [] as string[],
+        valueType: 'integer' as const,
+        multiplex: 'none' as const,
+        comment: '',
+        valueDescriptions: {} as Record<number, string>,
+        valueTableName: '',
+      };
+      service.addPoolSignal(uri, poolInput);
+      service.addMessage(new Message({ id: 0x100, name: 'M1', dlc: 8 }));
+      service.addMessage(new Message({ id: 0x200, name: 'M2', dlc: 8 }));
+      service.linkSignalToMessage(uri, 0x100, 'S1');
+      service.linkSignalToMessage(uri, 0x200, 'S1');
+      service.updateSignal(uri, 0x100, 'S1', { startBit: 10 });
+      const db = service.getDatabase()!;
+      assert.strictEqual(db.findMessageById(0x100)!.findSignalRefByName('S1')!.startBit, 10);
+      assert.strictEqual(db.findPoolSignalByName('S1')!.startBit, 0);
+      service.updatePoolSignal(uri, 'S1', { startBit: 4, bitLength: 16 });
+      assert.strictEqual(db.findPoolSignalByName('S1')!.startBit, 4);
+      assert.strictEqual(db.findPoolSignalByName('S1')!.bitLength, 16);
+      assert.strictEqual(db.findMessageById(0x100)!.findSignalRefByName('S1')!.startBit, 4);
+      assert.strictEqual(db.findMessageById(0x200)!.findSignalRefByName('S1')!.startBit, 4);
+      assert.strictEqual(db.findMessageById(0x100)!.findSignalRefByName('S1')!.bitLength, 16);
+    });
+
+    test('linkSignalToMessage accepts optional startBit for frame placement', async () => {
+      await service.load('/fake/path.dbc');
+      const uri = vscode.Uri.file('/fake/path.dbc').toString();
+      const poolInput = {
+        name: 'S2',
+        startBit: 0,
+        bitLength: 8,
+        byteOrder: 'little_endian' as const,
+        isSigned: false,
+        factor: 1,
+        offset: 0,
+        minimum: 0,
+        maximum: 255,
+        unit: '',
+        receivers: [] as string[],
+        valueType: 'integer' as const,
+        multiplex: 'none' as const,
+        comment: '',
+        valueDescriptions: {} as Record<number, string>,
+        valueTableName: '',
+      };
+      service.addPoolSignal(uri, poolInput);
+      service.addMessage(new Message({ id: 0x300, name: 'M3', dlc: 8 }));
+      service.linkSignalToMessage(uri, 0x300, 'S2', { startBit: 15 });
+      const ref = service.getDatabase()!.findMessageById(0x300)!.findSignalRefByName('S2')!;
+      assert.strictEqual(ref.startBit, 15);
+      assert.strictEqual(ref.bitLength, 8);
+    });
+
+    test('applies receivers from comma-separated string', async () => {
+      await service.load('/fake/path.dbc');
+      const uri = vscode.Uri.file('/fake/path.dbc').toString();
+      service.addPoolSignal(uri, {
+        name: 'R1',
+        startBit: 0,
+        bitLength: 8,
+        byteOrder: 'little_endian',
+        isSigned: false,
+        factor: 1,
+        offset: 0,
+        minimum: 0,
+        maximum: 255,
+        unit: '',
+        receivers: [],
+        valueType: 'integer',
+        multiplex: 'none',
+        comment: '',
+        valueDescriptions: {},
+        valueTableName: '',
+      });
+      service.updatePoolSignal(uri, 'R1', { receivers: 'ECU_A, ECU_B' });
+      const recv = service.getDatabase()!.findPoolSignalByName('R1')!.receivingNodes;
+      assert.deepStrictEqual(recv, ['ECU_A', 'ECU_B']);
+    });
+  });
+
+  suite('addAttributeDefinition', () => {
+    test('appends unique New_AttrDef_n definitions with defaults', async () => {
+      await service.load('/fake/path.dbc');
+      const uri = vscode.Uri.file('/fake/path.dbc').toString();
+      service.addAttributeDefinition(uri);
+      const db = service.getDatabase()!;
+      assert.strictEqual(db.attributeDefinitions.length, 1);
+      const a0 = db.attributeDefinitions[0];
+      assert.strictEqual(a0.name, 'New_AttrDef_0');
+      assert.strictEqual(a0.objectType, ObjectType.Message);
+      assert.strictEqual(a0.valueType, AttributeValueType.Integer);
+      assert.strictEqual(a0.defaultValue, 0);
+      assert.strictEqual(a0.minimum, 0);
+      assert.strictEqual(a0.maximum, 0);
+
+      service.addAttributeDefinition(uri);
+      assert.strictEqual(db.attributeDefinitions.length, 2);
+      assert.strictEqual(db.attributeDefinitions[1].name, 'New_AttrDef_1');
     });
   });
 });

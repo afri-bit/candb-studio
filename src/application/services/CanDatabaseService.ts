@@ -11,6 +11,9 @@ import type { DiagnosticItem } from '../../core/types';
 import { ByteOrder } from '../../core/enums/ByteOrder';
 import { SignalValueType } from '../../core/enums/SignalValueType';
 import { MultiplexIndicator } from '../../core/enums/MultiplexIndicator';
+import { ObjectType } from '../../core/enums/ObjectType';
+import { AttributeValueType } from '../../core/enums/AttributeValueType';
+import { AttributeDefinition } from '../../core/models/database/AttributeDefinition';
 import { EventBus } from '../../shared/events/EventBus';
 import { Logger } from '../../shared/utils/Logger';
 import {
@@ -283,8 +286,16 @@ export class CanDatabaseService {
     this.eventBus.emit('database:changed', { database: db, uri });
   }
 
-  /** Link an existing pool signal to a message (placement defaults come from the pool definition). */
-  linkSignalToMessage(uri: string, messageId: number, signalName: string): void {
+  /**
+   * Link an existing pool signal to a message.
+   * Bit length and byte order always come from the pool definition; optional `startBit` overrides placement for this frame only.
+   */
+  linkSignalToMessage(
+    uri: string,
+    messageId: number,
+    signalName: string,
+    options?: { startBit?: number },
+  ): void {
     const db = this.requireDatabase(uri);
     const msg = db.findMessageById(messageId);
     if (!msg) {
@@ -297,9 +308,11 @@ export class CanDatabaseService {
     if (msg.findSignalRefByName(signalName)) {
       throw new Error(`Message already references "${signalName}"`);
     }
+    const startBit =
+      options?.startBit !== undefined ? Math.floor(options.startBit) : def.startBit;
     msg.addSignalRef({
       signalName: def.name,
-      startBit: def.startBit,
+      startBit,
       bitLength: def.bitLength,
       byteOrder: def.byteOrder,
     });
@@ -404,10 +417,34 @@ export class CanDatabaseService {
     }
     const rest = { ...changes };
     delete rest.name;
+    const layoutKeys = ['startBit', 'bitLength', 'byteOrder'] as const;
+    const shouldSyncLayout = layoutKeys.some((k) => k in rest);
     if (Object.keys(rest).length > 0) {
       this.applySignalChanges(poolSig, rest);
     }
+    if (shouldSyncLayout) {
+      this.syncPoolLayoutToAllRefs(db, poolSig.name);
+    }
     this.eventBus.emit('database:changed', { database: db, uri });
+  }
+
+  /**
+   * When the pool signal's layout fields change, push the same placement to every
+   * message that references this signal so the pool editor and frames stay aligned.
+   */
+  private syncPoolLayoutToAllRefs(db: CanDatabase, signalName: string): void {
+    const poolSig = db.findPoolSignalByName(signalName);
+    if (!poolSig) {
+      return;
+    }
+    for (const m of db.messages) {
+      const r = m.findSignalRefByName(signalName);
+      if (r) {
+        r.startBit = poolSig.startBit;
+        r.bitLength = poolSig.bitLength;
+        r.byteOrder = poolSig.byteOrder;
+      }
+    }
   }
 
   /** Unlink a signal from a message (pool definition is kept). */
@@ -494,6 +531,34 @@ export class CanDatabaseService {
     }
     patchAttributeDefinition(def, changes);
     this.eventBus.emit('database:changed', { database: db, uri });
+  }
+
+  /** Append a new attribute definition (BA_DEF_) with a unique default name. */
+  addAttributeDefinition(uri: string): void {
+    const db = this.requireDatabase(uri);
+    const name = this.uniqueAttributeDefinitionName(db);
+    const def = new AttributeDefinition({
+      name,
+      objectType: ObjectType.Message,
+      valueType: AttributeValueType.Integer,
+      minimum: 0,
+      maximum: 0,
+      defaultValue: 0,
+      comment: '',
+    });
+    db.addAttributeDefinition(def);
+    this.eventBus.emit('database:changed', { database: db, uri });
+  }
+
+  private uniqueAttributeDefinitionName(db: CanDatabase): string {
+    const prefix = 'New_AttrDef_';
+    for (let i = 0; i < 10_000; i++) {
+      const candidate = `${prefix}${i}`;
+      if (!db.findAttributeDefinition(candidate)) {
+        return candidate;
+      }
+    }
+    throw new Error('Could not allocate a unique attribute definition name');
   }
 
   private uniqueSignalNameInMessage(msg: Message, base: string): string {
@@ -605,6 +670,17 @@ export class CanDatabaseService {
         vd.set(Number(k), val);
       });
       signal.valueDescriptions = vd;
+    }
+    if ('receivers' in changes) {
+      const r = changes.receivers;
+      if (Array.isArray(r)) {
+        signal.receivingNodes = r.map((x) => String(x).trim()).filter(Boolean);
+      } else if (typeof r === 'string') {
+        signal.receivingNodes = r
+          .split(/[,\n]+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
     }
   }
 

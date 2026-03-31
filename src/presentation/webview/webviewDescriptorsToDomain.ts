@@ -106,4 +106,7 @@ export function patchAttributeDefinition(
   if ('defaultValue' in changes) {
     def.defaultValue = changes.defaultValue as string | number;
   }
+  if ('comment' in changes && typeof changes.comment === 'string') {
+    def.comment = changes.comment;
+  }
 }

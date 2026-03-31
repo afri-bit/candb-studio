@@ -8,6 +8,9 @@ import { ParseError } from '../../../shared/errors/ParseError';
 import { DbcTokenizer } from './DbcTokenizer';
 import { parseOrphanSignalsFromDbcContent } from '../../../presentation/webview/orphanSignalBlob';
 import { ValueTable } from '../../../core/models/database/ValueTable';
+import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
+import { ObjectType } from '../../../core/enums/ObjectType';
+import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 
 /** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line. */
 export function parseDbcValuePairs(s: string): Map<number, string> {
@@ -90,8 +93,12 @@ export class DbcParser implements ICanDatabaseParser {
         this.parseValTableLine(line, database);
       } else if (line.startsWith('VAL_ ')) {
         this.parseValLine(line, database);
+      } else if (line.startsWith('BA_DEF_DEF_')) {
+        this.parseBaDefDef(line, database);
+      } else if (line.startsWith('BA_DEF_')) {
+        this.parseBaDef(line, database);
       }
-      // TODO: Parse CM_, BA_DEF_, BA_DEF_DEF_, BA_, EV_, SIG_GROUP_
+      // TODO: Parse CM_, BA_, EV_, SIG_GROUP_
     }
   }
 
@@ -154,6 +161,120 @@ export class DbcParser implements ICanDatabaseParser {
     const match = line.match(/VERSION\s+"([^"]*)"/);
     if (match) {
       database.version = match[1];
+    }
+  }
+
+  private parseBaDef(line: string, database: CanDatabase): void {
+    const m = line.match(
+      /^BA_DEF_\s+(BU_|BO_|SG_|EV_)\s+"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
+    );
+    if (!m) {
+      return;
+    }
+    const prefix = m[1];
+    const name = m[2];
+    const vtToken = m[3].toUpperCase();
+    const tail = (m[4] ?? '').trim();
+
+    if (database.findAttributeDefinition(name)) {
+      return;
+    }
+
+    const objectType = this.baDefPrefixToObjectType(prefix);
+    const valueType = this.tokenToAttributeValueType(vtToken);
+    let minimum: number | undefined;
+    let maximum: number | undefined;
+    let enumValues: string[] | undefined;
+
+    if (
+      valueType === AttributeValueType.Integer ||
+      valueType === AttributeValueType.Float ||
+      valueType === AttributeValueType.Hex
+    ) {
+      const nums = tail.split(/\s+/).filter(Boolean).map((x) => parseFloat(x));
+      minimum = nums[0] ?? 0;
+      maximum = nums[1] ?? 0;
+    } else if (valueType === AttributeValueType.Enum) {
+      enumValues = [];
+      const re = /"((?:[^"\\]|\\.)*)"/g;
+      let em;
+      while ((em = re.exec(tail)) !== null) {
+        enumValues.push(unescapeDbcQuotedString(em[1]));
+      }
+    }
+
+    const def = new AttributeDefinition({
+      name,
+      objectType,
+      valueType,
+      minimum,
+      maximum,
+      defaultValue: valueType === AttributeValueType.String || valueType === AttributeValueType.Enum ? '' : 0,
+      enumValues,
+      comment: '',
+    });
+    database.addAttributeDefinition(def);
+  }
+
+  private parseBaDefDef(line: string, database: CanDatabase): void {
+    let m = line.match(/^BA_DEF_DEF_\s+"([^"]+)"\s+(.+?)\s*;$/);
+    if (!m) {
+      m = line.match(/^BA_DEF_DEF_\s+(\S+)\s+(.+?)\s*;$/);
+    }
+    if (!m) {
+      return;
+    }
+    const name = m[1];
+    const raw = m[2].trim();
+    const def = database.findAttributeDefinition(name);
+    if (!def) {
+      return;
+    }
+    def.defaultValue = this.parseAttributeDefaultRaw(raw, def.valueType);
+  }
+
+  private parseAttributeDefaultRaw(raw: string, vt: AttributeValueType): string | number {
+    if (raw.startsWith('"')) {
+      return unescapeDbcQuotedString(raw.slice(1, -1));
+    }
+    if (vt === AttributeValueType.Float) {
+      return parseFloat(raw);
+    }
+    if (vt === AttributeValueType.String || vt === AttributeValueType.Enum) {
+      return raw;
+    }
+    return parseInt(raw, 10);
+  }
+
+  private baDefPrefixToObjectType(prefix: string): ObjectType {
+    switch (prefix) {
+      case 'BU_':
+        return ObjectType.Node;
+      case 'BO_':
+        return ObjectType.Message;
+      case 'SG_':
+        return ObjectType.Signal;
+      case 'EV_':
+        return ObjectType.EnvironmentVariable;
+      default:
+        return ObjectType.Message;
+    }
+  }
+
+  private tokenToAttributeValueType(token: string): AttributeValueType {
+    switch (token) {
+      case 'INT':
+        return AttributeValueType.Integer;
+      case 'FLOAT':
+        return AttributeValueType.Float;
+      case 'STRING':
+        return AttributeValueType.String;
+      case 'ENUM':
+        return AttributeValueType.Enum;
+      case 'HEX':
+        return AttributeValueType.Hex;
+      default:
+        return AttributeValueType.Integer;
     }
   }
 
