@@ -1,0 +1,265 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "DBC",
+    "scopeName": "source.dbc",
+    "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#version" },
+        { "include": "#keywords" },
+        { "include": "#message-definition" },
+        { "include": "#signal-definition" },
+        { "include": "#node-definition" },
+        { "include": "#attribute-definition" },
+        { "include": "#attribute-default" },
+        { "include": "#attribute-value" },
+        { "include": "#value-description" },
+        { "include": "#comment-definition" },
+        { "include": "#environment-variable" },
+        { "include": "#signal-group" },
+        { "include": "#signal-valtype" },
+        { "include": "#message-transmitters" },
+        { "include": "#multiplex-value" },
+        { "include": "#numbers" },
+        { "include": "#identifiers" }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.dbc",
+                    "match": "//.*$"
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double.dbc",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.dbc",
+                            "match": "\\\\."
+                        }
+                    ]
+                }
+            ]
+        },
+        "version": {
+            "patterns": [
+                {
+                    "match": "^\\s*(VERSION)\\s*",
+                    "captures": {
+                        "1": { "name": "keyword.control.version.dbc" }
+                    }
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.dbc",
+                    "match": "\\b(NS_|BS_|NS_DESC_|ENVVAR_DATA_|SGTYPE_|SGTYPE_VAL_|BA_SGTYPE_|SIG_TYPE_REF_|FILTER)\\b"
+                }
+            ]
+        },
+        "message-definition": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BO_)\\s+(\\d+)\\s+([A-Za-z_]\\w*)\\s*:\\s*(\\d+)\\s+([A-Za-z_]\\w*)",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.message.dbc" },
+                        "2": { "name": "constant.numeric.message-id.dbc" },
+                        "3": { "name": "entity.name.type.message.dbc" },
+                        "4": { "name": "constant.numeric.dlc.dbc" },
+                        "5": { "name": "entity.name.tag.transmitter.dbc" }
+                    }
+                }
+            ]
+        },
+        "signal-definition": {
+            "patterns": [
+                {
+                    "match": "^\\s*(SG_)\\s+([A-Za-z_]\\w*)\\s*(M|m\\d+)?\\s*:\\s*(\\d+)\\|(\\d+)@([01])([+-])",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.signal.dbc" },
+                        "2": { "name": "entity.name.function.signal.dbc" },
+                        "3": { "name": "storage.modifier.multiplex.dbc" },
+                        "4": { "name": "constant.numeric.start-bit.dbc" },
+                        "5": { "name": "constant.numeric.bit-length.dbc" },
+                        "6": { "name": "constant.numeric.byte-order.dbc" },
+                        "7": { "name": "storage.modifier.sign.dbc" }
+                    }
+                },
+                {
+                    "comment": "Signal scaling (factor,offset) [min|max]",
+                    "match": "\\(([\\d.eE+-]+),([\\d.eE+-]+)\\)\\s*\\[([\\d.eE+-]+)\\|([\\d.eE+-]+)\\]",
+                    "captures": {
+                        "1": { "name": "constant.numeric.factor.dbc" },
+                        "2": { "name": "constant.numeric.offset.dbc" },
+                        "3": { "name": "constant.numeric.min.dbc" },
+                        "4": { "name": "constant.numeric.max.dbc" }
+                    }
+                }
+            ]
+        },
+        "node-definition": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BU_)\\s*:",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.node.dbc" }
+                    }
+                }
+            ]
+        },
+        "attribute-definition": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BA_DEF_)\\s+(SG_|BO_|BU_|EV_)?\\s*",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.attribute-def.dbc" },
+                        "2": { "name": "storage.type.object-type.dbc" }
+                    }
+                },
+                {
+                    "name": "storage.type.attribute-type.dbc",
+                    "match": "\\b(INT|HEX|FLOAT|STRING|ENUM)\\b"
+                }
+            ]
+        },
+        "attribute-default": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BA_DEF_DEF_)\\s*",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.attribute-default.dbc" }
+                    }
+                }
+            ]
+        },
+        "attribute-value": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BA_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.attribute-value.dbc" }
+                    }
+                },
+                {
+                    "match": "^\\s*(BA_REL_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.attribute-rel-value.dbc" }
+                    }
+                }
+            ]
+        },
+        "value-description": {
+            "patterns": [
+                {
+                    "match": "^\\s*(VAL_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.value-description.dbc" }
+                    }
+                },
+                {
+                    "match": "^\\s*(VAL_TABLE_)\\s+([A-Za-z_]\\w*)",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.value-table.dbc" },
+                        "2": { "name": "entity.name.type.value-table.dbc" }
+                    }
+                }
+            ]
+        },
+        "comment-definition": {
+            "patterns": [
+                {
+                    "match": "^\\s*(CM_)\\s+(SG_|BO_|BU_|EV_)?\\s*",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.comment.dbc" },
+                        "2": { "name": "storage.type.object-type.dbc" }
+                    }
+                }
+            ]
+        },
+        "environment-variable": {
+            "patterns": [
+                {
+                    "match": "^\\s*(EV_)\\s+([A-Za-z_]\\w*)",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.env-variable.dbc" },
+                        "2": { "name": "entity.name.type.env-variable.dbc" }
+                    }
+                }
+            ]
+        },
+        "signal-group": {
+            "patterns": [
+                {
+                    "match": "^\\s*(SIG_GROUP_)\\s+(\\d+)\\s+([A-Za-z_]\\w*)",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.signal-group.dbc" },
+                        "2": { "name": "constant.numeric.message-id.dbc" },
+                        "3": { "name": "entity.name.type.signal-group.dbc" }
+                    }
+                }
+            ]
+        },
+        "signal-valtype": {
+            "patterns": [
+                {
+                    "match": "^\\s*(SIG_VALTYPE_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.signal-valtype.dbc" }
+                    }
+                }
+            ]
+        },
+        "message-transmitters": {
+            "patterns": [
+                {
+                    "match": "^\\s*(BO_TX_BU_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.message-transmitters.dbc" }
+                    }
+                }
+            ]
+        },
+        "multiplex-value": {
+            "patterns": [
+                {
+                    "match": "^\\s*(SG_MUL_VAL_)\\s+",
+                    "captures": {
+                        "1": { "name": "keyword.declaration.multiplex-value.dbc" }
+                    }
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.hex.dbc",
+                    "match": "\\b0[xX][0-9A-Fa-f]+\\b"
+                },
+                {
+                    "name": "constant.numeric.float.dbc",
+                    "match": "[+-]?\\d+\\.\\d+([eE][+-]?\\d+)?"
+                },
+                {
+                    "name": "constant.numeric.integer.dbc",
+                    "match": "[+-]?\\b\\d+\\b"
+                }
+            ]
+        },
+        "identifiers": {
+            "patterns": [
+                {
+                    "name": "variable.other.dbc",
+                    "match": "\\b[A-Za-z_]\\w*\\b"
+                }
+            ]
+        }
+    }
+}
