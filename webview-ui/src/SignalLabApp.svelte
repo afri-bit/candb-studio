@@ -1,7 +1,6 @@
 <script lang="ts">
     /**
-     * Singleton Signal Lab: live monitor, transmit, and active DBC for decode.
-     * (Charts are planned; see docs/ARCHITECTURE.md — Signal Lab graphs.)
+     * Singleton Signal Lab: live monitor, transmit, charts, and active DBC for decode.
      */
     import { vscode } from './lib/vscode';
     import { databaseStore } from './lib/stores/databaseStore';
@@ -9,8 +8,10 @@
     import { connectionStore } from './lib/stores/connectionStore';
     import { monitorStore } from './lib/stores/monitorStore';
     import { transmitPeriodicStore } from './lib/stores/transmitPeriodicStore';
+    import { signalChartStore } from './lib/stores/signalChartStore';
     import MonitorPanel from './lib/components/bus/MonitorPanel.svelte';
     import TransmitPanel from './lib/components/bus/TransmitPanel.svelte';
+    import SignalChartPanel from './lib/components/bus/SignalChartPanel.svelte';
     import type { WebviewInboundMessage } from './lib/types';
 
     const INTRO_STORAGE_KEY = 'vscode-canbus.signalLab.introDismissed';
@@ -75,6 +76,11 @@
         showIntro = !readIntroDismissed();
     });
 
+    /** Charts tab: pause ring-buffer ingest so high-rate traffic does not cost CPU when not visible. */
+    $effect(() => {
+        signalChartStore.setIngestPaused(activeTab !== 'charts');
+    });
+
     $effect(() => {
         const handler = (event: MessageEvent<WebviewInboundMessage>) => {
             const message = event.data;
@@ -89,9 +95,11 @@
                     break;
                 case 'monitor.frame':
                     monitorStore.addFrame(message.frame);
+                    signalChartStore.appendFromFrame(message.frame);
                     break;
                 case 'monitor.clear':
                     monitorStore.clear();
+                    signalChartStore.clear();
                     break;
                 case 'connection.stateChanged':
                     connectionStore.setState(message.state, message.adapterType);
@@ -195,13 +203,8 @@
                 <TransmitPanel messages={$databaseStore.messages} />
             </div>
         {:else}
-            <div class="charts-placeholder" role="region" aria-label="Charts coming soon">
-                <h2 class="charts-title">Charts</h2>
-                <p>
-                    Signal plotting is not implemented yet. The plan is ring buffers per signal (timestamp + value), UI updates
-                    throttled to about 10–30&nbsp;Hz, and a lightweight chart library in this bundle so the editor host is not
-                    flooded. See <code>docs/ARCHITECTURE.md</code> (Signal Lab graphs).
-                </p>
+            <div class="lab-panel charts-panel">
+                <SignalChartPanel messages={$databaseStore.messages} />
             </div>
         {/if}
     </div>
@@ -419,33 +422,6 @@
         margin: 0;
         font-size: 0.82em;
         color: var(--vscode-descriptionForeground);
-    }
-
-    .charts-placeholder {
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
-        padding: 16px;
-        border: 1px solid var(--vscode-widget-border, #444);
-        border-radius: 6px;
-        background: var(--vscode-editor-background);
-    }
-
-    .charts-title {
-        margin: 0 0 10px 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .charts-placeholder p {
-        margin: 0;
-        line-height: 1.5;
-        color: var(--vscode-descriptionForeground);
-        font-size: 0.92em;
-    }
-
-    .charts-placeholder code {
-        font-size: 0.95em;
     }
 
     .lab-tabs {

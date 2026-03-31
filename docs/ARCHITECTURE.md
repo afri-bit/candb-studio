@@ -125,13 +125,14 @@ In the **DBC custom editor**, the **Architecture** tab (`ArchitectureView.svelte
 
 Bus traffic is posted to the Signal Lab webview only (not broadcast to every custom editor), to avoid duplicate work when multiple `.dbc` tabs are open.
 
-### Signal Lab graphs (future)
+### Signal Lab graphs
 
-Charts are not implemented yet. The intended approach:
+Charts are implemented in the **Signal Lab** webview **Charts** tab:
 
-- **Data**: Reuse decoded signal values from the same pipeline as Monitor (`bus:messageDecoded` / `monitor.frame` shape). In the webview, maintain **ring buffers per signal** (timestamp + physical value) with a **maximum length** so memory stays bounded.
-- **UI throttle**: Update the chart layer at roughly **10–30 Hz** (requestAnimationFrame or a timer), not on every decoded frame, so `postMessage` and DOM work stay smooth.
-- **Library**: Prefer a **lightweight** chart (for example uPlot) in the Signal Lab bundle; avoid heavy dependencies in the extension host.
+- **Data**: The same decoded traffic as Monitor (`monitor.frame` → `DecodedFrameDescriptor`). The webview keeps **ring buffers per selected signal** (Unix ms on X, physical value on Y), keyed by `${frameId}:${signalName}`, with a **fixed cap** per series (`MAX_CHART_POINTS` in `signalChartStore`) so memory stays bounded. Ingestion runs only for **checked** signals (not for every decoded field).
+- **UI throttle**: Chart redraws are driven by a **revision counter** throttled to ~**20 Hz** (50 ms interval), not on every frame, so the UI stays smooth under high bus rates.
+- **Library**: **[uPlot](https://github.com/leeoniya/uPlot)** (canvas, small bundle) in the Signal Lab build; CSS is pulled in via `signal-lab-main.ts`. One uPlot instance per selected signal (stacked cards).
+- **Tab visibility**: When the **Charts** tab is not active, **append to ring buffers is paused** to save CPU on high-rate traffic; switching back shows new data only after frames arrive again.
 - **Optional later**: If profiling shows pressure, aggregate samples in `MonitorService` before sending to the webview.
 
 Diagrams in this file use [Mermaid](https://mermaid.js.org/); they render on GitHub and in many Markdown preview tools.
