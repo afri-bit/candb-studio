@@ -97,6 +97,13 @@
         attrs: false,
     });
 
+    /** Expandable message → signals (id → expanded). */
+    let msgSignalOpen = $state<Record<number, boolean>>({});
+    /** Per network node: root / Tx / Rx sections. */
+    let nnOpen = $state<Record<string, boolean>>({});
+    /** ECUs section: expand to show node shortcut. */
+    let ecuOpen = $state<Record<string, boolean>>({});
+
     function isOpen(key: SectionKey): boolean {
         return open[key] !== false;
     }
@@ -104,6 +111,50 @@
     function toggle(key: SectionKey) {
         open = { ...open, [key]: !isOpen(key) };
     }
+
+    function nnK(nodeName: string, part: string): string {
+        return `${nodeName}::${part}`;
+    }
+
+    function isNnOpen(nodeName: string, part: string): boolean {
+        return nnOpen[nnK(nodeName, part)] === true;
+    }
+
+    function toggleNn(nodeName: string, part: string) {
+        const k = nnK(nodeName, part);
+        nnOpen = { ...nnOpen, [k]: !isNnOpen(nodeName, part) };
+    }
+
+    function toggleMsgSignals(messageId: number) {
+        msgSignalOpen = {
+            ...msgSignalOpen,
+            [messageId]: !msgSignalOpen[messageId],
+        };
+    }
+
+    function toggleEcuNode(name: string) {
+        ecuOpen = { ...ecuOpen, [name]: !ecuOpen[name] };
+    }
+
+    function txMessagesForNode(nodeName: string): MessageDescriptor[] {
+        return messages.filter((m) => m.transmitter === nodeName);
+    }
+
+    function rxMessagesForNode(nodeName: string): MessageDescriptor[] {
+        return messages.filter((m) =>
+            m.signals.some((s) => s.receivers?.some((r) => r.trim() === nodeName)),
+        );
+    }
+
+    let filteredNodesForNet = $derived(
+        nodes.filter(
+            (n) =>
+                matches(n.name) ||
+                matches(n.comment) ||
+                txMessagesForNode(n.name).some((m) => matches(m.name)) ||
+                rxMessagesForNode(n.name).some((m) => matches(m.name)),
+        ),
+    );
 </script>
 
 <!-- Sprite: symbols referenced via <use> -->
@@ -239,14 +290,6 @@
                                         </div>
                                     {/if}
                                 </div>
-
-                                {#each filteredNodes as n (n.name)}
-                                    <button type="button" class="row leaf node-under-net" onclick={() => onSelectNode(n.name)}>
-                                        <span class="chev placeholder"></span>
-                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
-                                        <span class="label truncate">{n.name}</span>
-                                    </button>
-                                {/each}
                             </div>
                         {/if}
                     </div>
@@ -254,7 +297,7 @@
             {/if}
         </div>
 
-        <!-- ECUs -->
+        <!-- ECUs (hierarchical ECU → node, like classic CAN tools) -->
         <div class="branch" aria-expanded={isOpen('ecus')}>
             <button type="button" class="row head" onclick={() => toggle('ecus')}>
                 <span class="chev">{isOpen('ecus') ? '▼' : '▶'}</span>
@@ -264,11 +307,22 @@
             {#if isOpen('ecus')}
                 <div class="children" role="group">
                     {#each filteredNodes as n (n.name)}
-                        <button type="button" class="row leaf" onclick={() => onSelectNode(n.name)}>
-                            <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
-                            <span class="label truncate">{n.name}</span>
-                        </button>
+                        <div class="branch nested ecu-branch">
+                            <button type="button" class="row" onclick={() => toggleEcuNode(n.name)}>
+                                <span class="chev">{ecuOpen[n.name] ? '▼' : '▶'}</span>
+                                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                <span class="label truncate">{n.name}</span>
+                            </button>
+                            {#if ecuOpen[n.name]}
+                                <div class="children" role="group">
+                                    <button type="button" class="row leaf" onclick={() => onSelectNode(n.name)}>
+                                        <span class="chev placeholder"></span>
+                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                        <span class="label truncate">{n.name}</span>
+                                    </button>
+                                </div>
+                            {/if}
+                        </div>
                     {:else}
                         <div class="empty-leaf">No nodes</div>
                     {/each}
@@ -298,7 +352,7 @@
             {/if}
         </div>
 
-        <!-- Network nodes -->
+        <!-- Network nodes (per ECU: Tx / Rx messages) -->
         <div class="branch" aria-expanded={isOpen('netnodes')}>
             <button type="button" class="row head" onclick={() => toggle('netnodes')}>
                 <span class="chev">{isOpen('netnodes') ? '▼' : '▶'}</span>
@@ -307,12 +361,77 @@
             </button>
             {#if isOpen('netnodes')}
                 <div class="children" role="group">
-                    {#each filteredNodes as n (n.name)}
-                        <button type="button" class="row leaf" onclick={() => onSelectNode(n.name)}>
-                            <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
-                            <span class="label truncate">{n.name}</span>
-                        </button>
+                    {#each filteredNodesForNet as n (n.name)}
+                        <div class="branch nested nn-node">
+                            <button type="button" class="row" onclick={() => toggleNn(n.name, 'root')}>
+                                <span class="chev">{isNnOpen(n.name, 'root') ? '▼' : '▶'}</span>
+                                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                <span class="label truncate">{n.name}</span>
+                            </button>
+                            {#if isNnOpen(n.name, 'root')}
+                                <div class="children nn-children" role="group">
+                                    <div class="branch nested">
+                                        <button type="button" class="row" onclick={() => toggleNn(n.name, 'tx')}>
+                                            <span class="chev">{isNnOpen(n.name, 'tx') ? '▼' : '▶'}</span>
+                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                            <span class="label">Tx Messages</span>
+                                        </button>
+                                        {#if isNnOpen(n.name, 'tx')}
+                                            <div class="children" role="group">
+                                                {#each txMessagesForNode(n.name) as m (m.id)}
+                                                    <button
+                                                        type="button"
+                                                        class="row leaf"
+                                                        class:active={selectedMessageId === m.id}
+                                                        onclick={() => onSelectMessage(m.id)}
+                                                    >
+                                                        <span class="chev placeholder"></span>
+                                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                                        <span class="label truncate"
+                                                            >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                                        >
+                                                    </button>
+                                                {:else}
+                                                    <div class="empty-leaf">None</div>
+                                                {/each}
+                                            </div>
+                                        {/if}
+                                    </div>
+                                    <div class="branch nested">
+                                        <button type="button" class="row" onclick={() => toggleNn(n.name, 'rx')}>
+                                            <span class="chev">{isNnOpen(n.name, 'rx') ? '▼' : '▶'}</span>
+                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                            <span class="label">Rx Messages</span>
+                                        </button>
+                                        {#if isNnOpen(n.name, 'rx')}
+                                            <div class="children" role="group">
+                                                {#each rxMessagesForNode(n.name) as m (m.id)}
+                                                    <button
+                                                        type="button"
+                                                        class="row leaf"
+                                                        class:active={selectedMessageId === m.id}
+                                                        onclick={() => onSelectMessage(m.id)}
+                                                    >
+                                                        <span class="chev placeholder"></span>
+                                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                                        <span class="label truncate"
+                                                            >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                                        >
+                                                    </button>
+                                                {:else}
+                                                    <div class="empty-leaf">None</div>
+                                                {/each}
+                                            </div>
+                                        {/if}
+                                    </div>
+                                    <button type="button" class="row leaf nn-goto" onclick={() => onSelectNode(n.name)}>
+                                        <span class="chev placeholder"></span>
+                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                        <span class="label truncate">Node definition →</span>
+                                    </button>
+                                </div>
+                            {/if}
+                        </div>
                     {:else}
                         <div class="empty-leaf">No nodes</div>
                     {/each}
@@ -320,7 +439,7 @@
             {/if}
         </div>
 
-        <!-- Messages (global list) -->
+        <!-- Messages (global list, expandable → signals) -->
         <div class="branch" aria-expanded={isOpen('msgs')}>
             <button type="button" class="row head" onclick={() => toggle('msgs')}>
                 <span class="chev">{isOpen('msgs') ? '▼' : '▶'}</span>
@@ -330,18 +449,44 @@
             {#if isOpen('msgs')}
                 <div class="children" role="group">
                     {#each filteredMessages as m (m.id)}
-                        <button
-                            type="button"
-                            class="row leaf"
-                            class:active={selectedMessageId === m.id}
-                            onclick={() => onSelectMessage(m.id)}
-                        >
-                            <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
-                            <span class="label truncate"
-                                >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
-                            >
-                        </button>
+                        <div class="branch nested msg-with-sigs">
+                            <div class="row msg-split">
+                                {#if m.signals.length > 0}
+                                    <button
+                                        type="button"
+                                        class="chev-only"
+                                        title="Show signals in frame"
+                                        onclick={() => toggleMsgSignals(m.id)}
+                                    >
+                                        {msgSignalOpen[m.id] ? '▼' : '▶'}
+                                    </button>
+                                {:else}
+                                    <span class="chev-spacer"></span>
+                                {/if}
+                                <button
+                                    type="button"
+                                    class="row leaf msg-select"
+                                    class:active={selectedMessageId === m.id}
+                                    onclick={() => onSelectMessage(m.id)}
+                                >
+                                    <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                    <span class="label truncate"
+                                        >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                    >
+                                </button>
+                            </div>
+                            {#if msgSignalOpen[m.id] && m.signals.length > 0}
+                                <div class="children msg-sig-children" role="group">
+                                    {#each m.signals as sig (sig.name)}
+                                        <button type="button" class="row leaf" onclick={() => onSelectSignal(sig.name)}>
+                                            <span class="chev placeholder"></span>
+                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span>
+                                            <span class="label truncate">{sig.name}</span>
+                                        </button>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
                     {:else}
                         <div class="empty-leaf">No messages</div>
                     {/each}
@@ -536,7 +681,57 @@
         color: var(--vscode-descriptionForeground);
     }
 
-    .node-under-net {
-        padding-left: 2px;
+    .msg-split {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        margin: 1px 0;
+        border-radius: 4px;
+    }
+
+    .msg-split:hover {
+        background: var(--vscode-list-hoverBackground);
+    }
+
+    .chev-only {
+        width: 22px;
+        flex-shrink: 0;
+        align-self: stretch;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: inherit;
+        font-size: 9px;
+        opacity: 0.75;
+        border-radius: 4px 0 0 4px;
+    }
+
+    .chev-only:hover {
+        background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 80%, transparent);
+    }
+
+    .chev-spacer {
+        width: 22px;
+        flex-shrink: 0;
+    }
+
+    .msg-select.row.leaf {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .msg-sig-children {
+        margin-left: 8px;
+    }
+
+    .nn-children {
+        padding-top: 2px;
+    }
+
+    .nn-goto {
+        opacity: 0.95;
+        font-size: 11px;
     }
 </style>

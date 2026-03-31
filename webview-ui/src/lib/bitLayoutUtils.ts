@@ -1,7 +1,28 @@
 /**
  * Linear DBC bit map analysis (startBit + consecutive bits, same as editor model).
  */
-import type { MessageDescriptor } from './types';
+import type { MessageDescriptor, SignalDescriptor } from './types';
+
+/**
+ * Physical bit indices of the logical LSB and MSB of the raw value, for a contiguous
+ * `[startBit, startBit + bitLength)` span (same as {@link analyzeMessageLayout}).
+ *
+ * - **Intel (little endian)**: LSB at `startBit`, MSB at `startBit + bitLength - 1` (matches host decoder).
+ * - **Motorola (big endian)**: MSB at `startBit`, LSB at `startBit + bitLength - 1`.
+ */
+export function getSignalLsbMsbPhysicalBits(
+    sig: Pick<SignalDescriptor, 'startBit' | 'bitLength' | 'byteOrder'>,
+): { lsb: number; msb: number } {
+    const { startBit, bitLength, byteOrder } = sig;
+    if (bitLength <= 0) {
+        return { lsb: startBit, msb: startBit };
+    }
+    const hi = startBit + bitLength - 1;
+    if (byteOrder === 'little_endian') {
+        return { lsb: startBit, msb: hi };
+    }
+    return { msb: startBit, lsb: hi };
+}
 
 export interface LayoutIssue {
     kind: 'error' | 'warning';

@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * CAN message list and editor with links to nodes (transmitters).
+     * CAN message list and editor: tabbed detail (definition, signals, transmitters, receivers, layout, …).
      */
     import type { MessageDescriptor, NodeDescriptor, SignalDescriptor } from '../../types';
     import DataTable from '../shared/DataTable.svelte';
@@ -14,13 +14,10 @@
     interface Props {
         messages: MessageDescriptor[];
         nodes: NodeDescriptor[];
-        /** Global pool — pick a signal to link to the selected frame. */
         signalPool: SignalDescriptor[];
         selectedMessageId?: number | null;
         onGotoNode?: (nodeName: string) => void;
-        /** Jump to Signals tab for the current frame (optional). */
         onNavigateToSignals?: () => void;
-        /** From payload layout legend — open Signals tab for a signal. */
         onNavigateToSignal?: (messageId: number, signalName: string) => void;
     }
 
@@ -34,21 +31,27 @@
         onNavigateToSignal,
     }: Props = $props();
 
-    /** Right pane: edit frame vs full payload bit layout. */
-    let messageSubTab = $state<'frame' | 'layout'>('frame');
+    type MessageDetailTab =
+        | 'definition'
+        | 'signals'
+        | 'transmitters'
+        | 'receivers'
+        | 'layout'
+        | 'attributes'
+        | 'comment';
 
-    /** Pool signal name to link next (from dropdown). */
+    let messageDetailTab = $state<MessageDetailTab>('definition');
+
     let linkPick = $state('');
-
+    /** Placement when adding a pool signal to this frame (DBC start bit). */
+    let linkStartBit = $state(0);
     let filterText = $state('');
     let selectedIndex: number | null = $state(null);
-    /** Row index in the signal table (sorted order). */
     let selectedSignalIndex: number | null = $state(null);
-    /** Name of the selected signal row (for remove; not index-based — table may be sorted). */
     let selectedSignalName: string | null = $state(null);
-    /** Transmitter field draft (commit on blur / quick pick). */
     let txDraft = $state('');
     let quickPickTx = $state('');
+    let commentDraft = $state('');
 
     let sortedNodeNames = $derived(
         [...nodes].map((n) => n.name).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
@@ -88,6 +91,19 @@
         selectedMessageId !== null ? messages.find((m) => m.id === selectedMessageId) ?? null : null,
     );
 
+    /** Unique ECU names that receive this message (from SG_ receiver lists). */
+    let messageReceiverNodes = $derived.by(() => {
+        if (!selectedMessage) return [];
+        const set = new Set<string>();
+        for (const s of selectedMessage.signals) {
+            for (const r of s.receivers ?? []) {
+                const t = r.trim();
+                if (t) set.add(t);
+            }
+        }
+        return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    });
+
     let poolSignalsNotOnFrame = $derived.by(() => {
         if (!selectedMessage) return [];
         const linked = new Set(selectedMessage.signals.map((s) => s.name));
@@ -100,40 +116,30 @@
             : false,
     );
 
-    let detailProps = $derived(
+    let definitionProps = $derived(
         selectedMessage
             ? [
                   { key: 'name', label: 'Name', value: selectedMessage.name, type: 'text' as const },
                   { key: 'id', label: 'ID (decimal)', value: selectedMessage.id, type: 'number' as const },
                   { key: 'dlc', label: 'DLC', value: selectedMessage.dlc, type: 'number' as const },
-                  { key: 'comment', label: 'Comment', value: selectedMessage.comment, type: 'text' as const },
               ]
             : [],
     );
 
-    let sigColumns = [
-        { key: 'name', label: 'Signal', width: '150px' },
-        { key: 'startBit', label: 'Start', width: '52px' },
-        { key: 'bitLength', label: 'Bits', width: '44px' },
-        { key: 'byteOrder', label: 'Endian', width: '72px' },
-        { key: 'unit', label: 'Unit', width: '56px' },
-    ];
+    let maxPayloadBitIndex = $derived(
+        selectedMessage ? Math.max(0, selectedMessage.dlc * 8 - 1) : 63,
+    );
 
-    let sigRows = $derived(
+    let messageTitle = $derived(
         selectedMessage
-            ? selectedMessage.signals.map((s) => ({
-                  name: s.name,
-                  startBit: s.startBit,
-                  bitLength: s.bitLength,
-                  byteOrder: s.byteOrder === 'little_endian' ? 'Intel' : 'Motorola',
-                  unit: s.unit || '—',
-              }))
-            : [],
+            ? `${selectedMessage.name} (0x${selectedMessage.id.toString(16).toUpperCase()})`
+            : '',
     );
 
     $effect(() => {
         const m = selectedMessage;
         txDraft = m?.transmitter ?? '';
+        commentDraft = m?.comment ?? '';
     });
 
     $effect(() => {
@@ -141,7 +147,8 @@
         selectedSignalIndex = null;
         selectedSignalName = null;
         linkPick = '';
-        messageSubTab = 'frame';
+        linkStartBit = 0;
+        messageDetailTab = 'definition';
     });
 
     function onPropertyChange(key: string, value: string | number | boolean) {
@@ -171,6 +178,18 @@
         txDraft = quickPickTx;
         onPropertyChange('transmitter', quickPickTx.trim());
         quickPickTx = '';
+    }
+
+    function clearTransmitter() {
+        txDraft = '';
+        onPropertyChange('transmitter', '');
+    }
+
+    function commitComment() {
+        if (selectedMessageId === null) return;
+        const cur = selectedMessage?.comment ?? '';
+        if (commentDraft === cur) return;
+        onPropertyChange('comment', commentDraft);
     }
 
     function addMessage() {
@@ -213,9 +232,25 @@
                 documentUri: uri,
                 messageId: selectedMessageId,
                 signalName: linkPick,
+                startBit: Math.floor(linkStartBit),
             },
         });
         linkPick = '';
+    }
+
+    function onSignalStartBitChange(signalName: string, value: number) {
+        if (selectedMessageId === null) return;
+        const uri = get(documentUri);
+        if (!uri) return;
+        vscode.postMessage({
+            type: 'updateSignal',
+            payload: {
+                documentUri: uri,
+                messageId: selectedMessageId,
+                signalName,
+                changes: { startBit: Math.floor(value) },
+            },
+        });
     }
 
     function removeSignalFromSelectedMessage() {
@@ -233,6 +268,16 @@
         selectedSignalIndex = null;
         selectedSignalName = null;
     }
+
+    const detailTabs: { id: MessageDetailTab; label: string }[] = [
+        { id: 'definition', label: 'Definition' },
+        { id: 'signals', label: 'Signals' },
+        { id: 'transmitters', label: 'Transmitters' },
+        { id: 'receivers', label: 'Receivers' },
+        { id: 'layout', label: 'Layout' },
+        { id: 'attributes', label: 'Attributes' },
+        { id: 'comment', label: 'Comment' },
+    ];
 </script>
 
 <div class="message-editor">
@@ -287,134 +332,284 @@
         <section class="detail-pane" aria-label="Frame details">
             {#if selectedMessage}
                 {@const msg = selectedMessage}
-                <div class="detail-subtabs" role="tablist" aria-label="Frame view">
-                    <button
-                        type="button"
-                        role="tab"
-                        class:active={messageSubTab === 'frame'}
-                        aria-selected={messageSubTab === 'frame'}
-                        onclick={() => (messageSubTab = 'frame')}
-                    >
-                        Frame
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        class:active={messageSubTab === 'layout'}
-                        aria-selected={messageSubTab === 'layout'}
-                        onclick={() => (messageSubTab = 'layout')}
-                    >
-                        Payload layout
-                    </button>
-                </div>
+                <div class="detail-panel dbc-card message-detail-card">
+                    <div class="dbc-card-header detail-title-row">
+                        <span class="detail-title">Message '{messageTitle}'</span>
+                    </div>
 
-                {#if messageSubTab === 'frame'}
-                    <div class="detail-frame-scroll">
-                        <div class="signals-panel dbc-card">
-                            <div class="dbc-card-header subtle-head signals-head">
-                                <span>Signals in this frame</span>
-                                <div class="signals-head-actions">
-                                    {#if onNavigateToSignals}
-                                        <button type="button" class="dbc-link sm-link" onclick={() => onNavigateToSignals()}>
-                                            Open Signals tab →
-                                        </button>
-                                    {/if}
-                                    <label class="link-pick">
-                                        <span class="sr-only">Signal from pool</span>
-                                        <select bind:value={linkPick} title="Signals must exist in the pool (Signals tab)">
-                                            <option value="">Add from pool…</option>
-                                            {#each poolSignalsNotOnFrame as s}
-                                                <option value={s.name}>{s.name}</option>
-                                            {/each}
-                                        </select>
-                                    </label>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary btn-compact"
-                                        onclick={linkPoolSignalToSelectedMessage}
-                                        disabled={!linkPick || poolSignalsNotOnFrame.length === 0}
-                                    >
-                                        Add to frame
+                    <div class="message-tabs" role="tablist" aria-label="Message sections">
+                        {#each detailTabs as t}
+                            <button
+                                type="button"
+                                role="tab"
+                                class:active={messageDetailTab === t.id}
+                                aria-selected={messageDetailTab === t.id}
+                                onclick={() => (messageDetailTab = t.id)}
+                            >
+                                {t.label}
+                            </button>
+                        {/each}
+                    </div>
+
+                    <div class="dbc-card-body message-tab-body">
+                        {#if messageDetailTab === 'definition'}
+                            <p class="tab-hint">Name, arbitration ID, and data length for this frame (DBC <code>BO_</code>).</p>
+                            <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+                        {:else if messageDetailTab === 'signals'}
+                            <p class="tab-hint">
+                                Signals mapped into this frame. Add definitions in the <strong>Signals</strong> tab first,
+                                then link them here. Edit <strong>Start</strong> to set each signal’s position in this
+                                frame (DBC start bit); length and endian come from the pool signal definition.
+                            </p>
+                            <div class="signals-toolbar">
+                                {#if onNavigateToSignals}
+                                    <button type="button" class="dbc-link sm-link" onclick={() => onNavigateToSignals()}>
+                                        Open Signals tab →
                                     </button>
-                                    <button
-                                        type="button"
-                                        class="btn danger btn-compact"
-                                        onclick={removeSignalFromSelectedMessage}
-                                        disabled={selectedSignalName === null}
-                                    >
-                                        Unlink from frame
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="dbc-card-body signals-body">
-                                <div class="table-area signals-table-wrap">
-                                    <DataTable
-                                        columns={sigColumns}
-                                        rows={sigRows}
-                                        selectedIndex={selectedSignalIndex}
-                                        onSelect={(i, row) => {
-                                            selectedSignalIndex = i;
-                                            selectedSignalName = row.name != null ? String(row.name) : null;
-                                        }}
-                                        emptyText="No signals linked — create signals in the Signals tab, then add from pool"
+                                {/if}
+                                <label class="link-pick">
+                                    <span class="sr-only">Signal from pool</span>
+                                    <select bind:value={linkPick} title="Signals must exist in the pool">
+                                        <option value="">Add from pool…</option>
+                                        {#each poolSignalsNotOnFrame as s}
+                                            <option value={s.name}>{s.name}</option>
+                                        {/each}
+                                    </select>
+                                </label>
+                                <label class="inline-start">
+                                    <span>Start</span>
+                                    <input
+                                        type="number"
+                                        class="sig-start-input"
+                                        bind:value={linkStartBit}
+                                        min="0"
+                                        max={maxPayloadBitIndex}
+                                        title="Start bit when adding this signal to the frame"
                                     />
+                                </label>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-compact"
+                                    onclick={linkPoolSignalToSelectedMessage}
+                                    disabled={!linkPick || poolSignalsNotOnFrame.length === 0}
+                                >
+                                    Add
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn danger btn-compact"
+                                    onclick={removeSignalFromSelectedMessage}
+                                    disabled={selectedSignalName === null}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                            <div class="table-area signals-table-wrap">
+                                <div class="signals-table-scroll">
+                                    <table class="signals-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-name">Signal</th>
+                                                <th class="col-start">Start</th>
+                                                <th class="col-bits">Bits</th>
+                                                <th class="col-endian">Endian</th>
+                                                <th class="col-unit">Unit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {#if msg.signals.length === 0}
+                                                <tr>
+                                                    <td colspan="5" class="cell-empty">No signals linked — add from pool</td>
+                                                </tr>
+                                            {:else}
+                                                {#each msg.signals as s, si}
+                                                    <tr
+                                                        class:selected={selectedSignalIndex === si}
+                                                        onclick={() => {
+                                                            selectedSignalIndex = si;
+                                                            selectedSignalName = s.name;
+                                                        }}
+                                                    >
+                                                        <td class="cell-name">
+                                                            {#if onNavigateToSignal}
+                                                                <button
+                                                                    type="button"
+                                                                    class="dbc-link row-link"
+                                                                    onclick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        onNavigateToSignal(msg.id, s.name);
+                                                                    }}
+                                                                >
+                                                                    {s.name}
+                                                                </button>
+                                                            {:else}
+                                                                {s.name}
+                                                            {/if}
+                                                        </td>
+                                                        <td class="cell-start">
+                                                            <input
+                                                                type="number"
+                                                                class="sig-start-input"
+                                                                min="0"
+                                                                max={maxPayloadBitIndex}
+                                                                value={s.startBit}
+                                                                title="DBC start bit for this frame"
+                                                                onclick={(e) => e.stopPropagation()}
+                                                                onchange={(e) =>
+                                                                    onSignalStartBitChange(
+                                                                        s.name,
+                                                                        Number((e.currentTarget as HTMLInputElement).value),
+                                                                    )}
+                                                            />
+                                                        </td>
+                                                        <td class="cell-mono">{s.bitLength}</td>
+                                                        <td class="cell-mono">
+                                                            {s.byteOrder === 'little_endian' ? 'Intel' : 'Motorola'}
+                                                        </td>
+                                                        <td class="cell-mono">{s.unit || '—'}</td>
+                                                    </tr>
+                                                {/each}
+                                            {/if}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="detail-panel dbc-card">
-                            <div class="dbc-card-header subtle-head">
-                                <span>Message properties</span>
+                        {:else if messageDetailTab === 'transmitters'}
+                            <p class="tab-hint">
+                                DBC allows one transmitting ECU per message (<code>BO_</code> sender). Pick a node from
+                                the network or type a name (creates a <code>BU_</code> entry if new).
+                            </p>
+                            <div class="ecu-table-wrap">
+                                <table class="ecu-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Address</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {#if msg.transmitter}
+                                            <tr>
+                                                <td class="cell-name">
+                                                    {#if transmitterKnown && onGotoNode}
+                                                        <button type="button" class="dbc-link row-link" onclick={() => onGotoNode(msg.transmitter)}>
+                                                            {msg.transmitter}
+                                                        </button>
+                                                    {:else}
+                                                        {msg.transmitter}
+                                                    {/if}
+                                                </td>
+                                                <td class="cell-muted">—</td>
+                                                <td class="cell-actions">
+                                                    <button type="button" class="btn danger btn-compact" onclick={clearTransmitter}>
+                                                        Remove
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {:else}
+                                            <tr>
+                                                <td colspan="3" class="cell-empty">No transmitter set — use the fields below.</td>
+                                            </tr>
+                                        {/if}
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="dbc-card-body">
-                                <div class="tx-field">
-                                    <span class="tx-label">Transmitter (ECU)</span>
-                                    <div class="tx-row">
-                                        <select
-                                            class="tx-select"
-                                            bind:value={quickPickTx}
-                                            onchange={applyQuickPickTransmitter}
-                                            title="Choose an existing network node"
-                                        >
-                                            <option value="">Quick pick…</option>
-                                            {#each sortedNodeNames as n}
-                                                <option value={n}>{n}</option>
-                                            {/each}
-                                        </select>
-                                        <input
-                                            class="tx-input"
-                                            type="text"
-                                            list="tx-ecu-datalist-{msg.id}"
-                                            placeholder="Type name or pick above — new names add a node"
-                                            bind:value={txDraft}
-                                            onblur={() => commitTransmitter()}
-                                            onkeydown={(e: KeyboardEvent) =>
-                                                e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
-                                        />
-                                        <datalist id="tx-ecu-datalist-{msg.id}">
-                                            {#each sortedNodeNames as n}
-                                                <option value={n}></option>
-                                            {/each}
-                                        </datalist>
-                                    </div>
-                                    <p class="tx-hint">
-                                        Matches the <strong>BU_:</strong> list. Unknown names are added as nodes when you apply the field.
-                                    </p>
+                            <div class="tx-field">
+                                <span class="tx-label">Set transmitter (ECU)</span>
+                                <div class="tx-row">
+                                    <select
+                                        class="tx-select"
+                                        bind:value={quickPickTx}
+                                        onchange={applyQuickPickTransmitter}
+                                        title="Choose an existing network node"
+                                    >
+                                        <option value="">Add from list…</option>
+                                        {#each sortedNodeNames as n}
+                                            <option value={n}>{n}</option>
+                                        {/each}
+                                    </select>
+                                    <input
+                                        class="tx-input"
+                                        type="text"
+                                        list="tx-ecu-datalist-{msg.id}"
+                                        placeholder="ECU name"
+                                        bind:value={txDraft}
+                                        onblur={() => commitTransmitter()}
+                                        onkeydown={(e: KeyboardEvent) =>
+                                            e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+                                    />
+                                    <datalist id="tx-ecu-datalist-{msg.id}">
+                                        {#each sortedNodeNames as n}
+                                            <option value={n}></option>
+                                        {/each}
+                                    </datalist>
                                 </div>
-                                <PropertyGrid properties={detailProps} onChange={onPropertyChange} />
                             </div>
-                        </div>
+                        {:else if messageDetailTab === 'receivers'}
+                            <p class="tab-hint">
+                                ECUs that receive this message, aggregated from each signal’s receiver list
+                                (<code>SG_</code> … receivers). Edit receivers on each signal in the Signals tab.
+                            </p>
+                            <div class="ecu-table-wrap">
+                                <table class="ecu-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {#each messageReceiverNodes as name}
+                                            <tr>
+                                                <td class="cell-name">
+                                                    {#if onGotoNode && nodes.some((n) => n.name === name)}
+                                                        <button type="button" class="dbc-link row-link" onclick={() => onGotoNode(name)}>
+                                                            {name}
+                                                        </button>
+                                                    {:else}
+                                                        {name}
+                                                    {/if}
+                                                </td>
+                                                <td class="cell-muted">—</td>
+                                            </tr>
+                                        {:else}
+                                            <tr>
+                                                <td colspan="2" class="cell-empty">
+                                                    No receivers — add receiver nodes on the signals in this frame.
+                                                </td>
+                                            </tr>
+                                        {/each}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {:else if messageDetailTab === 'layout'}
+                            <p class="tab-hint">Visual map of signal bits in the payload (start bit and length from each signal definition).</p>
+                            <div class="layout-bit-wrap">
+                                <BitLayoutView message={msg} onNavigateToSignal={onNavigateToSignal} />
+                            </div>
+                        {:else if messageDetailTab === 'attributes'}
+                            <p class="empty-tab">
+                                Message-level attribute instances are not edited in the visual database view yet. Use the
+                                text editor or extend serialization later.
+                            </p>
+                        {:else if messageDetailTab === 'comment'}
+                            <label class="comment-block">
+                                <span class="tx-label">Comment</span>
+                                <textarea
+                                    class="comment-text"
+                                    rows={8}
+                                    bind:value={commentDraft}
+                                    onblur={commitComment}
+                                    placeholder="Documentation for this message…"
+                                ></textarea>
+                            </label>
+                        {/if}
                     </div>
-                {:else}
-                    <div class="detail-layout-scroll">
-                        <div class="layout-bit-wrap">
-                            <BitLayoutView message={msg} onNavigateToSignal={onNavigateToSignal} />
-                        </div>
-                    </div>
-                {/if}
+                </div>
             {:else}
                 <div class="detail-placeholder">
-                    Select a message in the list to link signals from the pool and edit frame properties.
+                    Select a message in the list to edit definition, signals, transmitters, and layout.
                 </div>
             {/if}
         </section>
@@ -464,57 +659,167 @@
         gap: 0;
     }
 
-    .detail-subtabs {
+    .message-detail-card {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-title-row {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .detail-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .message-tabs {
         flex-shrink: 0;
         display: flex;
+        flex-wrap: wrap;
         gap: 4px;
-        padding-bottom: 8px;
-        margin-bottom: 8px;
+        padding: 8px 12px 0;
         border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, transparent);
     }
 
-    .detail-subtabs button {
-        padding: 6px 14px;
+    .message-tabs button {
+        padding: 6px 12px;
         border: none;
         background: transparent;
         color: var(--vscode-tab-inactiveForeground);
         font-family: inherit;
-        font-size: inherit;
+        font-size: 12px;
         cursor: pointer;
         border-radius: 6px 6px 0 0;
         border-bottom: 2px solid transparent;
     }
 
-    .detail-subtabs button:hover {
+    .message-tabs button:hover {
         color: var(--vscode-tab-activeForeground);
         background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 70%, transparent);
     }
 
-    .detail-subtabs button.active {
+    .message-tabs button.active {
         color: var(--vscode-tab-activeForeground);
         border-bottom-color: var(--vscode-focusBorder);
         font-weight: 600;
     }
 
-    .detail-frame-scroll {
+    .message-tab-body {
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding-right: 4px;
     }
 
-    .detail-layout-scroll {
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
+    .tab-hint {
+        margin: 0 0 12px 0;
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .tab-hint code {
+        font-size: 10px;
+    }
+
+    .empty-tab {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .signals-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .ecu-table-wrap {
+        overflow-x: auto;
+        margin-bottom: 14px;
+    }
+
+    .ecu-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    .ecu-table th,
+    .ecu-table td {
+        padding: 8px 10px;
+        text-align: left;
+        border-bottom: 1px solid color-mix(in srgb, var(--vscode-panel-border) 70%, transparent);
+    }
+
+    .ecu-table th {
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .cell-name {
+        font-weight: 500;
+    }
+
+    .cell-muted {
+        color: var(--vscode-descriptionForeground);
+        font-family: var(--vscode-editor-font-family);
+    }
+
+    .cell-empty {
+        color: var(--vscode-descriptionForeground);
+        font-style: italic;
+    }
+
+    .cell-actions {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .row-link {
+        font: inherit;
+        padding: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .layout-bit-wrap {
+        min-height: 120px;
     }
 
     .layout-bit-wrap :global(.bit-layout) {
         margin-top: 0;
+    }
+
+    .comment-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .comment-text {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 120px;
+        padding: 8px 10px;
+        font-family: var(--vscode-editor-font-family);
+        font-size: 12px;
+        background: var(--vscode-input-background);
+        color: var(--vscode-input-foreground);
+        border: 1px solid var(--vscode-input-border, transparent);
+        border-radius: 6px;
+        resize: vertical;
     }
 
     .detail-placeholder {
@@ -632,16 +937,8 @@
         overflow: auto;
     }
 
-    .detail-pane .detail-panel {
-        min-width: 0;
-    }
-
-    .subtle-head {
-        font-size: 12px !important;
-    }
-
     .tx-field {
-        margin-bottom: 14px;
+        margin-bottom: 0;
     }
 
     .tx-label {
@@ -687,49 +984,88 @@
         outline: 1px solid var(--vscode-focusBorder);
     }
 
-    .tx-hint {
-        margin: 6px 0 0 0;
+    .signals-table-wrap {
+        min-height: 120px;
+    }
+
+    .signals-table-scroll {
+        overflow: auto;
+        border: 1px solid var(--vscode-widget-border, #444);
+        border-radius: 6px;
+    }
+
+    .signals-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    .signals-table th,
+    .signals-table td {
+        padding: 6px 10px;
+        text-align: left;
+        border-bottom: 1px solid color-mix(in srgb, var(--vscode-panel-border) 70%, transparent);
+    }
+
+    .signals-table th {
+        font-weight: 600;
         font-size: 11px;
-        line-height: 1.4;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--vscode-descriptionForeground);
+        background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBar-background));
+        white-space: nowrap;
+    }
+
+    .signals-table tbody tr {
+        cursor: pointer;
+    }
+
+    .signals-table tbody tr:hover {
+        background: var(--vscode-list-hoverBackground);
+    }
+
+    .signals-table tbody tr.selected {
+        background: var(--vscode-list-activeSelectionBackground);
+        color: var(--vscode-list-activeSelectionForeground);
+    }
+
+    .signals-table .cell-mono {
+        font-family: var(--vscode-editor-font-family, monospace);
+        font-size: 11px;
+    }
+
+    .signals-table .cell-start {
+        width: 88px;
+    }
+
+    .sig-start-input {
+        width: 4.5rem;
+        max-width: 100%;
+        padding: 3px 6px;
+        font-family: var(--vscode-editor-font-family, monospace);
+        font-size: 12px;
+        background: var(--vscode-input-background);
+        color: var(--vscode-input-foreground);
+        border: 1px solid var(--vscode-input-border, transparent);
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .sig-start-input:focus {
+        outline: 1px solid var(--vscode-focusBorder);
+    }
+
+    .inline-start {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
         color: var(--vscode-descriptionForeground);
     }
 
-    .signals-panel {
-        flex-shrink: 0;
-    }
-
-    .detail-pane .signals-panel {
-        min-width: 0;
-    }
-
-    .signals-head {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .signals-head-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-left: auto;
-    }
-
-    .sm-link {
-        font-size: 12px;
-    }
-
-    .btn-compact {
-        padding: 4px 10px;
-        font-size: 12px;
-    }
-
-    .signals-body {
-        padding-top: 0;
-    }
-
-    .signals-table-wrap {
-        min-height: 100px;
+    .inline-start span {
+        white-space: nowrap;
     }
 
     .link-pick select {
@@ -741,6 +1077,15 @@
         border: 1px solid var(--vscode-dropdown-border, transparent);
         border-radius: 4px;
         font-family: inherit;
+        font-size: 12px;
+    }
+
+    .sm-link {
+        font-size: 12px;
+    }
+
+    .btn-compact {
+        padding: 4px 10px;
         font-size: 12px;
     }
 

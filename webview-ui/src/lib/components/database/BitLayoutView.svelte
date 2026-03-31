@@ -3,7 +3,7 @@
      * Vector-style payload visualization with overlap detection, hover highlight, and issue banners.
      */
     import type { MessageDescriptor, SignalDescriptor } from '../../types';
-    import { analyzeMessageLayout } from '../../bitLayoutUtils';
+    import { analyzeMessageLayout, getSignalLsbMsbPhysicalBits } from '../../bitLayoutUtils';
 
     interface Props {
         message: MessageDescriptor;
@@ -122,6 +122,31 @@
 
     const errIssues = $derived(analysis.issues.filter((x) => x.kind === 'error'));
     const warnIssues = $derived(analysis.issues.filter((x) => x.kind === 'warning'));
+
+    function lsbMsb(sig: SignalDescriptor): { lsb: number; msb: number } {
+        return getSignalLsbMsbPhysicalBits(sig);
+    }
+
+    /** Arrow from LSB toward MSB along physical bit index (overview & LSB cell). */
+    function arrowSymbol(sig: SignalDescriptor): string {
+        const { lsb, msb } = lsbMsb(sig);
+        if (lsb === msb) return '';
+        return lsb < msb ? '→' : '←';
+    }
+
+    /** lsb/msb tag for a grid cell when exactly one signal occupies it. */
+    function cellBitEndLabel(cellBit: number, sig: SignalDescriptor): 'lsb' | 'msb' | 'lsb/msb' | null {
+        const { lsb, msb } = lsbMsb(sig);
+        if (lsb === msb && cellBit === lsb) return 'lsb/msb';
+        if (cellBit === lsb) return 'lsb';
+        if (cellBit === msb) return 'msb';
+        return null;
+    }
+
+    function singleSigTitle(sig: SignalDescriptor, cellBit: number): string {
+        const { lsb, msb } = lsbMsb(sig);
+        return `${sig.name} · bit ${cellBit} · LSB ${lsb} · MSB ${msb}`;
+    }
 </script>
 
 <div class="bit-layout dbc-card">
@@ -155,7 +180,9 @@
         {/if}
 
         <p class="hint">
-            Linear bit map (start bit + length). Hover a signal in the legend or layout to highlight it. Overlaps use a split / blended fill.
+            Linear bit indices 0…(DLC×8−1). Endpoint cells show <strong>lsb</strong> / <strong>msb</strong> (or both for a
+            1-bit field), then the bit index. The arrow points from LSB toward MSB along the bus index. Hover a signal in
+            the legend or layout to highlight it.
         </p>
 
         <div
@@ -166,6 +193,7 @@
             <div class="overview-rail" style:width="100%">
                 <div class="overview-track">
                     {#each overviewSegments as seg}
+                        {@const lm = lsbMsb(seg.sig)}
                         <div
                             class="overview-seg"
                             class:overlap={seg.hasOverlap}
@@ -175,12 +203,17 @@
                             style:width={segmentWidth(seg.start, seg.end)}
                             style:background-color={colorForSignal(seg.sigIndex)}
                             style:z-index={seg.sigIndex}
-                            title="{seg.sig.name} — bits {seg.start}…{seg.end}{seg.hasOverlap ? ' (overlap)' : ''}"
+                            title="{seg.sig.name} — bits {seg.start}…{seg.end} · LSB @ {lm.lsb}, MSB @ {lm.msb}{seg.hasOverlap ? ' · overlap' : ''}"
                             onmouseenter={() => setHover(seg.sigIndex)}
                             onmouseleave={() => setHover(null)}
                             role="presentation"
                         >
-                            <span class="overview-label">{seg.sig.name}</span>
+                            <span class="overview-inner">
+                                <span class="overview-label">{seg.sig.name}</span>
+                                {#if seg.sig.bitLength > 1}
+                                    <span class="overview-arrow" aria-hidden="true">{arrowSymbol(seg.sig)}</span>
+                                {/if}
+                            </span>
                         </div>
                     {/each}
                 </div>
@@ -207,6 +240,10 @@
                         {@const sigs = cell.sigIndices}
                         {@const overlap = sigs.length > 1}
                         {@const bg = cellBackground(sigs)}
+                        {@const oneSig = sigs.length === 1 ? message.signals[sigs[0]] : null}
+                        {@const endTag = oneSig ? cellBitEndLabel(cell.bit, oneSig) : null}
+                        {@const showFlowArrow =
+                            oneSig && oneSig.bitLength > 1 && endTag === 'lsb' && arrowSymbol(oneSig)}
                         <div
                             class="bit-cell"
                             class:occupied={sigs.length > 0}
@@ -214,19 +251,29 @@
                             class:unallocated={sigs.length === 0}
                             class:highlight={isHighlighted(sigs)}
                             class:dim-cell={isDimmed(sigs)}
+                            class:has-bit-tag={endTag !== null}
                             style:background={bg}
                             style:opacity={sigs.length === 0 ? 1 : overlap ? 1 : 0.95}
                             title={sigs.length === 0
                                 ? `Bit ${cell.bit} — unallocated`
-                                : sigs.length === 1
-                                  ? `${message.signals[sigs[0]]?.name ?? '?'} · bit ${cell.bit}`
+                                : sigs.length === 1 && oneSig
+                                  ? singleSigTitle(oneSig, cell.bit)
                                   : `Overlap: ${sigs.map((i) => message.signals[i]?.name).join(' + ')} · bit ${cell.bit}`}
                             onmouseenter={() =>
                                 sigs.length === 1 ? setHover(sigs[0]) : setHover(null)}
                             onmouseleave={() => setHover(null)}
                             role="gridcell"
+                            tabindex="-1"
                         >
-                            <span class="bit-num">{cell.bit}</span>
+                            <div class="bit-cell-stack">
+                                {#if endTag}
+                                    <span class="bit-role">{endTag}</span>
+                                {/if}
+                                <span class="bit-num">{cell.bit}</span>
+                                {#if showFlowArrow}
+                                    <span class="bit-flow-arrow" aria-hidden="true">{showFlowArrow}</span>
+                                {/if}
+                            </div>
                         </div>
                     {/each}
                 </div>
@@ -253,11 +300,13 @@
                             {#if pair}
                                 <span class="overlap-badge" title="Overlaps with another signal">Overlap</span>
                             {/if}
-                            <span class="range"
-                                >start {sig.startBit} · len {sig.bitLength} · {sig.byteOrder === 'little_endian'
-                                    ? 'Intel'
-                                    : 'Motorola'}</span
-                            >
+                            <span class="range">
+                                {#if sig.bitLength <= 1}
+                                    len {sig.bitLength} · LSB/MSB @ {lsbMsb(sig).lsb}
+                                {:else}
+                                    len {sig.bitLength} · LSB @{lsbMsb(sig).lsb} {arrowSymbol(sig)} MSB @{lsbMsb(sig).msb}
+                                {/if}
+                            </span>
                             {#if sig.unit}
                                 <span class="unit">{sig.unit}</span>
                             {/if}
@@ -352,13 +401,14 @@
         top: 0;
         height: 100%;
         min-width: 2px;
-        padding: 4px 6px;
+        padding: 0;
         box-sizing: border-box;
         border-radius: 4px;
         border: 1px solid color-mix(in srgb, var(--vscode-widget-shadow) 40%, transparent);
         overflow: hidden;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
         color: #fff;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
         cursor: default;
@@ -366,6 +416,18 @@
             opacity 0.12s ease,
             box-shadow 0.12s ease,
             transform 0.12s ease;
+    }
+
+    .overview-inner {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 2px;
+        padding: 3px 6px 5px;
+        box-sizing: border-box;
     }
 
     .overview-seg.overlap {
@@ -387,6 +449,15 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        pointer-events: none;
+        max-width: 100%;
+    }
+
+    .overview-arrow {
+        font-size: 0.85em;
+        font-weight: 700;
+        line-height: 1;
+        opacity: 0.95;
         pointer-events: none;
     }
 
@@ -459,7 +530,7 @@
     .bit-cell {
         flex: 1;
         min-width: 0;
-        min-height: 36px;
+        min-height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -472,6 +543,34 @@
             opacity 0.12s ease,
             box-shadow 0.12s ease,
             transform 0.1s ease;
+    }
+
+    .bit-cell-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        line-height: 1.15;
+        width: 100%;
+        min-height: 0;
+    }
+
+    .bit-role {
+        font-size: 0.58em;
+        font-weight: 700;
+        text-transform: lowercase;
+        letter-spacing: 0.02em;
+        opacity: 0.92;
+        pointer-events: none;
+    }
+
+    .bit-flow-arrow {
+        font-size: 0.75em;
+        font-weight: 800;
+        line-height: 1;
+        margin-top: 1px;
+        pointer-events: none;
     }
 
     .bit-cell.unallocated {
@@ -548,7 +647,7 @@
 
     .legend-card .swatch {
         width: 100%;
-        height: 4px;
+        height: 6px;
         border-radius: 2px;
         background: var(--sig-color);
     }

@@ -1,10 +1,10 @@
 <script lang="ts">
     /**
-     * Network nodes with related messages (Tx) and signals (Rx).
+     * Network nodes (BU_): tabbed definition, mapped Tx/Rx signals, Tx messages, networks, comment.
      */
     import { tick } from 'svelte';
     import { get } from 'svelte/store';
-    import type { MessageDescriptor, NodeDescriptor } from '../../types';
+    import type { MessageDescriptor, NodeDescriptor, SignalDescriptor } from '../../types';
     import DataTable from '../shared/DataTable.svelte';
     import PropertyGrid from '../shared/PropertyGrid.svelte';
     import { vscode } from '../../vscode';
@@ -13,6 +13,8 @@
     interface Props {
         nodes: NodeDescriptor[];
         messages: MessageDescriptor[];
+        /** DBC version string — shown under Networks. */
+        version?: string;
         focusNodeName?: string | null;
         onFocusConsumed?: () => void;
         onGotoMessage?: (messageId: number) => void;
@@ -21,13 +23,26 @@
     let {
         nodes,
         messages,
+        version = '',
         focusNodeName = null,
         onFocusConsumed,
         onGotoMessage,
     }: Props = $props();
 
+    type NodeDetailTab =
+        | 'definition'
+        | 'mappedTx'
+        | 'mappedRx'
+        | 'txMessages'
+        | 'networks'
+        | 'controlUnits'
+        | 'attributes'
+        | 'comment';
+
     let selectedIndex: number | null = $state(null);
     let newNodeName = $state('');
+    let nodeTab = $state<NodeDetailTab>('definition');
+    let commentDraft = $state('');
 
     const columns = [
         { key: 'name', label: 'Node', width: '200px' },
@@ -45,32 +60,150 @@
         selectedIndex !== null ? nodes[selectedIndex] ?? null : null,
     );
 
+    let nodeTitle = $derived(selectedNode ? `Node '${selectedNode.name}'` : '');
+
+    function receiverMatchesNode(signal: SignalDescriptor, nodeName: string): boolean {
+        return signal.receivers?.some((r) => r.trim() === nodeName) ?? false;
+    }
+
     let txMessages = $derived.by(() => {
         if (!selectedNode) return [];
         return messages.filter((m) => m.transmitter === selectedNode.name);
     });
 
-    let rxSignals = $derived.by(() => {
-        if (!selectedNode) return [] as { message: MessageDescriptor; signalName: string }[];
-        const out: { message: MessageDescriptor; signalName: string }[] = [];
+    /** Signals carried on frames this node transmits. */
+    type MappedRow = {
+        signal: string;
+        message: string;
+        messageId: number;
+        multiplex: string;
+        startBit: number;
+        length: number;
+        endian: string;
+        valueType: string;
+    };
+
+    let mappedTxRows = $derived.by((): MappedRow[] => {
+        if (!selectedNode) return [];
+        const out: MappedRow[] = [];
+        for (const m of messages) {
+            if (m.transmitter !== selectedNode.name) continue;
+            for (const s of m.signals) {
+                out.push(mappedRowFromSignal(m, s));
+            }
+        }
+        return out;
+    });
+
+    let mappedRxRows = $derived.by((): MappedRow[] => {
+        if (!selectedNode) return [];
+        const out: MappedRow[] = [];
         for (const m of messages) {
             for (const s of m.signals) {
-                if (s.receivers?.includes(selectedNode.name)) {
-                    out.push({ message: m, signalName: s.name });
+                if (receiverMatchesNode(s, selectedNode!.name)) {
+                    out.push(mappedRowFromSignal(m, s));
                 }
             }
         }
         return out;
     });
 
-    let detailProps = $derived(
+    function mappedRowFromSignal(m: MessageDescriptor, s: SignalDescriptor): MappedRow {
+        return {
+            signal: s.name,
+            message: m.name,
+            messageId: m.id,
+            multiplex: formatMultiplex(s),
+            startBit: s.startBit,
+            length: s.bitLength,
+            endian: s.byteOrder === 'little_endian' ? 'Intel' : 'Motorola',
+            valueType: valueTypeLabel(s),
+        };
+    }
+
+    function formatMultiplex(sig: SignalDescriptor): string {
+        const m = sig.multiplex;
+        if (m === 'none') return '—';
+        if (m === 'multiplexor') return 'Multiplexor';
+        return `Mux ${m}`;
+    }
+
+    function valueTypeLabel(s: SignalDescriptor): string {
+        if (s.valueType === 'float') return 'Float';
+        if (s.valueType === 'double') return 'Double';
+        return s.isSigned ? 'Signed' : 'Unsigned';
+    }
+
+    const mappedColumns = [
+        { key: 'signal', label: 'Signal', width: '140px' },
+        { key: 'message', label: 'Message', width: '120px' },
+        { key: 'multiplex', label: 'Multiplexing', width: '100px' },
+        { key: 'startBit', label: 'Start bit', width: '72px' },
+        { key: 'length', label: 'Length [bit]', width: '80px' },
+        { key: 'endian', label: 'Byte order', width: '88px' },
+        { key: 'valueType', label: 'Value type', width: '88px' },
+    ];
+
+    let mappedTxTableRows = $derived(
+        mappedTxRows.map((r) => ({
+            signal: r.signal,
+            message: r.message,
+            multiplex: r.multiplex,
+            startBit: r.startBit,
+            length: r.length,
+            endian: r.endian,
+            valueType: r.valueType,
+            _messageId: r.messageId,
+        })),
+    );
+
+    let mappedRxTableRows = $derived(
+        mappedRxRows.map((r) => ({
+            signal: r.signal,
+            message: r.message,
+            multiplex: r.multiplex,
+            startBit: r.startBit,
+            length: r.length,
+            endian: r.endian,
+            valueType: r.valueType,
+            _messageId: r.messageId,
+        })),
+    );
+
+    const txMsgColumns = [
+        { key: 'name', label: 'Name', width: '160px' },
+        { key: 'idHex', label: 'ID', width: '100px' },
+        { key: 'dlc', label: 'DLC', width: '48px' },
+        { key: 'sigCount', label: 'Signals', width: '72px' },
+    ];
+
+    let txMsgRows = $derived(
+        txMessages.map((m) => ({
+            messageId: m.id,
+            name: m.name,
+            idHex: `0x${m.id.toString(16).toUpperCase()}`,
+            dlc: m.dlc,
+            sigCount: m.signals.length,
+        })),
+    );
+
+    let definitionProps = $derived(
         selectedNode
-            ? [
-                  { key: 'name', label: 'Name', value: selectedNode.name, type: 'text' as const },
-                  { key: 'comment', label: 'Comment', value: selectedNode.comment, type: 'text' as const },
-              ]
+            ? [{ key: 'name', label: 'Name', value: selectedNode.name, type: 'text' as const }]
             : [],
     );
+
+    let networkLabel = $derived(version.trim() || 'Default');
+
+    $effect(() => {
+        const n = selectedNode;
+        commentDraft = n?.comment ?? '';
+    });
+
+    $effect(() => {
+        selectedIndex;
+        nodeTab = 'definition';
+    });
 
     function onPropertyChange(key: string, value: string | number | boolean) {
         if (!selectedNode) return;
@@ -84,6 +217,13 @@
                 changes: { [key]: value },
             },
         });
+    }
+
+    function commitComment() {
+        if (!selectedNode) return;
+        const cur = selectedNode.comment ?? '';
+        if (commentDraft === cur) return;
+        onPropertyChange('comment', commentDraft);
     }
 
     function addNode() {
@@ -100,6 +240,17 @@
         });
         newNodeName = '';
     }
+
+    const detailTabs: { id: NodeDetailTab; label: string }[] = [
+        { id: 'definition', label: 'Definition' },
+        { id: 'mappedTx', label: 'Mapped Tx Sig.' },
+        { id: 'mappedRx', label: 'Mapped Rx Sig.' },
+        { id: 'txMessages', label: 'Tx Messages' },
+        { id: 'networks', label: 'Networks' },
+        { id: 'controlUnits', label: 'Control units' },
+        { id: 'attributes', label: 'Attributes' },
+        { id: 'comment', label: 'Comment' },
+    ];
 
     $effect(() => {
         const name = focusNodeName;
@@ -141,73 +292,139 @@
         </section>
         <section class="detail-pane" aria-label="Node details">
             {#if selectedNode}
-                <div class="detail-panel dbc-card">
-                    <div class="dbc-card-header">
-                        <span>{selectedNode.name}</span>
-                        <span class="dbc-subtle">ECU / network node</span>
+                <div class="detail-panel dbc-card node-detail-card">
+                    <div class="dbc-card-header detail-title-row">
+                        <span class="detail-title">{nodeTitle}</span>
+                        <span class="dbc-subtle">ECU / BU_</span>
                     </div>
-                    <div class="dbc-card-body">
-                        <div class="relations">
-                    <div class="rel-block">
-                        <h4>Transmits (messages)</h4>
-                        {#if txMessages.length === 0}
-                            <p class="empty-rel">No messages list this node as transmitter.</p>
-                        {:else}
-                            <ul class="rel-list">
-                                {#each txMessages as m}
-                                    <li>
-                                        {#if onGotoMessage}
-                                            <button
-                                                type="button"
-                                                class="dbc-link"
-                                                onclick={() => onGotoMessage(m.id)}
-                                            >
-                                                {m.name}
-                                            </button>
-                                        {:else}
-                                            {m.name}
-                                        {/if}
-                                        <span class="meta">
-                                            0x{m.id.toString(16).toUpperCase()} · {m.signals.length} signals
-                                        </span>
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-                    <div class="rel-block">
-                        <h4>Receives (signals)</h4>
-                        {#if rxSignals.length === 0}
-                            <p class="empty-rel">No signals list this node as receiver.</p>
-                        {:else}
-                            <ul class="rel-list">
-                                {#each rxSignals as rx}
-                                    <li>
-                                        <span class="sig">{rx.signalName}</span>
-                                        <span class="meta">in {rx.message.name}</span>
-                                        {#if onGotoMessage}
-                                            <button
-                                                type="button"
-                                                class="dbc-link small"
-                                                onclick={() => onGotoMessage(rx.message.id)}
-                                            >
-                                                open message
-                                            </button>
-                                        {/if}
-                                    </li>
-                                {/each}
-                            </ul>
-                        {/if}
-                    </div>
-                </div>
 
-                        <h4 class="props-head">Properties</h4>
-                        <PropertyGrid properties={detailProps} onChange={onPropertyChange} />
+                    <div class="node-tabs" role="tablist" aria-label="Node sections">
+                        {#each detailTabs as t}
+                            <button
+                                type="button"
+                                role="tab"
+                                class:active={nodeTab === t.id}
+                                aria-selected={nodeTab === t.id}
+                                onclick={() => (nodeTab = t.id)}
+                            >
+                                {t.label}
+                            </button>
+                        {/each}
+                    </div>
+
+                    <div class="dbc-card-body node-tab-body">
+                        {#if nodeTab === 'definition'}
+                            <p class="tab-hint">Node name in the DBC <code>BU_</code> list. Renaming updates references where possible.</p>
+                            <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+                        {:else if nodeTab === 'mappedTx'}
+                            <p class="tab-hint">
+                                Signals in frames transmitted by this node (<code>BO_</code> sender = this node). Bit layout
+                                comes from each message’s signal mapping.
+                            </p>
+                            <div class="mapped-toolbar">
+                                <button type="button" class="btn btn-disabled" disabled title="Edit mappings in Messages → Signals"
+                                    >Add: individual signal</button
+                                >
+                                <button type="button" class="btn btn-disabled" disabled title="Link signals via Messages tab"
+                                    >Add: all from one message</button
+                                >
+                                <button type="button" class="btn btn-disabled" disabled title="Unlink via message frame">Remove</button
+                                >
+                            </div>
+                            <div class="table-wrap">
+                                <DataTable
+                                    columns={mappedColumns}
+                                    rows={mappedTxTableRows}
+                                    emptyText="No mapped Tx signals — set this node as transmitter on a message, then add signals to that frame"
+                                />
+                            </div>
+                            {#if mappedTxTableRows.length > 0}
+                                <p class="footer-hint">
+                                    Edit mappings in the <strong>Messages</strong> and <strong>Signals</strong> tabs.
+                                </p>
+                            {/if}
+                        {:else if nodeTab === 'mappedRx'}
+                            <p class="tab-hint">
+                                Signals this node receives (aggregated from each <code>SG_</code> receiver list). Editing
+                                receivers is done per signal in the <strong>Signals</strong> tab.
+                            </p>
+                            <div class="mapped-toolbar">
+                                <button type="button" class="btn btn-disabled" disabled title="Add receiver on the signal definition"
+                                    >Add: individual signal</button
+                                >
+                                <button type="button" class="btn btn-disabled" disabled title="Bulk-edit receivers via signal pool"
+                                    >Add: all from one message</button
+                                >
+                                <button type="button" class="btn btn-disabled" disabled title="Edit SG_ receivers on the signal"
+                                    >Remove</button
+                                >
+                            </div>
+                            <div class="table-wrap">
+                                <DataTable
+                                    columns={mappedColumns}
+                                    rows={mappedRxTableRows}
+                                    emptyText="No mapped Rx signals — add this node as a receiver on a signal (Signals tab)"
+                                />
+                            </div>
+                        {:else if nodeTab === 'txMessages'}
+                            <p class="tab-hint">Frames where this node is the <code>BO_</code> transmitter.</p>
+                            <div class="table-wrap">
+                                <DataTable
+                                    columns={txMsgColumns}
+                                    rows={txMsgRows}
+                                    onSelect={(_i, row) => onGotoMessage?.(row.messageId as number)}
+                                    emptyText="No transmit messages — set Transmitter on a message in the Messages tab"
+                                />
+                            </div>
+                            {#if txMsgRows.length > 0 && onGotoMessage}
+                                <p class="footer-hint">Click a row to open that message in the <strong>Messages</strong> tab.</p>
+                            {/if}
+                        {:else if nodeTab === 'networks'}
+                            <p class="tab-hint">
+                                This DBC describes a single logical network. The version string is taken from the file header.
+                            </p>
+                            <div class="network-box">
+                                <span class="network-label">Network</span>
+                                <span class="network-value">{networkLabel}</span>
+                            </div>
+                        {:else if nodeTab === 'controlUnits'}
+                            <p class="tab-hint">
+                                In CANdb, <strong>BU_</strong> entries are network nodes (ECUs). This node is one control unit
+                                in the database; there is no separate “control unit” object beyond the node definition.
+                            </p>
+                            <ul class="cu-list">
+                                <li><strong>Name:</strong> {selectedNode.name}</li>
+                                <li>
+                                    <strong>Transmit messages:</strong>
+                                    {txMessages.length}
+                                </li>
+                                <li>
+                                    <strong>Receive mappings (signals):</strong>
+                                    {mappedRxRows.length}
+                                </li>
+                            </ul>
+                        {:else if nodeTab === 'attributes'}
+                            <p class="empty-tab">
+                                Node-level attribute instances are not edited in the visual database view yet. Use the text
+                                editor for <code>BA_</code> / <code>CM_</code> on nodes, or extend the serializer later.
+                            </p>
+                        {:else if nodeTab === 'comment'}
+                            <label class="comment-block">
+                                <span class="field-label">Comment</span>
+                                <textarea
+                                    class="comment-text"
+                                    rows={10}
+                                    bind:value={commentDraft}
+                                    onblur={commitComment}
+                                    placeholder="Documentation for this node…"
+                                ></textarea>
+                            </label>
+                        {/if}
                     </div>
                 </div>
             {:else}
                 <div class="detail-placeholder">
-                    Select a node in the list to see transmit/receive relations and edit properties.
+                    Select a node in the list to edit definition, mapped signals, and transmit frames.
                 </div>
             {/if}
         </section>
@@ -246,9 +463,165 @@
         flex: 1;
         min-width: 260px;
         min-height: 0;
-        overflow-y: auto;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
+    }
+
+    .node-detail-card {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-title-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .detail-title {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .node-tabs {
+        flex-shrink: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 8px 12px 0;
+        border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, transparent);
+    }
+
+    .node-tabs button {
+        padding: 6px 10px;
+        border: none;
+        background: transparent;
+        color: var(--vscode-tab-inactiveForeground);
+        font-family: inherit;
+        font-size: 11px;
+        cursor: pointer;
+        border-radius: 6px 6px 0 0;
+        border-bottom: 2px solid transparent;
+    }
+
+    .node-tabs button:hover {
+        color: var(--vscode-tab-activeForeground);
+        background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 70%, transparent);
+    }
+
+    .node-tabs button.active {
+        color: var(--vscode-tab-activeForeground);
+        border-bottom-color: var(--vscode-focusBorder);
+        font-weight: 600;
+    }
+
+    .node-tab-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .tab-hint {
+        margin: 0 0 12px 0;
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .tab-hint code {
+        font-size: 10px;
+    }
+
+    .empty-tab {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .mapped-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .btn-disabled:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .table-wrap {
+        min-height: 120px;
+        overflow: auto;
+    }
+
+    .footer-hint {
+        margin: 10px 0 0 0;
+        font-size: 11px;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .network-box {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
+        background: color-mix(in srgb, var(--vscode-editor-background) 96%, var(--vscode-list-hoverBackground));
+        max-width: 400px;
+    }
+
+    .network-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .network-value {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .cu-list {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--vscode-foreground);
+    }
+
+    .comment-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .field-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .comment-text {
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 160px;
+        padding: 8px 10px;
+        font-family: var(--vscode-editor-font-family);
+        font-size: 12px;
+        background: var(--vscode-input-background);
+        color: var(--vscode-input-foreground);
+        border: 1px solid var(--vscode-input-border, transparent);
+        border-radius: 6px;
+        resize: vertical;
     }
 
     .detail-placeholder {
@@ -299,6 +672,8 @@
         font-family: inherit;
         font-size: inherit;
         border: 1px solid var(--vscode-button-border, transparent);
+        background: var(--vscode-button-secondaryBackground);
+        color: var(--vscode-button-secondaryForeground);
     }
 
     .btn-primary {
@@ -325,70 +700,5 @@
     .detail-panel {
         flex: 1;
         min-height: 0;
-    }
-
-    .relations {
-        display: grid;
-        grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    @media (max-width: 700px) {
-        .relations {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .rel-block h4 {
-        margin: 0 0 8px 0;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .rel-list {
-        margin: 0;
-        padding: 0 0 0 16px;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .rel-list li {
-        margin-bottom: 6px;
-    }
-
-    .meta {
-        display: inline-block;
-        margin-left: 6px;
-        color: var(--vscode-descriptionForeground);
-        font-size: 11px;
-    }
-
-    .sig {
-        font-weight: 600;
-        font-family: var(--vscode-editor-font-family, monospace);
-    }
-
-    .empty-rel {
-        margin: 0;
-        font-size: 12px;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .props-head {
-        margin: 0 0 8px 0;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .dbc-link.small {
-        font-size: 11px;
-        margin-left: 8px;
     }
 </style>

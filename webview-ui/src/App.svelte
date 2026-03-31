@@ -243,7 +243,7 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Messages</span>
-                        <span class="dbc-subtle">List and frame details — use Payload layout for the bit grid</span>
+                        <span class="dbc-subtle">Definition, signals, transmitters, receivers, and layout tabs</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <MessageEditor
@@ -284,12 +284,13 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Network nodes</span>
-                        <span class="dbc-subtle">ECUs — see which messages and signals reference each node</span>
+                        <span class="dbc-subtle">Definition, mapped signals, Tx messages, networks, comment</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <NodeEditor
                             nodes={$databaseStore.nodes}
                             messages={$databaseStore.messages}
+                            version={$databaseStore.version}
                             focusNodeName={nodeFocus}
                             onFocusConsumed={handleFocusNodeConsumed}
                             onGotoMessage={(id) => {
@@ -326,12 +327,14 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Architecture</span>
-                        <span class="dbc-subtle">Extension design and network map from this DBC</span>
+                        <span class="dbc-subtle">Bus topology: ECUs, frames, and signals from this DBC</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill arch-tab-body">
                         <ArchitectureView
                             nodes={$databaseStore.nodes}
                             messages={$databaseStore.messages}
+                            signalPool={$databaseStore.signalPool}
+                            version={$databaseStore.version}
                             onSelectMessage={(id) => {
                                 selectedMessageId = id;
                                 activeTab = 'messages';
@@ -340,6 +343,7 @@
                                 nodeFocus = name;
                                 activeTab = 'nodes';
                             }}
+                            onNavigateToSignal={handleNavigateToSignalFromBitLayout}
                         />
                     </div>
                 </div>
