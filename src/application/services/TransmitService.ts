@@ -2,6 +2,7 @@ import type { ICanBusTransmitter } from '../../core/interfaces/bus/ICanBusTransm
 import type { ICanBusAdapter } from '../../core/interfaces/bus/ICanBusAdapter';
 import type { CanFrame } from '../../core/models/bus/CanFrame';
 import { TransmitTask } from '../../core/models/bus/TransmitTask';
+import type { EventBus } from '../../shared/events/EventBus';
 import { Logger } from '../../shared/utils/Logger';
 
 /**
@@ -11,7 +12,10 @@ import { Logger } from '../../shared/utils/Logger';
 export class TransmitService implements ICanBusTransmitter {
   private tasks = new Map<string, { task: TransmitTask; timer: ReturnType<typeof setInterval> }>();
 
-  constructor(private readonly adapter: ICanBusAdapter) {}
+  constructor(
+    private readonly adapter: ICanBusAdapter,
+    private readonly eventBus: EventBus,
+  ) {}
 
   get activeTasks(): ReadonlyArray<TransmitTask> {
     return Array.from(this.tasks.values()).map((e) => e.task);
@@ -20,6 +24,7 @@ export class TransmitService implements ICanBusTransmitter {
   async sendOnce(frame: CanFrame): Promise<void> {
     Logger.info(`Transmit: single-shot frame ${frame.idHex}`);
     await this.adapter.send(frame);
+    this.eventBus.emit('bus:frameTransmitted', frame);
   }
 
   startPeriodic(task: TransmitTask): void {
@@ -33,6 +38,7 @@ export class TransmitService implements ICanBusTransmitter {
     const timer = setInterval(async () => {
       try {
         await this.adapter.send(task.frame);
+        this.eventBus.emit('bus:frameTransmitted', task.frame);
       } catch (error) {
         Logger.error(`Transmit: periodic send failed for task ${task.id}`, error);
         this.stopPeriodic(task.id);
@@ -90,6 +96,7 @@ export class TransmitService implements ICanBusTransmitter {
     const timer = setInterval(async () => {
       try {
         await this.adapter.send(entry.task.frame);
+        this.eventBus.emit('bus:frameTransmitted', entry.task.frame);
       } catch (error) {
         Logger.error(`Transmit: periodic send failed for task ${taskId}`, error);
         this.stopPeriodic(taskId);

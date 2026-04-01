@@ -26,18 +26,20 @@
     let idHex = $derived(
         `0x${decoded.frame.id.toString(16).toUpperCase().padStart(decoded.frame.isExtended ? 8 : 3, '0')}`,
     );
-
-    let dataHex = $derived(
-        decoded.frame.data.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' '),
-    );
 </script>
 
 <div class="frame-row monitor-table-grid">
     <span class="col-time" title="Unix ms: {String(Math.round(decoded.frame.timestamp))}">{timeStr}</span>
+    <span
+        class="col-dir"
+        class:col-dir--tx={decoded.direction === 'tx'}
+        title={decoded.direction === 'tx' ? 'Transmit echo' : 'Received'}
+        >{decoded.direction === 'tx' ? 'Tx' : 'Rx'}</span
+    >
     <span class="col-id">{idHex}</span>
     <span class="col-name">{decoded.messageName}</span>
     <span class="col-dlc">{decoded.frame.dlc}</span>
-    <span class="col-data">{dataHex}</span>
+    <span class="col-data">{decoded.frame.data.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')}</span>
     <span class="col-signals">
         {#each decoded.signals as sig}
             <SignalValueDisplay signal={sig} />
@@ -51,6 +53,7 @@
         display: grid;
         grid-template-columns:
             11.5ch
+            2.25rem
             minmax(4.5rem, 5.5rem)
             minmax(5rem, 9rem)
             2.25rem
@@ -70,6 +73,17 @@
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
         min-width: 0;
+    }
+
+    .col-dir {
+        font-size: 0.78em;
+        font-weight: 700;
+        text-align: center;
+        color: var(--vscode-charts-blue);
+    }
+
+    .col-dir--tx {
+        color: var(--vscode-charts-orange, #d18616);
     }
 
     .col-id {

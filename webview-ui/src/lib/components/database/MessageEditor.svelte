@@ -353,14 +353,8 @@
 
                     <div class="dbc-card-body message-tab-body">
                         {#if messageDetailTab === 'definition'}
-                            <p class="tab-hint">Name, arbitration ID, and data length for this frame (DBC <code>BO_</code>).</p>
                             <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
                         {:else if messageDetailTab === 'signals'}
-                            <p class="tab-hint">
-                                Signals mapped into this frame. Add definitions in the <strong>Signals</strong> tab first,
-                                then link them here. Edit <strong>Start</strong> to set each signal’s position in this
-                                frame (DBC start bit); length and endian come from the pool signal definition.
-                            </p>
                             <div class="signals-toolbar">
                                 {#if onNavigateToSignals}
                                     <button type="button" class="dbc-link sm-link" onclick={() => onNavigateToSignals()}>
@@ -475,10 +469,6 @@
                                 </div>
                             </div>
                         {:else if messageDetailTab === 'transmitters'}
-                            <p class="tab-hint">
-                                DBC allows one transmitting ECU per message (<code>BO_</code> sender). Pick a node from
-                                the network or type a name (creates a <code>BU_</code> entry if new).
-                            </p>
                             <div class="ecu-table-wrap">
                                 <table class="ecu-table">
                                     <thead>
@@ -547,10 +537,6 @@
                                 </div>
                             </div>
                         {:else if messageDetailTab === 'receivers'}
-                            <p class="tab-hint">
-                                ECUs that receive this message, aggregated from each signal’s receiver list
-                                (<code>SG_</code> … receivers). Edit receivers on each signal in the Signals tab.
-                            </p>
                             <div class="ecu-table-wrap">
                                 <table class="ecu-table">
                                     <thead>
@@ -584,7 +570,6 @@
                                 </table>
                             </div>
                         {:else if messageDetailTab === 'layout'}
-                            <p class="tab-hint">Visual map of signal bits in the payload (start bit and length from each signal definition).</p>
                             <div class="layout-bit-wrap">
                                 <BitLayoutView message={msg} onNavigateToSignal={onNavigateToSignal} />
                             </div>
@@ -713,17 +698,6 @@
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-    }
-
-    .tab-hint {
-        margin: 0 0 12px 0;
-        font-size: 11px;
-        line-height: 1.45;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .tab-hint code {
-        font-size: 10px;
     }
 
     .empty-tab {

@@ -581,11 +581,6 @@
 
                     <div class="dbc-card-body signal-tab-body">
                         {#if signalTab === 'definition'}
-                            <p class="tab-hint">
-                                Byte order: <code>little_endian</code> = Intel,
-                                <code>big_endian</code> = Motorola. Changing bit length, byte order, or default start
-                                bit here updates every frame that references this signal.
-                            </p>
                             <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
                             <div class="layout-extra">
                                 <span class="subheading">Frame placement defaults</span>
@@ -597,11 +592,6 @@
                                 </button>
                             </div>
                         {:else if signalTab === 'messages'}
-                            <p class="tab-hint">
-                                Choose a message and set the <strong>start bit</strong> for this signal in that frame.
-                                Bit length and byte order are defined on <strong>Definition</strong> only.
-                            </p>
-
                             <div class="msg-add-panel">
                                 <span class="subheading">Add to frame</span>
                                 <div class="msg-add-row">
@@ -703,10 +693,6 @@
                                 </div>
                             {/if}
                         {:else if signalTab === 'receivers'}
-                            <p class="tab-hint">
-                                Comma-separated network nodes that receive this signal (DBC receiver list). Leave empty
-                                if none.
-                            </p>
                             <label class="recv-area">
                                 <span class="recv-label">Receivers</span>
                                 <textarea
@@ -723,10 +709,6 @@
                                 Use the text view for SG_-level attributes, or extend serialization in a future release.
                             </p>
                         {:else if signalTab === 'values'}
-                            <p class="tab-hint">
-                                Raw value → state label (merged with the selected value table when present). Apply saves
-                                all rows.
-                            </p>
                             <div class="val-rows">
                                 {#each valueDescRows as row, i}
                                     <div class="val-row">
@@ -952,17 +934,6 @@
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-    }
-
-    .tab-hint {
-        margin: 0 0 10px 0;
-        font-size: 11px;
-        line-height: 1.45;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .tab-hint code {
-        font-size: 10px;
     }
 
     .layout-extra {

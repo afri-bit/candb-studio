@@ -87,6 +87,7 @@
 
     let activeTab: Tab = $state('messages');
     let selectedMessageId: number | null = $state(null);
+    let savePulse = $state(false);
     /** Programmatic focus for Signals tab (from bit layout / explorer). */
     let signalFocus: { messageId?: number; signalName: string } | null = $state(null);
     let nodeFocus: string | null = $state(null);
@@ -95,6 +96,10 @@
     function saveActiveDocument() {
         const uri = get(documentUri);
         if (!uri) return;
+        savePulse = true;
+        window.setTimeout(() => {
+            savePulse = false;
+        }, 600);
         vscode.postMessage({ type: 'saveDocument', documentUri: uri });
     }
 
@@ -218,7 +223,15 @@
             >
                 Text view
             </button>
-            <button class="save-btn" type="button" title="Save (writes the .dbc file)" onclick={saveActiveDocument}>Save</button>
+            <button
+                class="save-btn"
+                class:pulse={savePulse}
+                type="button"
+                title="Save (writes the .dbc file)"
+                onclick={saveActiveDocument}
+            >
+                Save
+            </button>
         </nav>
 
         <div class="tab-content">
@@ -226,7 +239,6 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Messages</span>
-                        <span class="dbc-subtle">Definition, signals, transmitters, receivers, and layout tabs</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <MessageEditor
@@ -247,7 +259,6 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Signals</span>
-                        <span class="dbc-subtle">List on the left — edit the selected signal on the right</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <SignalEditor
@@ -267,7 +278,6 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Network nodes</span>
-                        <span class="dbc-subtle">Definition, mapped signals, Tx messages, networks, comment</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <NodeEditor
@@ -300,7 +310,6 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Value tables</span>
-                        <span class="dbc-subtle">Named maps (VAL_TABLE_) — assign in Signals for raw value labels</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill">
                         <ValueTablesEditor valueTables={$databaseStore.valueTables} />
@@ -310,7 +319,6 @@
                 <div class="dbc-card main-card editor-tab-card">
                     <div class="dbc-card-header">
                         <span>Architecture</span>
-                        <span class="dbc-subtle">Bus topology: ECUs, frames, and signals from this DBC</span>
                     </div>
                     <div class="dbc-card-body dbc-card-body-fill arch-tab-body">
                         <ArchitectureView
@@ -396,6 +404,34 @@
         background: var(--vscode-button-secondaryBackground) !important;
         color: var(--vscode-button-secondaryForeground) !important;
         border-radius: 6px;
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            filter 0.18s ease;
+    }
+
+    .save-btn:hover {
+        filter: brightness(1.06);
+    }
+
+    .save-btn.pulse {
+        animation: save-flash 0.55s ease;
+    }
+
+    @keyframes save-flash {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 color-mix(in srgb, var(--vscode-button-background) 55%, transparent);
+        }
+        40% {
+            transform: scale(1.04);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--vscode-focusBorder) 45%, transparent);
+            filter: brightness(1.12);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 transparent;
+        }
     }
 
     .spacer {

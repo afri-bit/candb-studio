@@ -142,6 +142,14 @@ export class CanDatabase {
     this.attributeDefinitions.push(def);
   }
 
+  removeAttributeDefinitionAt(index: number): boolean {
+    if (index < 0 || index >= this.attributeDefinitions.length) {
+      return false;
+    }
+    this.attributeDefinitions.splice(index, 1);
+    return true;
+  }
+
   /* ── Environment Variable operations ───────────────────── */
 
   findEnvironmentVariable(name: string): EnvironmentVariable | undefined {

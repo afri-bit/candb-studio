@@ -126,13 +126,25 @@ suite('MonitorService', () => {
 
   suite('event bus emissions', () => {
     test('emits bus:frameReceived when the frame ID is not defined in the database', () => {
-      const frames: CanFrame[] = [];
-      eventBus.on('bus:frameReceived', (f) => frames.push(f));
+      const payloads: Array<{ frame: CanFrame; direction: string }> = [];
+      eventBus.on('bus:frameReceived', (p) => payloads.push(p));
       service.start();
 
       adapter.pushFrame(new CanFrame({ id: 0x1A3, data: new Uint8Array(8) }));
-      assert.strictEqual(frames.length, 1);
-      assert.strictEqual(frames[0].id, 0x1A3);
+      assert.strictEqual(payloads.length, 1);
+      assert.strictEqual(payloads[0].frame.id, 0x1A3);
+      assert.strictEqual(payloads[0].direction, 'rx');
+    });
+
+    test('classifies loopback echo as tx when frameTransmitted matches receive', () => {
+      const dirs: string[] = [];
+      eventBus.on('bus:frameReceived', (p) => dirs.push(p.direction));
+      service.start();
+      const f = new CanFrame({ id: 0x55, data: new Uint8Array([1, 2, 3, 4]) });
+      eventBus.emit('bus:frameTransmitted', f);
+      adapter.pushFrame(new CanFrame({ id: 0x55, data: new Uint8Array([1, 2, 3, 4]) }));
+      assert.strictEqual(dirs.length, 1);
+      assert.strictEqual(dirs[0], 'tx');
     });
 
     test('emits bus:messageDecoded when the frame ID matches a database message', () => {
@@ -152,12 +164,17 @@ suite('MonitorService', () => {
 
       let decodedCount = 0;
       let rawCount = 0;
-      eventBus.on('bus:messageDecoded', () => { decodedCount++; });
+      let lastDecodedDirection = '';
+      eventBus.on('bus:messageDecoded', (p) => {
+        decodedCount++;
+        lastDecodedDirection = p.direction;
+      });
       eventBus.on('bus:frameReceived', () => { rawCount++; });
 
       adapter.pushFrame(new CanFrame({ id: 0x100, data: new Uint8Array(8) }));
       assert.strictEqual(decodedCount, 1);
       assert.strictEqual(rawCount, 0);
+      assert.strictEqual(lastDecodedDirection, 'rx');
     });
 
     test('does not emit bus:messageDecoded for unknown frame IDs', () => {
@@ -185,6 +202,35 @@ suite('MonitorService', () => {
 
       adapter.pushFrame(new CanFrame({ id: 0x200, data: new Uint8Array(4) }));
       assert.strictEqual(decodedCount, 1);
+    });
+
+    test('setDatabase(null) unlinks decode and emits frameReceived for IDs that were previously decoded', () => {
+      const database = new CanDatabase();
+      database.signalPool.push(new Signal({ name: 'RPM', startBit: 0, bitLength: 16 }));
+      const msg = new Message({ id: 0x100, name: 'EngineStatus', dlc: 8 });
+      msg.addSignalRef({
+        signalName: 'RPM',
+        startBit: 0,
+        bitLength: 16,
+        byteOrder: ByteOrder.LittleEndian,
+      });
+      database.addMessage(msg);
+      service.setDatabase(database);
+      service.start();
+
+      let decoded = 0;
+      let raw = 0;
+      eventBus.on('bus:messageDecoded', () => { decoded++; });
+      eventBus.on('bus:frameReceived', () => { raw++; });
+
+      adapter.pushFrame(new CanFrame({ id: 0x100, data: new Uint8Array(8) }));
+      assert.strictEqual(decoded, 1);
+      assert.strictEqual(raw, 0);
+
+      service.setDatabase(null);
+      adapter.pushFrame(new CanFrame({ id: 0x100, data: new Uint8Array(8) }));
+      assert.strictEqual(decoded, 1);
+      assert.strictEqual(raw, 1);
     });
   });
 });

@@ -21,9 +21,11 @@ import { CompletionProvider } from './presentation/providers/CompletionProvider'
 import { DiagnosticProvider } from './presentation/providers/DiagnosticProvider';
 import { HoverProvider } from './presentation/providers/HoverProvider';
 import { ConnectionStatusBar } from './presentation/statusbar/ConnectionStatusBar';
+import { SignalLabStatusBar } from './presentation/statusbar/SignalLabStatusBar';
 import { SignalLabPanel } from './presentation/signalLab/SignalLabPanel';
+import { SignalLabSidebarViewProvider } from './presentation/signalLab/SignalLabSidebarViewProvider';
 import { WebviewMessageHandler } from './presentation/webview/WebviewMessageHandler';
-import { Commands } from './shared/constants';
+import { Commands, SIGNAL_LAB_SIDEBAR_VIEW_ID } from './shared/constants';
 
 export function activate(context: vscode.ExtensionContext): void {
   Logger.initialize();
@@ -57,6 +59,24 @@ export function activate(context: vscode.ExtensionContext): void {
     eventBus,
   );
 
+  const signalLabBar = new SignalLabStatusBar(() => {
+    const { monitorRunning, periodicIntervals } = messageHandler.getSignalLabBusState();
+    return monitorRunning || Object.keys(periodicIntervals).length > 0;
+  }, context);
+
+  const signalLabSidebar = new SignalLabSidebarViewProvider(() => messageHandler.getSignalLabHostSnapshot());
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(SIGNAL_LAB_SIDEBAR_VIEW_ID, signalLabSidebar),
+  );
+
+  const refreshSignalLabHostUi = (): void => {
+    signalLabBar.refresh();
+    signalLabSidebar.refresh();
+  };
+  messageHandler.setSignalLabActivityRefresh(refreshSignalLabHostUi);
+  context.subscriptions.push({ dispose: eventBus.on('bus:stateChanged', refreshSignalLabHostUi) });
+  refreshSignalLabHostUi();
+
   // ── Bus connectivity: deferred service wiring ───────────────────────────
   // When the ConnectBusCommand establishes an adapter, wire up the bus
   // application services and push them to the command registrar and webview.
@@ -71,13 +91,10 @@ export function activate(context: vscode.ExtensionContext): void {
       eventBus,
       databaseService.getDatabaseForBus(),
     );
-    const transmitService = new TransmitService(adapter);
+    const transmitService = new TransmitService(adapter, eventBus);
 
     const syncMonitorDatabase = (): void => {
-      const db = databaseService.getDatabaseForBus();
-      if (db) {
-        monitorService.setDatabase(db);
-      }
+      monitorService.setDatabase(databaseService.getDatabaseForBus());
     };
 
     const unsubLoaded = eventBus.on('database:loaded', (payload) => {
@@ -104,6 +121,7 @@ export function activate(context: vscode.ExtensionContext): void {
     commandRegistrar.setMonitorService(monitorService);
     messageHandler.setMonitorService(monitorService);
     messageHandler.setTransmitService(transmitService);
+    refreshSignalLabHostUi();
 
     context.subscriptions.push({
       dispose: () => {
@@ -118,6 +136,7 @@ export function activate(context: vscode.ExtensionContext): void {
     commandRegistrar.setMonitorService(null);
     messageHandler.setMonitorService(null);
     messageHandler.setTransmitService(null);
+    refreshSignalLabHostUi();
   });
 
   // ── Presentation: custom editor for .dbc files ─────────────────────────
@@ -141,17 +160,15 @@ export function activate(context: vscode.ExtensionContext): void {
   const statusBar = new ConnectionStatusBar(eventBus);
   context.subscriptions.push({ dispose: () => statusBar.dispose() });
 
-  const signalLabStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
-  signalLabStatusBar.text = '$(pulse) CAN Signal Lab';
-  signalLabStatusBar.tooltip =
-    'Open CAN Signal Lab — live frames, decode, and transmit. Also: Command Palette → “CAN Bus: Open CAN Signal Lab”.';
-  signalLabStatusBar.command = Commands.OPEN_SIGNAL_LAB;
-  signalLabStatusBar.show();
-  context.subscriptions.push(signalLabStatusBar);
-
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.OPEN_SIGNAL_LAB, () =>
       SignalLabPanel.show(context, messageHandler),
+    ),
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.CLOSE_SIGNAL_LAB, () =>
+      SignalLabPanel.closeWithConfirm(messageHandler),
     ),
   );
 

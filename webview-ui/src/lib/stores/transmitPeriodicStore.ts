@@ -41,6 +41,11 @@ function createTransmitPeriodicStore() {
         stopAll() {
             set({ intervals: {} });
         },
+
+        /** Replace state from extension (e.g. after reopening Signal Lab). */
+        syncFromExtension(intervals: Record<number, number>) {
+            set({ intervals: { ...intervals } });
+        },
     };
 }
 

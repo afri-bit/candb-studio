@@ -13,7 +13,9 @@
   "activationEvents": [
     "onLanguage:dbc",
     "onCustomEditor:vscode-canbus.canDatabaseEditor",
-    "onCommand:vscode-canbus.openSignalLab"
+    "onCommand:vscode-canbus.openSignalLab",
+    "onCommand:vscode-canbus.closeSignalLab",
+    "onView:vscode-canbus.signalLabSidebar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -40,6 +42,7 @@
       {
         "viewType": "vscode-canbus.canDatabaseEditor",
         "displayName": "CAN Database Editor",
+        "icon": "resources/canbus.svg",
         "selector": [
           {
             "filenamePattern": "*.dbc"
@@ -62,6 +65,13 @@
         {
           "id": "vscode-canbus.canDatabaseExplorer",
           "name": "CAN Database"
+        },
+        {
+          "id": "vscode-canbus.signalLabSidebar",
+          "name": "Signal Lab",
+          "type": "webview",
+          "contextualTitle": "Signal Lab",
+          "icon": "resources/signal-lab.svg"
         }
       ]
     },
@@ -74,6 +84,11 @@
       {
         "command": "vscode-canbus.openSignalLab",
         "title": "Open CAN Signal Lab",
+        "category": "CAN Bus"
+      },
+      {
+        "command": "vscode-canbus.closeSignalLab",
+        "title": "Close CAN Signal Lab…",
         "category": "CAN Bus"
       },
       {

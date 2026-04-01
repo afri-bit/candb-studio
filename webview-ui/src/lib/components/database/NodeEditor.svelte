@@ -295,7 +295,6 @@
                 <div class="detail-panel dbc-card node-detail-card">
                     <div class="dbc-card-header detail-title-row">
                         <span class="detail-title">{nodeTitle}</span>
-                        <span class="dbc-subtle">ECU / BU_</span>
                     </div>
 
                     <div class="node-tabs" role="tablist" aria-label="Node sections">
@@ -314,13 +313,8 @@
 
                     <div class="dbc-card-body node-tab-body">
                         {#if nodeTab === 'definition'}
-                            <p class="tab-hint">Node name in the DBC <code>BU_</code> list. Renaming updates references where possible.</p>
                             <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
                         {:else if nodeTab === 'mappedTx'}
-                            <p class="tab-hint">
-                                Signals in frames transmitted by this node (<code>BO_</code> sender = this node). Bit layout
-                                comes from each message’s signal mapping.
-                            </p>
                             <div class="mapped-toolbar">
                                 <button type="button" class="btn btn-disabled" disabled title="Edit mappings in Messages → Signals"
                                     >Add: individual signal</button
@@ -338,16 +332,7 @@
                                     emptyText="No mapped Tx signals — set this node as transmitter on a message, then add signals to that frame"
                                 />
                             </div>
-                            {#if mappedTxTableRows.length > 0}
-                                <p class="footer-hint">
-                                    Edit mappings in the <strong>Messages</strong> and <strong>Signals</strong> tabs.
-                                </p>
-                            {/if}
                         {:else if nodeTab === 'mappedRx'}
-                            <p class="tab-hint">
-                                Signals this node receives (aggregated from each <code>SG_</code> receiver list). Editing
-                                receivers is done per signal in the <strong>Signals</strong> tab.
-                            </p>
                             <div class="mapped-toolbar">
                                 <button type="button" class="btn btn-disabled" disabled title="Add receiver on the signal definition"
                                     >Add: individual signal</button
@@ -367,7 +352,6 @@
                                 />
                             </div>
                         {:else if nodeTab === 'txMessages'}
-                            <p class="tab-hint">Frames where this node is the <code>BO_</code> transmitter.</p>
                             <div class="table-wrap">
                                 <DataTable
                                     columns={txMsgColumns}
@@ -376,22 +360,12 @@
                                     emptyText="No transmit messages — set Transmitter on a message in the Messages tab"
                                 />
                             </div>
-                            {#if txMsgRows.length > 0 && onGotoMessage}
-                                <p class="footer-hint">Click a row to open that message in the <strong>Messages</strong> tab.</p>
-                            {/if}
                         {:else if nodeTab === 'networks'}
-                            <p class="tab-hint">
-                                This DBC describes a single logical network. The version string is taken from the file header.
-                            </p>
                             <div class="network-box">
                                 <span class="network-label">Network</span>
                                 <span class="network-value">{networkLabel}</span>
                             </div>
                         {:else if nodeTab === 'controlUnits'}
-                            <p class="tab-hint">
-                                In CANdb, <strong>BU_</strong> entries are network nodes (ECUs). This node is one control unit
-                                in the database; there is no separate “control unit” object beyond the node definition.
-                            </p>
                             <ul class="cu-list">
                                 <li><strong>Name:</strong> {selectedNode.name}</li>
                                 <li>
@@ -525,17 +499,6 @@
         overflow-y: auto;
     }
 
-    .tab-hint {
-        margin: 0 0 12px 0;
-        font-size: 11px;
-        line-height: 1.45;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .tab-hint code {
-        font-size: 10px;
-    }
-
     .empty-tab {
         margin: 0;
         font-size: 12px;
@@ -558,12 +521,6 @@
     .table-wrap {
         min-height: 120px;
         overflow: auto;
-    }
-
-    .footer-hint {
-        margin: 10px 0 0 0;
-        font-size: 11px;
-        color: var(--vscode-descriptionForeground);
     }
 
     .network-box {

@@ -100,10 +100,14 @@ export interface DecodedSignalValue {
     unit: string;
 }
 
+export type MonitorFrameDirection = 'tx' | 'rx';
+
 export interface DecodedFrameDescriptor {
     frame: CanFrameDescriptor;
     messageName: string;
     signals: DecodedSignalValue[];
+    /** Echo of our transmission vs received from bus. */
+    direction: MonitorFrameDirection;
 }
 
 /* ── Webview message protocol ── */
@@ -114,7 +118,13 @@ export type WebviewInboundMessage =
     | { type: 'monitor.clear' }
     | { type: 'connection.stateChanged'; state: CanBusState; adapterType?: string }
     | { type: 'transmit.result'; success: boolean; messageId: number; error?: string }
-    | { type: 'signalLab.context'; sessions: string[]; activeUri: string | null };
+    | {
+          type: 'signalLab.context';
+          sessions: string[];
+          activeUri: string | null;
+          monitorRunning: boolean;
+          periodicIntervals: Record<number, number>;
+      };
 
 export type WebviewOutboundMessage =
     | { type: 'database.ready' }
@@ -130,4 +140,5 @@ export type WebviewOutboundMessage =
     | { type: 'transmit.updatePeriodicPayload'; messageId: number; data: number[] }
     | { type: 'transmit.updatePeriodicInterval'; messageId: number; intervalMs: number }
     | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
-    | { type: 'signalLab.openDatabase' };
+    | { type: 'signalLab.openDatabase' }
+    | { type: 'removeAttributeDefinition'; payload: { documentUri: string; index: number } };

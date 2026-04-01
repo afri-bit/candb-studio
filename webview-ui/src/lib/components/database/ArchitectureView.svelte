@@ -111,12 +111,7 @@
 
 <div class="bus-arch">
     <header class="arch-intro">
-        <h2 class="arch-title">Bus system architecture</h2>
-        <p class="arch-lead">
-            One logical CAN network from this database{version ? ` · ${version}` : ''}. Flow follows DBC: each frame has one
-            <strong>transmitter</strong> (<code>BO_</code> sender); <strong>receivers</strong> are the union of all
-            <code>SG_</code> receiver lists on that frame’s signals.
-        </p>
+        <h2 class="arch-title">Bus architecture{version ? ` · ${version}` : ''}</h2>
     </header>
 
     <section class="stats-strip" aria-label="Database summary">
@@ -282,17 +277,6 @@
         margin: 0 0 8px 0;
         font-size: 15px;
         font-weight: 600;
-    }
-
-    .arch-lead {
-        margin: 0;
-        font-size: 12px;
-        line-height: 1.55;
-        color: var(--vscode-descriptionForeground);
-    }
-
-    .arch-lead code {
-        font-size: 11px;
     }
 
     .stats-strip {

@@ -5,6 +5,7 @@
     import { get } from 'svelte/store';
     import type { ValueTableDescriptor } from '../../types';
     import DataTable from '../shared/DataTable.svelte';
+    import SearchFilter from '../shared/SearchFilter.svelte';
     import { vscode } from '../../vscode';
     import { documentUri } from '../../stores/editorContext';
 
@@ -17,6 +18,7 @@
     type EntryRow = { raw: string; label: string };
 
     let selectedIndex: number | null = $state(null);
+    let filterText = $state('');
     let nameDraft = $state('');
     let commentDraft = $state('');
     /** Editable rows for the selected table (raw integer as text, label). */
@@ -34,8 +36,22 @@
         selectedIndex !== null ? valueTables[selectedIndex] ?? null : null,
     );
 
+    const q = $derived(filterText.trim().toLowerCase());
+
+    let filteredEntries = $derived.by(() =>
+        valueTables
+            .map((t, originalIndex) => ({ t, originalIndex }))
+            .filter(({ t }) => {
+                if (!q) {
+                    return true;
+                }
+                const c = t.comment ?? '';
+                return t.name.toLowerCase().includes(q) || c.toLowerCase().includes(q);
+            }),
+    );
+
     let rows = $derived(
-        valueTables.map((t) => {
+        filteredEntries.map(({ t }) => {
             const c = t.comment ?? '';
             return {
                 name: t.name,
@@ -44,6 +60,14 @@
             };
         }),
     );
+
+    let displayedSelectedIndex = $derived.by(() => {
+        if (selectedIndex === null) {
+            return null;
+        }
+        const fi = filteredEntries.findIndex((e) => e.originalIndex === selectedIndex);
+        return fi === -1 ? null : fi;
+    });
 
     const columns = [
         { key: 'name', label: 'Name', width: '160px' },
@@ -300,12 +324,18 @@
 
     <div class="editor-split">
         <section class="list-pane" aria-label="Value tables">
+            <div class="vt-filter">
+                <SearchFilter placeholder="Search value tables…" onFilter={(t) => (filterText = t)} />
+            </div>
             <div class="table-area dbc-card">
                 <DataTable
                     {columns}
                     {rows}
-                    {selectedIndex}
-                    onSelect={(i) => (selectedIndex = i)}
+                    selectedIndex={displayedSelectedIndex}
+                    onSelect={(i) => {
+                        const fe = filteredEntries[i];
+                        if (fe) selectedIndex = fe.originalIndex;
+                    }}
                     emptyText="No value tables — use New value table"
                 />
             </div>
@@ -393,6 +423,10 @@
 </div>
 
 <style>
+    .vt-filter {
+        flex-shrink: 0;
+    }
+
     .vt-editor {
         display: flex;
         flex-direction: column;

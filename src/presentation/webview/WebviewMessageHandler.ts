@@ -35,6 +35,8 @@ export class WebviewMessageHandler {
   private signalLabPanel: vscode.WebviewPanel | null = null;
   /** Last emitted bus state so Signal Lab can sync if opened after connect. */
   private lastBusState: CanBusState = CanBusState.Disconnected;
+  /** Extension host: refresh status bar when monitor/transmit activity changes. */
+  private signalLabActivityRefresh: (() => void) | undefined;
 
   constructor(
     private readonly databaseService: CanDatabaseService,
@@ -45,6 +47,55 @@ export class WebviewMessageHandler {
     this.monitorService = monitorService;
     this.transmitService = transmitService;
     this.subscribeToEvents();
+  }
+
+  /** Host UI (status bar) hooks when monitor or periodic transmit state changes. */
+  setSignalLabActivityRefresh(cb: (() => void) | undefined): void {
+    this.signalLabActivityRefresh = cb;
+  }
+
+  private notifySignalLabActivityChanged(): void {
+    this.signalLabActivityRefresh?.();
+  }
+
+  /** Push Signal Lab context (monitor + periodic sync) and refresh host status bar. */
+  private afterSignalLabBusMutation(): void {
+    this.pushSignalLabState();
+    this.notifySignalLabActivityChanged();
+  }
+
+  /** Bus + activity snapshot for host UI (status bar, sidebar webview). */
+  getSignalLabHostSnapshot(): {
+    busState: CanBusState;
+    monitorRunning: boolean;
+    periodicIntervals: Record<number, number>;
+  } {
+    const bus = this.getSignalLabBusState();
+    return {
+      busState: this.lastBusState,
+      monitorRunning: bus.monitorRunning,
+      periodicIntervals: bus.periodicIntervals,
+    };
+  }
+
+  /** Whether monitor is running and periodic task intervals (CAN id → ms). */
+  getSignalLabBusState(): { monitorRunning: boolean; periodicIntervals: Record<number, number> } {
+    const monitorRunning = this.monitorService?.isRunning ?? false;
+    const periodicIntervals: Record<number, number> = {};
+    for (const t of this.transmitService?.activeTasks ?? []) {
+      const m = /^periodic-(\d+)$/.exec(t.id);
+      if (m) {
+        periodicIntervals[Number(m[1])] = t.intervalMs;
+      }
+    }
+    return { monitorRunning, periodicIntervals };
+  }
+
+  /** Stop monitor and all periodic transmit (used when closing Signal Lab with “stop”). */
+  stopSignalLabBusActivity(): void {
+    this.monitorService?.stop();
+    this.transmitService?.stopAll();
+    this.notifySignalLabActivityChanged();
   }
 
   /** Update the monitor service after a hardware connection is established. */
@@ -71,12 +122,14 @@ export class WebviewMessageHandler {
       }
     });
     this.pushSignalLabState();
+    this.notifySignalLabActivityChanged();
     return new vscode.Disposable(() => {
       sub.dispose();
       disposePanel.dispose();
       if (this.signalLabPanel === panel) {
         this.signalLabPanel = null;
       }
+      this.notifySignalLabActivityChanged();
     });
   }
 
@@ -131,7 +184,10 @@ export class WebviewMessageHandler {
     void w.postMessage(message);
   }
 
-  private buildMonitorFrameFromDecoded(decoded: DecodedMessage): ExtensionToWebviewMessage {
+  private buildMonitorFrameFromDecoded(
+    decoded: DecodedMessage,
+    direction: 'tx' | 'rx',
+  ): ExtensionToWebviewMessage {
     const signals: Array<{
       signalName: string;
       rawValue: number;
@@ -161,11 +217,12 @@ export class WebviewMessageHandler {
         },
         messageName: decoded.message.name,
         signals,
+        direction,
       },
     };
   }
 
-  private buildMonitorFrameFromRaw(frame: CanFrame): ExtensionToWebviewMessage {
+  private buildMonitorFrameFromRaw(frame: CanFrame, direction: 'tx' | 'rx'): ExtensionToWebviewMessage {
     const receiveTime = Date.now();
     return {
       type: 'monitor.frame',
@@ -179,6 +236,7 @@ export class WebviewMessageHandler {
         },
         messageName: '(unknown)',
         signals: [],
+        direction,
       },
     };
   }
@@ -196,10 +254,13 @@ export class WebviewMessageHandler {
 
     const sessions = this.databaseService.getSessionUris();
     const activeUri = this.databaseService.getActiveBusDatabaseUri();
+    const bus = this.getSignalLabBusState();
     void w.postMessage({
       type: 'signalLab.context',
       sessions,
       activeUri,
+      monitorRunning: bus.monitorRunning,
+      periodicIntervals: bus.periodicIntervals,
     } satisfies ExtensionToWebviewMessage);
 
     const empty = {
@@ -233,10 +294,7 @@ export class WebviewMessageHandler {
       case 'signalLab.setActiveDatabaseUri':
         try {
           this.databaseService.setActiveBusDatabaseUri(message.uri);
-          const db = this.databaseService.getDatabaseForBus();
-          if (db) {
-            this.monitorService?.setDatabase(db);
-          }
+          this.monitorService?.setDatabase(this.databaseService.getDatabaseForBus());
         } catch (e) {
           Logger.error('signalLab.setActiveDatabaseUri failed', e);
         }
@@ -249,10 +307,12 @@ export class WebviewMessageHandler {
 
       case 'monitor.start':
         this.monitorService?.start();
+        this.afterSignalLabBusMutation();
         break;
 
       case 'monitor.stop':
         this.monitorService?.stop();
+        this.afterSignalLabBusMutation();
         break;
 
       case 'transmit.send': {
@@ -283,12 +343,14 @@ export class WebviewMessageHandler {
           intervalMs: p.intervalMs,
         });
         this.transmitService?.startPeriodic(task);
+        this.afterSignalLabBusMutation();
         break;
       }
 
       case 'transmit.stopPeriodic': {
         const taskId = `periodic-${message.messageId}`;
         this.transmitService?.stopPeriodic(taskId);
+        this.afterSignalLabBusMutation();
         break;
       }
 
@@ -299,15 +361,18 @@ export class WebviewMessageHandler {
 
       case 'transmit.updatePeriodicInterval': {
         this.transmitService?.updatePeriodicInterval(message.messageId, message.intervalMs);
+        this.afterSignalLabBusMutation();
         break;
       }
 
       case 'startMonitor':
         this.monitorService?.start();
+        this.afterSignalLabBusMutation();
         break;
 
       case 'stopMonitor':
         this.monitorService?.stop();
+        this.afterSignalLabBusMutation();
         break;
 
       case 'sendFrame': {
@@ -336,11 +401,13 @@ export class WebviewMessageHandler {
           intervalMs: p.intervalMs,
         });
         this.transmitService?.startPeriodic(task);
+        this.afterSignalLabBusMutation();
         break;
       }
 
       case 'stopPeriodicTransmit':
         this.transmitService?.stopPeriodic(message.payload.taskId);
+        this.afterSignalLabBusMutation();
         break;
 
       default:
@@ -485,6 +552,17 @@ export class WebviewMessageHandler {
           await this.persistEditorDocument(u);
         } catch (e) {
           Logger.error('addAttributeDefinition failed', e);
+        }
+        break;
+      }
+
+      case 'removeAttributeDefinition': {
+        const { documentUri: u, index } = message.payload;
+        try {
+          this.databaseService.removeAttributeDefinition(u, index);
+          await this.persistEditorDocument(u);
+        } catch (e) {
+          Logger.error('removeAttributeDefinition failed', e);
         }
         break;
       }
@@ -638,12 +716,12 @@ export class WebviewMessageHandler {
       });
     });
 
-    this.eventBus.on('bus:frameReceived', (frame) => {
-      this.postToSignalLab(this.buildMonitorFrameFromRaw(frame));
+    this.eventBus.on('bus:frameReceived', (payload) => {
+      this.postToSignalLab(this.buildMonitorFrameFromRaw(payload.frame, payload.direction));
     });
 
-    this.eventBus.on('bus:messageDecoded', (decoded) => {
-      this.postToSignalLab(this.buildMonitorFrameFromDecoded(decoded));
+    this.eventBus.on('bus:messageDecoded', (payload) => {
+      this.postToSignalLab(this.buildMonitorFrameFromDecoded(payload.decoded, payload.direction));
     });
   }
 }

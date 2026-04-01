@@ -34,7 +34,7 @@ export class CanDatabaseService {
   private lastUri: string | null = null;
   /**
    * Which loaded `.dbc` session decodes bus traffic. Set on each load, and when
-   * the user picks another session (Signal Lab). `null` only before any session exists.
+   * the user picks another session (Signal Lab). `null` means decode is unlinked (raw frames only).
    */
   private activeBusDatabaseUri: string | null = null;
 
@@ -134,7 +134,8 @@ export class CanDatabaseService {
   }
 
   /**
-   * Select which loaded `.dbc` decodes traffic on the bus. Pass `null` only to clear when no sessions exist.
+   * Select which loaded `.dbc` decodes traffic on the bus.
+   * Pass `null` to unlink decode and use raw frames only (sessions may remain open in the editor).
    */
   setActiveBusDatabaseUri(uri: string | null): void {
     if (uri !== null && !this.sessions.has(uri)) {
@@ -591,6 +592,14 @@ export class CanDatabaseService {
       comment: '',
     });
     db.addAttributeDefinition(def);
+    this.eventBus.emit('database:changed', { database: db, uri });
+  }
+
+  removeAttributeDefinition(uri: string, index: number): void {
+    const db = this.requireDatabase(uri);
+    if (!db.removeAttributeDefinitionAt(index)) {
+      throw new Error('Attribute definition not found');
+    }
     this.eventBus.emit('database:changed', { database: db, uri });
   }
 

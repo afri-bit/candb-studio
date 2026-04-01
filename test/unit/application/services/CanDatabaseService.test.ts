@@ -94,6 +94,19 @@ suite('CanDatabaseService', () => {
       );
     });
 
+    test('setActiveBusDatabaseUri(null) clears active decode while sessions remain', async () => {
+      await service.load('/fake/a.dbc');
+      await service.load('/fake/b.dbc');
+      const uris = service.getSessionUris();
+      assert.strictEqual(uris.length, 2);
+      service.setActiveBusDatabaseUri(uris[0]);
+      assert.ok(service.getDatabaseForBus());
+      service.setActiveBusDatabaseUri(null);
+      assert.strictEqual(service.getActiveBusDatabaseUri(), null);
+      assert.strictEqual(service.getDatabaseForBus(), null);
+      assert.strictEqual(service.getSessionUris().length, 2);
+    });
+
     test('emits bus:activeDatabaseUriChanged when active URI changes', async () => {
       const seen: Array<string | null> = [];
       eventBus.on('bus:activeDatabaseUriChanged', (p) => { seen.push(p.uri); });

@@ -1,7 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import type { DecodedFrameDescriptor } from '../types';
 
-/** Maximum number of frames to keep in the buffer. */
+/** Maximum number of frames to keep in the buffer (Rx + Tx combined). */
 const MAX_FRAME_BUFFER = 2000;
 
 /** Latest decoded values per CAN ID (for static message view). */
@@ -17,18 +17,34 @@ export interface LiveMessageSnapshot {
     dlc: number;
     dataHex: string;
     signals: Record<string, LiveSignalEntry>;
+    /** Standard (11-bit) vs extended (29-bit) CAN ID. */
+    isExtended: boolean;
 }
 
 interface MonitorState {
     frames: DecodedFrameDescriptor[];
     isRunning: boolean;
     filterText: string;
-    /** CAN ID → last snapshot (merged on each frame). */
-    liveByMessageId: Record<number, LiveMessageSnapshot>;
+    /** CAN ID → last snapshot for received (bus) traffic. */
+    liveRxByMessageId: Record<number, LiveMessageSnapshot>;
+    /** CAN ID → last snapshot for transmit echo / loopback. */
+    liveTxByMessageId: Record<number, LiveMessageSnapshot>;
 }
 
 function dataToHex(data: number[]): string {
     return data.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+}
+
+function applyFilter(frames: DecodedFrameDescriptor[], lower: string): DecodedFrameDescriptor[] {
+    if (!lower) {
+        return frames;
+    }
+    return frames.filter(
+        (f) =>
+            f.messageName.toLowerCase().includes(lower) ||
+            f.frame.id.toString(16).includes(lower) ||
+            f.signals.some((s) => s.signalName.toLowerCase().includes(lower)),
+    );
 }
 
 function createMonitorStore() {
@@ -36,7 +52,8 @@ function createMonitorStore() {
         frames: [],
         isRunning: false,
         filterText: '',
-        liveByMessageId: {},
+        liveRxByMessageId: {},
+        liveTxByMessageId: {},
     });
 
     return {
@@ -50,7 +67,8 @@ function createMonitorStore() {
                 }
 
                 const id = frame.frame.id;
-                const prev = state.liveByMessageId[id]?.signals ?? {};
+                const liveKey = frame.direction === 'tx' ? 'liveTxByMessageId' : 'liveRxByMessageId';
+                const prev = state[liveKey][id]?.signals ?? {};
                 const signals: Record<string, LiveSignalEntry> = { ...prev };
                 for (const s of frame.signals) {
                     signals[s.signalName] = {
@@ -59,23 +77,33 @@ function createMonitorStore() {
                         unit: s.unit,
                     };
                 }
-                const liveByMessageId = {
-                    ...state.liveByMessageId,
-                    [id]: {
-                        messageName: frame.messageName,
-                        timestamp: frame.frame.timestamp,
-                        dlc: frame.frame.dlc,
-                        dataHex: dataToHex(frame.frame.data),
-                        signals,
-                    },
+                const snapshot: LiveMessageSnapshot = {
+                    messageName: frame.messageName,
+                    timestamp: frame.frame.timestamp,
+                    dlc: frame.frame.dlc,
+                    dataHex: dataToHex(frame.frame.data),
+                    signals,
+                    isExtended: frame.frame.isExtended,
                 };
 
-                return { ...state, frames, liveByMessageId };
+                return {
+                    ...state,
+                    frames,
+                    [liveKey]: {
+                        ...state[liveKey],
+                        [id]: snapshot,
+                    },
+                };
             });
         },
 
         clear() {
-            update((state) => ({ ...state, frames: [], liveByMessageId: {} }));
+            update((state) => ({
+                ...state,
+                frames: [],
+                liveRxByMessageId: {},
+                liveTxByMessageId: {},
+            }));
         },
 
         setRunning(running: boolean) {
@@ -90,16 +118,26 @@ function createMonitorStore() {
 
 export const monitorStore = createMonitorStore();
 
-/** Frames filtered by the current search text. */
-export const filteredFrames = derived(monitorStore, ($store) => {
-    if (!$store.filterText) {
-        return $store.frames;
-    }
+function filterFrames($store: MonitorState): DecodedFrameDescriptor[] {
     const lower = $store.filterText.toLowerCase();
-    return $store.frames.filter(
-        (f) =>
-            f.messageName.toLowerCase().includes(lower) ||
-            f.frame.id.toString(16).includes(lower) ||
-            f.signals.some((s) => s.signalName.toLowerCase().includes(lower)),
+    return applyFilter($store.frames, lower);
+}
+
+/** All frames matching the filter (Rx + Tx). */
+export const filteredFrames = derived(monitorStore, filterFrames);
+
+export const filteredRxFrames = derived(monitorStore, ($store) => {
+    const lower = $store.filterText.toLowerCase();
+    return applyFilter(
+        $store.frames.filter((f) => f.direction === 'rx'),
+        lower,
+    );
+});
+
+export const filteredTxFrames = derived(monitorStore, ($store) => {
+    const lower = $store.filterText.toLowerCase();
+    return applyFilter(
+        $store.frames.filter((f) => f.direction === 'tx'),
+        lower,
     );
 });

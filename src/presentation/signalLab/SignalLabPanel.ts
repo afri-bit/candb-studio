@@ -13,6 +13,35 @@ const PANEL_VIEW_TYPE = 'vscode-canbus.signalLab';
 export class SignalLabPanel {
   private static panel: vscode.WebviewPanel | undefined;
 
+  /**
+   * Close the panel after an optional confirmation. Does not stop the bus unless the user picks “Stop bus & close”.
+   */
+  static async closeWithConfirm(messageHandler: WebviewMessageHandler): Promise<void> {
+    const panel = SignalLabPanel.panel;
+    if (!panel) {
+      void vscode.window.showInformationMessage('CAN Signal Lab is not open.');
+      return;
+    }
+    const choice = await vscode.window.showWarningMessage(
+      'Close CAN Signal Lab?',
+      {
+        modal: true,
+        detail:
+          'Monitoring and periodic transmit keep running in the background if you only close the panel. Stop the bus here if you want to halt them.',
+      },
+      'Close',
+      'Stop bus & close',
+      'Cancel',
+    );
+    if (choice === 'Cancel' || choice === undefined) {
+      return;
+    }
+    if (choice === 'Stop bus & close') {
+      messageHandler.stopSignalLabBusActivity();
+    }
+    panel.dispose();
+  }
+
   static async show(context: vscode.ExtensionContext, messageHandler: WebviewMessageHandler): Promise<void> {
     if (SignalLabPanel.panel) {
       SignalLabPanel.panel.reveal(vscode.ViewColumn.Beside);

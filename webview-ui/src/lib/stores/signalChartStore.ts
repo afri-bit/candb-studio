@@ -79,6 +79,23 @@ function createSignalChartStore() {
             bump();
         },
 
+        toggleSignalKey(key: string): void {
+            const prev = get(selectedKeys);
+            const next = new Set(prev);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+            for (const k of prev) {
+                if (!next.has(k)) {
+                    buffers.delete(k);
+                }
+            }
+            selectedKeys.set(next);
+            bump();
+        },
+
         appendFromFrame(frame: DecodedFrameDescriptor): void {
             if (get(ingestPaused)) {
                 return;

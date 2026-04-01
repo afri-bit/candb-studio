@@ -49,6 +49,7 @@ export type WebviewToExtensionMessage =
       payload: { documentUri: string; index: number; changes: Record<string, unknown> };
     }
   | { type: 'addAttributeDefinition'; payload: { documentUri: string } }
+  | { type: 'removeAttributeDefinition'; payload: { documentUri: string; index: number } }
   | {
       type: 'addValueTable';
       payload: {
@@ -102,9 +103,19 @@ export type ExtensionToWebviewMessage =
           physicalValue: number;
           unit: string;
         }>;
+        /** Loopback echo of our transmit vs bus receive. */
+        direction: 'tx' | 'rx';
       };
     }
   /** VS Code–style connection update (Signal Lab). */
   | { type: 'connection.stateChanged'; state: string; adapterType?: string }
   /** Loaded DBC sessions and which one is active for decode. */
-  | { type: 'signalLab.context'; sessions: string[]; activeUri: string | null };
+  | {
+      type: 'signalLab.context';
+      sessions: string[];
+      activeUri: string | null;
+      /** Extension-side monitor state (webview syncs on open). */
+      monitorRunning: boolean;
+      /** CAN id → interval ms for active periodic transmit tasks. */
+      periodicIntervals: Record<number, number>;
+    };

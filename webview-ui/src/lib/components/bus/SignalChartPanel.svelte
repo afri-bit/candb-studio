@@ -123,18 +123,12 @@
     {#if !$isConnected}
         <div class="chart-hero" role="status">
             <p class="hero-title">Connect hardware</p>
-            <p class="hero-body">
-                Connect a CAN adapter from the status bar or Command Palette, then start the monitor on the Monitor tab. Charts
-                plot decoded physical values from live traffic.
-            </p>
+            <p class="hero-body">Connect a CAN adapter, then start the monitor on the Monitor tab.</p>
         </div>
     {:else if !$monitorStore.isRunning}
         <div class="chart-hero" role="status">
             <p class="hero-title">Start monitoring</p>
-            <p class="hero-body">
-                Open the <strong>Monitor</strong> tab and press <strong>Start</strong> so frames are decoded. Return here to pick
-                signals and view traces.
-            </p>
+            <p class="hero-body">Start the monitor on the <strong>Monitor</strong> tab to decode frames.</p>
         </div>
     {:else}
         <div class="chart-layout">
@@ -151,12 +145,15 @@
                                     checked={$signalChartSelectedKeys.has(o.key)}
                                     onchange={() => toggleKey(o.key)}
                                 />
-                                <span class="picker-label" title="{o.messageName} · {o.signalName}">
-                                    <span class="picker-msg">{o.messageName}</span>
-                                    <span class="picker-sig">{o.signalName}</span>
-                                    {#if o.unit}
-                                        <span class="picker-unit">{o.unit}</span>
-                                    {/if}
+                                <span class="picker-main" title="{o.messageName} · {o.signalName}">
+                                    <span class="picker-line1"
+                                        ><span class="picker-msg">{o.messageName}</span>
+                                        <span class="picker-id">0x{o.messageId.toString(16).toUpperCase()}</span></span
+                                    >
+                                    <span class="picker-line2"
+                                        ><span class="picker-sig">{o.signalName}</span>
+                                        {#if o.unit}<span class="picker-unit">{o.unit}</span>{/if}</span
+                                    >
                                 </span>
                             </label>
                         {/each}
@@ -168,10 +165,7 @@
                 {#if selectedArr.length === 0}
                     <div class="chart-hero chart-hero-inline" role="status">
                         <p class="hero-title">Select signals</p>
-                        <p class="hero-body">
-                            Choose one or more signals on the left. Each selection gets its own chart with a shared time axis
-                            (timestamps from decoded frames).
-                        </p>
+                        <p class="hero-body">Check signals in the list to plot decoded values.</p>
                     </div>
                 {:else}
                     {#each chartRows as row (row.key)}
@@ -250,39 +244,74 @@
     }
 
     .picker-row {
-        display: flex;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
         gap: 8px;
-        padding: 6px 8px;
-        border-radius: 4px;
+        padding: 8px 10px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 0.86em;
-        line-height: 1.35;
+        font-size: 0.82em;
+        line-height: 1.3;
+        border: 1px solid transparent;
     }
 
     .picker-row:hover {
         background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 70%, transparent);
+        border-color: color-mix(in srgb, var(--vscode-widget-border) 50%, transparent);
+    }
+
+    .picker-row:has(input:checked) {
+        background: color-mix(in srgb, var(--vscode-charts-green) 10%, var(--vscode-editor-background));
+        border-color: color-mix(in srgb, var(--vscode-charts-green) 35%, transparent);
     }
 
     .picker-row input {
-        margin-top: 2px;
+        margin-top: 4px;
     }
 
-    .picker-label {
+    .picker-main {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 3px;
         min-width: 0;
     }
 
+    .picker-line1 {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .picker-line2 {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
     .picker-msg {
+        font-weight: 600;
+        color: var(--vscode-foreground);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+    }
+
+    .picker-id {
+        flex-shrink: 0;
+        font-family: var(--vscode-editor-font-family, monospace);
+        font-size: 0.85em;
         color: var(--vscode-descriptionForeground);
-        font-size: 0.95em;
     }
 
     .picker-sig {
         font-weight: 600;
-        color: var(--vscode-foreground);
+        font-family: var(--vscode-editor-font-family, monospace);
+        color: var(--vscode-descriptionForeground);
     }
 
     .picker-unit {

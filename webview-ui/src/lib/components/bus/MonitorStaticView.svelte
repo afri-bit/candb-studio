@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Static layout: one expandable block per DBC message; signal rows update from live bus data.
+     * Static layout: DBC messages with live values, split into Received (Rx) and Transmitted (Tx) echo lists.
      */
     import type { MessageDescriptor, SignalDescriptor } from '../../types';
     import { monitorStore, type LiveMessageSnapshot } from '../../stores/monitorStore';
@@ -12,7 +12,6 @@
 
     let { messages, filterText }: Props = $props();
 
-    /** Unix time in milliseconds (host receive time). */
     function formatUnixMs(ts: number): string {
         return String(Math.round(ts));
     }
@@ -39,9 +38,10 @@
             .sort((a, b) => a.id - b.id);
     });
 
-    let unknownLive = $derived.by(() => {
+    function unknownFor(
+        live: Record<number, LiveMessageSnapshot>,
+    ): Array<{ id: number; snap: LiveMessageSnapshot }> {
         const q = filterText.trim().toLowerCase();
-        const live = $monitorStore.liveByMessageId;
         const out: Array<{ id: number; snap: LiveMessageSnapshot }> = [];
         for (const idStr of Object.keys(live)) {
             const id = Number(idStr);
@@ -56,20 +56,24 @@
         }
         out.sort((a, b) => a.id - b.id);
         return out;
-    });
+    }
+
+    let unknownRx = $derived(unknownFor($monitorStore.liveRxByMessageId));
+    let unknownTx = $derived(unknownFor($monitorStore.liveTxByMessageId));
 </script>
 
 <div class="static-root">
     <div class="static-hint">
-        Values update when frames arrive. Expand a message to see signals from the database; payload shows the last raw bytes.
+        Values update when frames arrive — <strong>Rx</strong> is bus receive, <strong>Tx</strong> is echo of frames you sent (loopback).
         {#if !$monitorStore.isRunning}
             <span class="static-warn">Start monitoring to receive updates.</span>
         {/if}
     </div>
 
     <div class="static-scroll">
-        {#each filteredMessages as msg (msg.id)}
-            {@const live = $monitorStore.liveByMessageId[msg.id]}
+        <h3 class="section-label">Received (Rx)</h3>
+        {#each filteredMessages as msg (`rx-${msg.id}`)}
+            {@const live = $monitorStore.liveRxByMessageId[msg.id]}
             <details class="msg-block">
                 <summary class="msg-summary">
                     <span class="msg-title">{msg.name}</span>
@@ -122,10 +126,10 @@
             </details>
         {/each}
 
-        {#if unknownLive.length > 0}
+        {#if unknownRx.length > 0}
             <div class="unknown-section">
-                <h4 class="unknown-title">Frames not in the active database</h4>
-                {#each unknownLive as { id, snap } (id)}
+                <h4 class="unknown-title">Frames not in database (Rx)</h4>
+                {#each unknownRx as { id, snap } (id)}
                     <details class="msg-block unknown">
                         <summary class="msg-summary">
                             <span class="msg-title">{snap.messageName}</span>
@@ -165,7 +169,105 @@
             </div>
         {/if}
 
-        {#if filteredMessages.length === 0 && unknownLive.length === 0}
+        <h3 class="section-label section-label--tx">Transmitted (Tx)</h3>
+        {#each filteredMessages as msg (`tx-${msg.id}`)}
+            {@const live = $monitorStore.liveTxByMessageId[msg.id]}
+            <details class="msg-block msg-block--tx">
+                <summary class="msg-summary">
+                    <span class="msg-title">{msg.name}</span>
+                    <span class="msg-meta"
+                        >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')} · DLC {msg.dlc}</span
+                    >
+                    {#if live}
+                        <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(live.timestamp)}</span>
+                    {:else}
+                        <span class="msg-live none">—</span>
+                    {/if}
+                </summary>
+                <div class="msg-body">
+                    <table class="sig-table">
+                        <thead>
+                            <tr>
+                                <th>Signal</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+                                <th>Raw</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each msg.signals as sig (sig.name)}
+                                {@const row = live?.signals[sig.name]}
+                                <tr class:stale={!row}>
+                                    <td class="sig-name">{sig.name}</td>
+                                    <td class="sig-val">
+                                        {#if row}
+                                            {formatValue(row.physicalValue, sig.valueType)}
+                                        {:else}
+                                            —
+                                        {/if}
+                                    </td>
+                                    <td class="sig-unit">{sig.unit || row?.unit || ''}</td>
+                                    <td class="sig-raw"
+                                        >{#if row}{row.rawValue.toFixed(2)}{:else}—{/if}</td
+                                    >
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                    {#if live}
+                        <div class="payload-row">
+                            <span class="payload-label">Payload</span>
+                            <code class="payload-hex">{live.dataHex}</code>
+                        </div>
+                    {/if}
+                </div>
+            </details>
+        {/each}
+
+        {#if unknownTx.length > 0}
+            <div class="unknown-section">
+                <h4 class="unknown-title">Frames not in database (Tx)</h4>
+                {#each unknownTx as { id, snap } (id)}
+                    <details class="msg-block unknown">
+                        <summary class="msg-summary">
+                            <span class="msg-title">{snap.messageName}</span>
+                            <span class="msg-meta"
+                                >0x{id.toString(16).toUpperCase().padStart(3, '0')} · DLC {snap.dlc}</span
+                            >
+                            <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(snap.timestamp)}</span>
+                        </summary>
+                        <div class="msg-body">
+                            <div class="payload-row">
+                                <span class="payload-label">Payload</span>
+                                <code class="payload-hex">{snap.dataHex}</code>
+                            </div>
+                            {#if Object.keys(snap.signals).length > 0}
+                                <table class="sig-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Signal</th>
+                                            <th>Value</th>
+                                            <th>Unit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {#each Object.entries(snap.signals) as [name, sig] (name)}
+                                            <tr>
+                                                <td class="sig-name">{name}</td>
+                                                <td class="sig-val">{sig.physicalValue.toFixed(4)}</td>
+                                                <td class="sig-unit">{sig.unit}</td>
+                                            </tr>
+                                        {/each}
+                                    </tbody>
+                                </table>
+                            {/if}
+                        </div>
+                    </details>
+                {/each}
+            </div>
+        {/if}
+
+        {#if filteredMessages.length === 0 && unknownRx.length === 0 && unknownTx.length === 0}
             <div class="empty-static">
                 {filterText.trim().length > 0
                     ? 'No messages match the filter.'
@@ -207,10 +309,30 @@
         gap: 6px;
     }
 
+    .section-label {
+        margin: 12px 0 4px 0;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--vscode-descriptionForeground);
+    }
+
+    .section-label:first-child {
+        margin-top: 0;
+    }
+
+    .section-label--tx {
+        padding-top: 8px;
+        border-top: 1px dashed var(--vscode-widget-border, #444);
+    }
+
     .msg-block {
         border: 1px solid var(--vscode-widget-border, #444);
         border-radius: 6px;
         background: var(--vscode-editor-background);
+    }
+
+    .msg-block--tx {
+        background: color-mix(in srgb, var(--vscode-charts-orange, #d18616) 6%, var(--vscode-editor-background));
     }
 
     .msg-summary {

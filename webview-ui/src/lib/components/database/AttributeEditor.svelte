@@ -19,7 +19,6 @@
 
     let selectedIndex: number | null = $state(null);
     let attrTab = $state<'definition' | 'comment'>('definition');
-    let helpOpen = $state(false);
     /** After Add, select the new row when the database update arrives. */
     let pendingSelectNew = $state(false);
     let lastAttributeCount = $state(0);
@@ -115,6 +114,19 @@
         attrTab = 'definition';
     }
 
+    function removeSelectedAttribute() {
+        if (selectedIndex === null) return;
+        const uri = get(documentUri);
+        if (!uri) return;
+        if (!confirm('Remove this attribute definition from the database?')) return;
+        vscode.postMessage({
+            type: 'removeAttributeDefinition',
+            payload: { documentUri: uri, index: selectedIndex },
+        });
+        selectedIndex = null;
+        attrTab = 'definition';
+    }
+
     function addAttributeDefinition() {
         const uri = get(documentUri);
         if (!uri) return;
@@ -163,6 +175,15 @@
 <div class="attribute-editor">
     <div class="attr-toolbar">
         <button type="button" class="btn-add" onclick={addAttributeDefinition}>Add attribute</button>
+        <button
+            type="button"
+            class="btn-remove"
+            onclick={removeSelectedAttribute}
+            disabled={selectedIndex === null}
+            title="Remove selected attribute definition"
+        >
+            Remove
+        </button>
     </div>
     <div class="editor-split">
         <section class="list-pane" aria-label="Attribute list">
@@ -298,32 +319,12 @@
                             type="button"
                             class="btn btn-primary"
                             onclick={saveFile}
-                            title="Writes the database (including BA_DEF_ lines) to the document and saves the file"
+                            title="Save the .dbc file"
                         >
-                            OK
+                            Save
                         </button>
-                        <button type="button" class="btn" onclick={cancelSelection}>Cancel</button>
-                        <button type="button" class="btn" disabled title="Edits apply as you change fields">
-                            Apply
-                        </button>
-                        <button
-                            type="button"
-                            class="btn"
-                            onclick={() => (helpOpen = !helpOpen)}
-                            aria-expanded={helpOpen}
-                        >
-                            Help
-                        </button>
+                        <button type="button" class="btn" onclick={cancelSelection}>Clear selection</button>
                     </div>
-                    {#if helpOpen}
-                        <div class="help-box" role="note">
-                            <strong>Attribute definitions (BA_DEF_)</strong> here apply to <strong>messages</strong> and
-                            <strong>nodes</strong> only (not signals). Value type sets how defaults and limits are
-                            interpreted. Use <strong>OK</strong> to save the .dbc file; <strong>Cancel</strong> clears the
-                            selection in this panel. If the file had another target (e.g. Signal), pick Message or Node
-                            to align with this model.
-                        </div>
-                    {/if}
                 </div>
             {:else}
                 <div class="detail-placeholder">Select an attribute in the list to edit its definition.</div>
@@ -363,6 +364,27 @@
 
     .btn-add:hover {
         background: var(--vscode-button-hoverBackground);
+    }
+
+    .btn-remove {
+        padding: 5px 12px;
+        font-size: 12px;
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid var(--vscode-button-border, transparent);
+        background: color-mix(in srgb, var(--vscode-inputValidation-errorBackground) 35%, var(--vscode-button-secondaryBackground));
+        color: var(--vscode-errorForeground);
+    }
+
+    .btn-remove:hover:not(:disabled) {
+        filter: brightness(1.08);
+    }
+
+    .btn-remove:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
     }
 
     .editor-split {
@@ -534,17 +556,6 @@
 
     .btn-primary:hover:not(:disabled) {
         background: var(--vscode-button-hoverBackground);
-    }
-
-    .help-box {
-        margin: 0 12px 12px;
-        padding: 10px 12px;
-        font-size: 11px;
-        line-height: 1.5;
-        color: var(--vscode-descriptionForeground);
-        border-radius: 6px;
-        border: 1px solid var(--vscode-widget-border, #444);
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-textBlockQuote-background));
     }
 
     .detail-placeholder {
