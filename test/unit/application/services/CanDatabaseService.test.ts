@@ -65,6 +65,59 @@ suite('CanDatabaseService', () => {
     });
   });
 
+  suite('active bus database URI', () => {
+    test('after load, getActiveBusDatabaseUri and getDatabaseForBus match the session', async () => {
+      const db = await service.load('/fake/path.dbc');
+      const uri = pathToFileURL('/fake/path.dbc').href;
+      assert.strictEqual(service.getActiveBusDatabaseUri(), uri);
+      assert.strictEqual(service.getDatabaseForBus(), db);
+      assert.deepStrictEqual(service.getSessionUris(), [uri]);
+    });
+
+    test('setActiveBusDatabaseUri switches between loaded sessions', async () => {
+      await service.load('/fake/a.dbc');
+      await service.load('/fake/b.dbc');
+      const uris = service.getSessionUris();
+      assert.strictEqual(uris.length, 2);
+      service.setActiveBusDatabaseUri(uris[0]);
+      assert.strictEqual(service.getActiveBusDatabaseUri(), uris[0]);
+      assert.strictEqual(service.getDatabaseForBus(), service.getDatabase(uris[0]));
+      service.setActiveBusDatabaseUri(uris[1]);
+      assert.strictEqual(service.getActiveBusDatabaseUri(), uris[1]);
+    });
+
+    test('setActiveBusDatabaseUri rejects URI that is not a session', async () => {
+      await service.load('/fake/path.dbc');
+      assert.throws(
+        () => service.setActiveBusDatabaseUri('file:///no/such.dbc'),
+        /loaded session/,
+      );
+    });
+
+    test('setActiveBusDatabaseUri(null) clears active decode while sessions remain', async () => {
+      await service.load('/fake/a.dbc');
+      await service.load('/fake/b.dbc');
+      const uris = service.getSessionUris();
+      assert.strictEqual(uris.length, 2);
+      service.setActiveBusDatabaseUri(uris[0]);
+      assert.ok(service.getDatabaseForBus());
+      service.setActiveBusDatabaseUri(null);
+      assert.strictEqual(service.getActiveBusDatabaseUri(), null);
+      assert.strictEqual(service.getDatabaseForBus(), null);
+      assert.strictEqual(service.getSessionUris().length, 2);
+    });
+
+    test('emits bus:activeDatabaseUriChanged when active URI changes', async () => {
+      const seen: Array<string | null> = [];
+      eventBus.on('bus:activeDatabaseUriChanged', (p) => { seen.push(p.uri); });
+      await service.load('/fake/a.dbc');
+      await service.load('/fake/b.dbc');
+      const uris = service.getSessionUris();
+      service.setActiveBusDatabaseUri(uris[0]);
+      assert.ok(seen.includes(uris[0]));
+    });
+  });
+
   suite('save', () => {
     test('throws when no database is loaded', async () => {
       await assert.rejects(() => service.save(), /No database loaded/);

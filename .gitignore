@@ -12,8 +12,8 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-package-lock.json
 *.db*
+!test/fixtures/**/*.dbc
 build/
 dist/
 out/

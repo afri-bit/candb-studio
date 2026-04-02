@@ -1,14 +1,18 @@
 ---
-name: vscode-canbus-development
-description: Builds, layout, and workflows for the vscode-canbus repo — extension host vs webview, compile steps, and where to change behavior. Use when implementing features, debugging the custom editor, or navigating src/ and webview-ui/.
+name: candb-studio-development
+description: Builds, layout, and workflows for the candb-studio repo — extension host vs webview, compile steps, and where to change behavior. Use when implementing features, debugging the custom editor, or navigating src/ and webview-ui/.
 ---
 
-# vscode-canbus development
+# candb-studio development
 
 ## Build
 - **Full compile**: `npm run compile` — runs `build:webview` (Vite) then webpack for `dist/extension.js`.
 - **Webview only**: `npm run build --prefix webview-ui`.
 - Extension entry: `package.json` → `main: ./dist/extension.js`.
+
+## Formatting
+- **Prettier** (root): `npm run format` formats `src/**/*.ts` (4 spaces) and `webview-ui/**/*.{ts,svelte,css,js}` (2 spaces; `prettier-plugin-svelte` for `.svelte`).
+- **Svelte check**: `npm run check --prefix webview-ui` before merging large UI changes.
 
 ## Repository map
 | Area | Path |

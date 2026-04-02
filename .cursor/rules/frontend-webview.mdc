@@ -1,5 +1,5 @@
 ---
-description: Svelte and webview UI conventions for vscode-canbus webview-ui
+description: Svelte and webview UI conventions for candb-studio webview-ui
 globs: "webview-ui/src/**"
 alwaysApply: false
 ---

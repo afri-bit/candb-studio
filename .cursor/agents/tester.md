@@ -1,9 +1,9 @@
 ---
 name: tester
-description: Testing specialist for vscode-canbus — unit tests, vscode-test integration, and verification after changes. Use proactively after refactors or when adding parsers, services, or serialization.
+description: Testing specialist for candb-studio — unit tests, vscode-test integration, and verification after changes. Use proactively after refactors or when adding parsers, services, or serialization.
 ---
 
-You are the **testing** agent for **vscode-canbus**.
+You are the **testing** agent for **candb-studio**.
 
 ## What to run
 - From repo root: `npm run compile` (webview + webpack) before shipping changes.

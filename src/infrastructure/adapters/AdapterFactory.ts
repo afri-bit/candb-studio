@@ -1,5 +1,5 @@
-import type { ICanBusAdapter } from '../../core/interfaces/bus/ICanBusAdapter';
 import { AdapterType } from '../../core/enums/AdapterType';
+import type { ICanBusAdapter } from '../../core/interfaces/bus/ICanBusAdapter';
 import { SocketCanAdapter } from './SocketCanAdapter';
 import { VirtualCanAdapter } from './VirtualCanAdapter';
 
@@ -9,27 +9,27 @@ import { VirtualCanAdapter } from './VirtualCanAdapter';
  * registered here without touching existing code.
  */
 export class AdapterFactory {
-  private static readonly registry = new Map<AdapterType, () => ICanBusAdapter>([
-    [AdapterType.SocketCAN, () => new SocketCanAdapter()],
-    [AdapterType.Virtual, () => new VirtualCanAdapter()],
-  ]);
+    private static readonly registry = new Map<AdapterType, () => ICanBusAdapter>([
+        [AdapterType.SocketCAN, () => new SocketCanAdapter()],
+        [AdapterType.Virtual, () => new VirtualCanAdapter()],
+    ]);
 
-  /** Create a new adapter instance for the given type. */
-  static create(type: AdapterType): ICanBusAdapter {
-    const factory = AdapterFactory.registry.get(type);
-    if (!factory) {
-      throw new Error(`No adapter registered for type: ${type}`);
+    /** Create a new adapter instance for the given type. */
+    static create(type: AdapterType): ICanBusAdapter {
+        const factory = AdapterFactory.registry.get(type);
+        if (!factory) {
+            throw new Error(`No adapter registered for type: ${type}`);
+        }
+        return factory();
     }
-    return factory();
-  }
 
-  /** Register a custom adapter factory for a given type. */
-  static register(type: AdapterType, factory: () => ICanBusAdapter): void {
-    AdapterFactory.registry.set(type, factory);
-  }
+    /** Register a custom adapter factory for a given type. */
+    static register(type: AdapterType, factory: () => ICanBusAdapter): void {
+        AdapterFactory.registry.set(type, factory);
+    }
 
-  /** Return all currently registered adapter types. */
-  static getSupportedTypes(): AdapterType[] {
-    return Array.from(AdapterFactory.registry.keys());
-  }
+    /** Return all currently registered adapter types. */
+    static getSupportedTypes(): AdapterType[] {
+        return Array.from(AdapterFactory.registry.keys());
+    }
 }

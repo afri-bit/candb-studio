@@ -1,6 +1,6 @@
 {
-  "name": "vscode-canbus",
-  "displayName": "CAN Bus Tools",
+  "name": "candb-studio",
+  "displayName": "CANdb Studio",
   "description": "CAN database editor and bus connectivity tools for VS Code",
   "version": "0.0.1",
   "engines": {
@@ -12,7 +12,10 @@
   ],
   "activationEvents": [
     "onLanguage:dbc",
-    "onCustomEditor:vscode-canbus.canDatabaseEditor"
+    "onCustomEditor:candb-studio.canDatabaseEditor",
+    "onCommand:candb-studio.openSignalLab",
+    "onCommand:candb-studio.closeSignalLab",
+    "onView:candb-studio.signalLabSidebar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -37,8 +40,9 @@
     ],
     "customEditors": [
       {
-        "viewType": "vscode-canbus.canDatabaseEditor",
+        "viewType": "candb-studio.canDatabaseEditor",
         "displayName": "CAN Database Editor",
+        "icon": "resources/canbus.svg",
         "selector": [
           {
             "filenamePattern": "*.dbc"
@@ -51,7 +55,7 @@
       "activitybar": [
         {
           "id": "canbus-explorer",
-          "title": "CAN Bus Explorer",
+          "title": "CANdb Studio",
           "icon": "resources/canbus.svg"
         }
       ]
@@ -59,41 +63,58 @@
     "views": {
       "canbus-explorer": [
         {
-          "id": "vscode-canbus.canDatabaseExplorer",
+          "id": "candb-studio.canDatabaseExplorer",
           "name": "CAN Database"
+        },
+        {
+          "id": "candb-studio.signalLabSidebar",
+          "name": "Signal Lab",
+          "type": "webview",
+          "contextualTitle": "Signal Lab",
+          "icon": "resources/signal-lab.svg"
         }
       ]
     },
     "commands": [
       {
-        "command": "vscode-canbus.openDatabase",
+        "command": "candb-studio.openDatabase",
         "title": "Open CAN Database",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       },
       {
-        "command": "vscode-canbus.connectBus",
+        "command": "candb-studio.openSignalLab",
+        "title": "Open CAN Signal Lab",
+        "category": "CANdb Studio"
+      },
+      {
+        "command": "candb-studio.closeSignalLab",
+        "title": "Close CAN Signal Lab…",
+        "category": "CANdb Studio"
+      },
+      {
+        "command": "candb-studio.connectBus",
         "title": "Connect to CAN Bus",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       },
       {
-        "command": "vscode-canbus.disconnectBus",
+        "command": "candb-studio.disconnectBus",
         "title": "Disconnect from CAN Bus",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       },
       {
-        "command": "vscode-canbus.startMonitor",
+        "command": "candb-studio.startMonitor",
         "title": "Start CAN Monitor",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       },
       {
-        "command": "vscode-canbus.stopMonitor",
+        "command": "candb-studio.stopMonitor",
         "title": "Stop CAN Monitor",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       },
       {
-        "command": "vscode-canbus.transmitMessage",
+        "command": "candb-studio.transmitMessage",
         "title": "Transmit CAN Message",
-        "category": "CAN Bus"
+        "category": "CANdb Studio"
       }
     ]
   },
@@ -107,19 +128,27 @@
     "watch-tests": "tsc -p ./tsconfig.test.json -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "format": "prettier --write \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
+    "test": "vscode-test",
+    "test:unit": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\" && npm run compile-tests && mocha --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/**/*.test.js\"",
+    "test:integration": "npm run compile && npm run compile-tests && cross-env VSCODE_TEST_FILES=out/test/integration/**/*.test.js vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.110.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.54.0",
-    "eslint": "^9.39.2",
-    "typescript": "^5.9.3",
-    "ts-loader": "^9.5.4",
-    "webpack": "^5.104.1",
-    "webpack-cli": "^6.0.1",
+    "@types/vscode": "^1.110.0",
     "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.39.2",
+    "mocha": "^11.7.5",
+    "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^3.5.1",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
   }
 }

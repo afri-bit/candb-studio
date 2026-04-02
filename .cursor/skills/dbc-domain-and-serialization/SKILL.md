@@ -1,6 +1,6 @@
 ---
 name: dbc-domain-and-serialization
-description: CANdb domain rules in vscode-canbus — signal pool, message references, value tables, VAL_ merging, orphan pool signals, and DBC round-trip expectations. Use when editing parsers, serializers, CanDatabase, or value-description logic.
+description: CANdb domain rules in candb-studio — signal pool, message references, value tables, VAL_ merging, orphan pool signals, and DBC round-trip expectations. Use when editing parsers, serializers, CanDatabase, or value-description logic.
 ---
 
 # DBC domain and serialization (this repo)

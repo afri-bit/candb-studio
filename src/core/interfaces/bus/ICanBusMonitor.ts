@@ -8,18 +8,18 @@ import type { Disposable } from '../../types';
  * It can be started and stopped independently of the underlying adapter.
  */
 export interface ICanBusMonitor {
-  /** Whether the monitor is currently capturing frames. */
-  readonly isRunning: boolean;
+    /** Whether the monitor is currently capturing frames. */
+    readonly isRunning: boolean;
 
-  /** Start capturing frames from the connected adapter. */
-  start(): void;
+    /** Start capturing frames from the connected adapter. */
+    start(): void;
 
-  /** Stop capturing frames (adapter stays connected). */
-  stop(): void;
+    /** Stop capturing frames (adapter stays connected). */
+    stop(): void;
 
-  /** Register a callback invoked for each incoming frame. Returns a disposable to unsubscribe. */
-  onFrame(callback: (frame: CanFrame) => void): Disposable;
+    /** Register a callback invoked for each incoming frame. Returns a disposable to unsubscribe. */
+    onFrame(callback: (frame: CanFrame) => void): Disposable;
 
-  /** Clear all buffered/displayed frame data. */
-  clear(): void;
+    /** Clear all buffered/displayed frame data. */
+    clear(): void;
 }

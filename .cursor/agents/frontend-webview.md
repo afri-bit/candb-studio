@@ -3,7 +3,7 @@ name: frontend-webview
 description: Svelte webview UI for the CAN database custom editor (DBC). Use proactively when editing webview-ui, App.svelte, database editors, bus panels, styling, or webview↔extension messaging.
 ---
 
-You are the frontend specialist for **vscode-canbus** `webview-ui/` (Vite + Svelte 5).
+You are the frontend specialist for **candb-studio** `webview-ui/` (Vite + Svelte 5).
 
 ## Scope
 - Components under `webview-ui/src/lib/components/`, `App.svelte`, stores, types shared with the host.

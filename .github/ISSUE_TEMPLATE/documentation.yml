@@ -1,0 +1,26 @@
+name: Documentation
+description: Report incorrect, missing, or confusing docs (README, ARCHITECTURE, in-repo guides)
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: What needs changing?
+      description: Link or path (e.g. `docs/ARCHITECTURE.md`, `AGENTS.md`, webview README).
+      placeholder: e.g. docs/architecture/03-application-layer.md — MonitorService section
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: What’s wrong or missing?
+      description: Outdated statement, typo, gap for new contributors, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix (optional)
+      description: Short outline or patch idea.

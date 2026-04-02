@@ -1,6 +1,8 @@
-# vscode-canbus architecture
+# CANdb Studio architecture
 
-High-level view of how the extension is structured: **persistence**, **domain**, **application services**, **presentation** (custom editor, webview, tree, language features), and **optional hardware** (monitor / transmit).
+High-level view of how the **candb-studio** extension is structured: **persistence**, **domain**, **application services**, **presentation** (custom editor, webview, tree, language features), and **optional hardware** (monitor / transmit).
+
+**Step-by-step extension-host guide (layered, with diagrams):** see [architecture/README.md](architecture/README.md) — start with [architecture/01-overview.md](architecture/01-overview.md).
 
 ## Layered overview
 
@@ -113,7 +115,26 @@ The **CAN Database** sidebar tree lists **Unlinked signals** separately, with a 
 | Custom editor | `src/presentation/editors/CanDatabaseEditorProvider.ts` |
 | Sidebar tree | `src/presentation/views/treeview/` |
 | Webview UI | `webview-ui/src/` |
+| Signal Lab webview | `webview-ui/signal-lab.html`, `SignalLabApp.svelte` |
 
 In the **DBC custom editor**, the **Architecture** tab (`ArchitectureView.svelte`) shows the same layered extension overview plus a **live network map**: every **BU_** node from the loaded file, with messages grouped by **transmitter**, plus frames whose transmitter is missing or not in the node list.
+
+## Signal Lab (singleton webview)
+
+**Signal Lab** is the instrumentation surface: live frames, decoded signals, and transmit. It is separate from the **CAN Database Editor** webview, which is for authoring the DBC (messages, signals, nodes, value tables, attributes). One Signal Lab panel is opened via the status bar or Command Palette; a second invocation reveals the existing panel.
+
+**Active database for the bus**: `CanDatabaseService` tracks which loaded session (`TextDocument` URI) decodes traffic and fills the transmit message list. The user selects this in Signal Lab; `MonitorService` uses `getDatabaseForBus()` after connect and when the active URI changes.
+
+Bus traffic is posted to the Signal Lab webview only (not broadcast to every custom editor), to avoid duplicate work when multiple `.dbc` tabs are open.
+
+### Signal Lab graphs
+
+Charts are implemented in the **Signal Lab** webview **Charts** tab:
+
+- **Data**: The same decoded traffic as Monitor (`monitor.frame` → `DecodedFrameDescriptor`). The webview keeps **ring buffers per selected signal** (Unix ms on X, physical value on Y), keyed by `${frameId}:${signalName}`, with a **fixed cap** per series (`MAX_CHART_POINTS` in `signalChartStore`) so memory stays bounded. Ingestion runs only for **checked** signals (not for every decoded field).
+- **UI throttle**: Chart redraws are driven by a **revision counter** throttled to ~**20 Hz** (50 ms interval), not on every frame, so the UI stays smooth under high bus rates.
+- **Library**: **[uPlot](https://github.com/leeoniya/uPlot)** (canvas, small bundle) in the Signal Lab build; CSS is pulled in via `signal-lab-main.ts`. One uPlot instance per selected signal (stacked cards).
+- **Tab visibility**: When the **Charts** tab is not active, **append to ring buffers is paused** to save CPU on high-rate traffic; switching back shows new data only after frames arrive again.
+- **Optional later**: If profiling shows pressure, aggregate samples in `MonitorService` before sending to the webview.
 
 Diagrams in this file use [Mermaid](https://mermaid.js.org/); they render on GitHub and in many Markdown preview tools.

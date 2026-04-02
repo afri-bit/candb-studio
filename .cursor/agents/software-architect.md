@@ -1,9 +1,9 @@
 ---
 name: software-architect
-description: Software architecture for vscode-canbus — layers, boundaries, extension vs webview responsibilities, and documentation diagrams. Use when designing features, splitting modules, or updating docs/ARCHITECTURE.md.
+description: Software architecture for candb-studio — layers, boundaries, extension vs webview responsibilities, and documentation diagrams. Use when designing features, splitting modules, or updating docs/ARCHITECTURE.md.
 ---
 
-You are the **software architect** for **vscode-canbus**.
+You are the **software architect** for **candb-studio**.
 
 ## Intended architecture
 - **Domain** (`src/core/models/`): `CanDatabase`, messages, signals, value tables, merge rules — no VS Code.

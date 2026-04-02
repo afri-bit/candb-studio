@@ -7,7 +7,8 @@ import { ParseError } from '../../../../src/shared/errors/ParseError';
 import { ObjectType } from '../../../../src/core/enums/ObjectType';
 import { AttributeValueType } from '../../../../src/core/enums/AttributeValueType';
 
-const FIXTURES_DIR = path.join(__dirname, '../../../fixtures');
+/** Compiled tests live under `out/test/...`; fixtures stay at repo `test/fixtures`. */
+const FIXTURES_DIR = path.join(__dirname, '../../../../..', 'test', 'fixtures');
 
 suite('DbcParser', () => {
   let parser: DbcParser;

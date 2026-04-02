@@ -1,0 +1,91 @@
+name: Bug report
+description: Something is broken or behaves incorrectly in CANdb Studio
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The more detail you provide, the faster we can reproduce it.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One or two sentences describing the problem.
+      placeholder: e.g. Saving the DBC strips VAL_ entries for…
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps from a clean state (new window, open file, click…).
+      placeholder: |
+        1. Open …
+        2. …
+        3. Observe …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it show up?
+      options:
+        - Custom DBC editor (webview)
+        - Signal Lab
+        - Sidebar / tree view
+        - Language features (hover, completion, diagnostics)
+        - CAN bus (connect / monitor / transmit)
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: vscode
+    attributes:
+      label: VS Code version
+      description: Help → About
+      placeholder: e.g. 1.110.0
+
+  - type: input
+    id: extension
+    attributes:
+      label: CANdb Studio version
+      description: Extensions view → CANdb Studio, or `package.json` if you run from source.
+      placeholder: e.g. 0.0.1
+
+  - type: textarea
+    id: os
+    attributes:
+      label: OS
+      placeholder: e.g. macOS 15, Windows 11, Ubuntu 24.04
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots (optional)
+      description: Output panel (CANdb Studio channel), errors from Developer Tools, or screenshots. Redact secrets.
+      render: markdown
+
+  - type: textarea
+    id: sample
+    attributes:
+      label: Minimal `.dbc` or snippet (optional)
+      description: If the bug depends on file content, attach the smallest example that reproduces it (or describe what to change in `test/fixtures` if applicable).
+      render: markdown

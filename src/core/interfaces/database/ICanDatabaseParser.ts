@@ -8,9 +8,9 @@ import { CanDatabase } from '../../models/database/CanDatabase';
  * file extension.
  */
 export interface ICanDatabaseParser {
-  /** File extensions this parser supports (e.g. `[".dbc"]`). */
-  readonly supportedExtensions: string[];
+    /** File extensions this parser supports (e.g. `[".dbc"]`). */
+    readonly supportedExtensions: string[];
 
-  /** Parse file contents into a fully populated CanDatabase. */
-  parse(content: string): CanDatabase;
+    /** Parse file contents into a fully populated CanDatabase. */
+    parse(content: string): CanDatabase;
 }

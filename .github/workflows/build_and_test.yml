@@ -1,0 +1,53 @@
+# Build, lint, unit tests, integration tests (VS Code + xvfb).
+name: Build and test
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            webview-ui/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix webview-ui
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Compile (webview + extension)
+        run: npm run compile
+
+      - name: Unit tests (Node + mocha)
+        run: npm run test:unit
+
+      - name: Integration tests (VS Code extension host)
+        uses: coactions/setup-xvfb@v1
+        env:
+          VSCODE_TEST_FILES: out/test/integration/**/*.test.js
+        with:
+          run: npx vscode-test

@@ -5,8 +5,8 @@
  * format, corresponding to little-endian and big-endian respectively.
  */
 export enum ByteOrder {
-  /** Intel byte order — least-significant bit first. */
-  LittleEndian = 0,
-  /** Motorola byte order — most-significant bit first. */
-  BigEndian = 1,
+    /** Intel byte order — least-significant bit first. */
+    LittleEndian = 0,
+    /** Motorola byte order — most-significant bit first. */
+    BigEndian = 1,
 }

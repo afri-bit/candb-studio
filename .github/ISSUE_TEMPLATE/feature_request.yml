@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest an improvement or new capability for CANdb Studio
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem you’re solving and how this feature would help. We prioritize items that fit the extension’s scope (DBC editing, exploration, and optional bus tooling).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What workflow is awkward, missing, or slow today?
+      placeholder: e.g. I need to compare two DBCs side by side…
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you imagine it working (UI, commands, file formats). Rough ideas are fine.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered (optional)
+      description: Other tools, workarounds, or simpler variants you’d accept.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Primary area
+      options:
+        - DBC editing (custom editor / webview)
+        - Signal Lab (monitor / transmit / charts)
+        - Explorer / tree
+        - Language features
+        - Parser / serialization / round-trip
+        - Bus adapters
+        - Documentation / onboarding
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Contribution (optional)
+      description: Say if you’re open to opening a PR or need implementation guidance.

@@ -2,105 +2,117 @@
  * Shared shell styling — cards, sidebar, typography (Vector-inspired clarity).
  */
 :root {
-    --dbc-radius: 10px;
-    --dbc-radius-sm: 6px;
-    --dbc-shadow: 0 1px 2px color-mix(in srgb, var(--vscode-widget-shadow) 35%, transparent),
-        0 4px 12px color-mix(in srgb, var(--vscode-widget-shadow) 18%, transparent);
-    --dbc-border: var(--vscode-panel-border, color-mix(in srgb, var(--vscode-foreground) 10%, transparent));
-    --dbc-muted: var(--vscode-descriptionForeground);
-    --dbc-accent: var(--vscode-focusBorder);
+  --dbc-radius: 10px;
+  --dbc-radius-sm: 6px;
+  --dbc-shadow:
+    0 1px 2px color-mix(in srgb, var(--vscode-widget-shadow) 35%, transparent),
+    0 4px 12px color-mix(in srgb, var(--vscode-widget-shadow) 18%, transparent);
+  --dbc-border: var(
+    --vscode-panel-border,
+    color-mix(in srgb, var(--vscode-foreground) 10%, transparent)
+  );
+  --dbc-muted: var(--vscode-descriptionForeground);
+  --dbc-accent: var(--vscode-focusBorder);
 }
 
 .dbc-shell {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    background: var(--vscode-editor-background);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
 }
 
 .dbc-sidebar {
-    /* Width is set inline in App (user-resizable). */
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    border-right: 1px solid var(--dbc-border);
-    background: color-mix(in srgb, var(--vscode-sideBar-background) 96%, var(--vscode-editor-background));
-    color: var(--vscode-sideBar-foreground, var(--vscode-foreground));
+  /* Width is set inline in App (user-resizable). */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--dbc-border);
+  background: color-mix(
+    in srgb,
+    var(--vscode-sideBar-background) 96%,
+    var(--vscode-editor-background)
+  );
+  color: var(--vscode-sideBar-foreground, var(--vscode-foreground));
 }
 
 .dbc-sidebar-header {
-    padding: 12px 14px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--dbc-muted);
+  padding: 12px 14px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dbc-muted);
 }
 
 .dbc-main {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .dbc-card {
-    background: var(--vscode-editor-background);
-    border: 1px solid var(--dbc-border);
-    border-radius: var(--dbc-radius);
-    box-shadow: var(--dbc-shadow);
-    overflow: hidden;
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--dbc-border);
+  border-radius: var(--dbc-radius);
+  box-shadow: var(--dbc-shadow);
+  overflow: hidden;
 }
 
 .dbc-card-header {
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--dbc-border);
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: -0.01em;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--vscode-list-hoverBackground));
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--dbc-border);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: color-mix(
+    in srgb,
+    var(--vscode-editor-background) 88%,
+    var(--vscode-list-hoverBackground)
+  );
 }
 
 .dbc-card-body {
-    padding: 12px 14px;
+  padding: 12px 14px;
 }
 
 .dbc-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 500;
-    background: color-mix(in srgb, var(--vscode-badge-background) 100%, transparent);
-    color: var(--vscode-badge-foreground);
-    border: 1px solid var(--dbc-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--vscode-badge-background) 100%, transparent);
+  color: var(--vscode-badge-foreground);
+  border: 1px solid var(--dbc-border);
 }
 
 .dbc-link {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    color: var(--vscode-textLink-foreground);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--vscode-textLink-foreground);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .dbc-link:hover {
-    color: var(--vscode-textLink-activeForeground);
+  color: var(--vscode-textLink-activeForeground);
 }
 
 .dbc-subtle {
-    font-size: 12px;
-    color: var(--dbc-muted);
-    font-weight: 400;
+  font-size: 12px;
+  color: var(--dbc-muted);
+  font-weight: 400;
 }
