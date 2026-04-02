@@ -9,6 +9,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Use Node 24 for JS actions (avoids Node 20 deprecation on runners); see GitHub changelog 2025-09-19.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -17,11 +21,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Lockfiles must be tracked in git for npm cache + npm ci.
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -45,36 +49,11 @@ jobs:
 
       - name: Coverage summary
         if: always()
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const p = 'coverage/coverage-summary.json';
-          if (!fs.existsSync(p)) {
-            console.log('No coverage summary found; skipping table.');
-            process.exit(0);
-          }
-          const s = JSON.parse(fs.readFileSync(p, 'utf8'));
-          const t = s.total;
-          const fmt = (x) => (x && typeof x.pct === 'number' ? x.pct.toFixed(2) : '—');
-          const lines = [
-            '## Coverage (`out/src`)',
-            '',
-            '| Metric | Coverage |',
-            '|--------|----------|',
-            `| Lines | ${fmt(t.lines)}% |`,
-            `| Statements | ${fmt(t.statements)}% |`,
-            `| Functions | ${fmt(t.functions)}% |`,
-            `| Branches | ${fmt(t.branches)}% |`,
-            '',
-            'Unit tests run under Node (c8 + mocha) with a minimal `vscode` shim. Integration tests run in the next step.',
-            '',
-          ];
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n'));
-          NODE
+        run: node scripts/coverage-summary.cjs
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage
           if-no-files-found: warn
