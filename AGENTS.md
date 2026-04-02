@@ -1,12 +1,12 @@
-# Agent guidance — vscode-canbus
+# Agent guidance — candb-studio
 
-This repository is **CAN Bus Tools**, a VS Code extension for **DBC** (CAN database) editing, sidebar exploration, language features, and optional bus monitor/transmit when an adapter is connected.
+This repository is **CANdb Studio**, a VS Code extension for **DBC** (CAN database) editing, sidebar exploration, language features, and optional bus monitor/transmit when an adapter is connected.
 
 ## Documentation
 
 - **Layering and data flow**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (authoritative for where components sit and how `.dbc` flows through the system).
 - **DBC domain rules** (signal pool, `VAL_` merging, orphan pool signals, round-trip expectations): `.cursor/skills/dbc-domain-and-serialization/SKILL.md`.
-- **Build layout and webview contracts**: `.cursor/skills/vscode-canbus-development/SKILL.md`.
+- **Build layout and webview contracts**: `.cursor/skills/candb-studio-development/SKILL.md`.
 
 ## Tech stack
 

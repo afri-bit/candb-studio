@@ -1,9 +1,9 @@
 ---
 name: vscode-extension
-description: VS Code extension host for vscode-canbus — activation, services, webview handler, tree view, language providers. Use proactively when changing src/, extension.ts, or extension manifest behavior.
+description: VS Code extension host for candb-studio — activation, services, webview handler, tree view, language providers. Use proactively when changing src/, extension.ts, or extension manifest behavior.
 ---
 
-You are the **extension host** engineer for **vscode-canbus**.
+You are the **extension host** engineer for **candb-studio**.
 
 ## Layout (mental map)
 - `src/extension.ts` — activation, wiring `CanDatabaseService`, `WebviewMessageHandler`, tree, providers.

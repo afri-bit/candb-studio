@@ -1,6 +1,6 @@
-# vscode-canbus architecture
+# CANdb Studio architecture
 
-High-level view of how the extension is structured: **persistence**, **domain**, **application services**, **presentation** (custom editor, webview, tree, language features), and **optional hardware** (monitor / transmit).
+High-level view of how the **candb-studio** extension is structured: **persistence**, **domain**, **application services**, **presentation** (custom editor, webview, tree, language features), and **optional hardware** (monitor / transmit).
 
 ## Layered overview
 

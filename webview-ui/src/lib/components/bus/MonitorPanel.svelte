@@ -10,7 +10,7 @@
     import MonitorStaticView from './MonitorStaticView.svelte';
     import MonitorRawTable from './MonitorRawTable.svelte';
 
-    const VIEW_MODE_KEY = 'vscode-canbus.monitorViewMode';
+    const VIEW_MODE_KEY = 'candb-studio.monitorViewMode';
 
     interface Props {
         messages: MessageDescriptor[];
@@ -78,7 +78,7 @@
         {#if !$isConnected}
             <div class="status-message">
                 <p class="status-lead">Not connected to a CAN adapter.</p>
-                <p class="status-detail">Use the status bar or <strong>CAN Bus: Connect to CAN Bus</strong>.</p>
+                <p class="status-detail">Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.</p>
                 <p class="status-meta">State: {$connectionStore.state}</p>
             </div>
         {:else}
@@ -144,7 +144,7 @@
         {#if !$isConnected}
             <div class="status-message">
                 <p class="status-lead">Not connected to a CAN adapter.</p>
-                <p class="status-detail">Use the status bar or <strong>CAN Bus: Connect to CAN Bus</strong>.</p>
+                <p class="status-detail">Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.</p>
                 <p class="status-meta">State: {$connectionStore.state}</p>
             </div>
         {:else if viewMode === 'log'}

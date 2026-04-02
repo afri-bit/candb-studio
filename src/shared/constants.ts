@@ -1,5 +1,5 @@
 /** Extension identifier. */
-export const EXTENSION_ID = 'vscode-canbus';
+export const EXTENSION_ID = 'candb-studio';
 
 /** DBC language identifier for VS Code language features. */
 export const DBC_LANGUAGE_ID = 'dbc';
@@ -11,7 +11,7 @@ export const DBC_EDITOR_VIEW_TYPE = `${EXTENSION_ID}.canDatabaseEditor`;
 /** Must match `contributes.views` in package.json. */
 export const CAN_DATABASE_TREE_VIEW_ID = `${EXTENSION_ID}.canDatabaseExplorer`;
 
-/** Webview view ID for the compact Signal Lab strip in the CAN Bus Explorer sidebar. */
+/** Webview view ID for the compact Signal Lab strip in the CANdb Studio sidebar. */
 export const SIGNAL_LAB_SIDEBAR_VIEW_ID = `${EXTENSION_ID}.signalLabSidebar`;
 
 /** Maximum standard CAN ID (11-bit). */

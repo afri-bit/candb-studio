@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import type { CanDatabaseService } from '../../application/services/CanDatabaseService';
 import { Logger } from '../../shared/utils/Logger';
+import { Commands } from '../../shared/constants';
 
 /**
  * Command to open and load a CAN database file (.dbc) from disk.
  */
 export class OpenDatabaseCommand {
-  static readonly ID = 'vscode-canbus.openDatabase';
+  static readonly ID = Commands.OPEN_DATABASE;
 
   constructor(private readonly databaseService: CanDatabaseService) {}
 

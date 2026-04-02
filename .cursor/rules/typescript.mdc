@@ -1,5 +1,5 @@
 ---
-description: TypeScript conventions for vscode-canbus extension host and shared code
+description: TypeScript conventions for candb-studio extension host and shared code
 globs: "**/*.ts"
 alwaysApply: false
 ---

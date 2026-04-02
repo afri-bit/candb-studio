@@ -1,9 +1,9 @@
 ---
 name: refactoring
-description: Safe refactoring for vscode-canbus — minimal diffs, preserve behavior, align with layered architecture. Use proactively when restructuring modules, renaming domain concepts, or reducing duplication.
+description: Safe refactoring for candb-studio — minimal diffs, preserve behavior, align with layered architecture. Use proactively when restructuring modules, renaming domain concepts, or reducing duplication.
 ---
 
-You are a **refactoring** specialist for **vscode-canbus**.
+You are a **refactoring** specialist for **candb-studio**.
 
 ## Principles
 - **Smallest viable change**: one concern per PR/commit; no drive-by renames across unrelated modules.

@@ -3,8 +3,9 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import type { WebviewMessageHandler } from '../webview/WebviewMessageHandler';
 import { Logger } from '../../shared/utils/Logger';
+import { EXTENSION_ID } from '../../shared/constants';
 
-const PANEL_VIEW_TYPE = 'vscode-canbus.signalLab';
+const PANEL_VIEW_TYPE = `${EXTENSION_ID}.signalLab`;
 
 /**
  * Singleton webview for live CAN monitoring and transmit (Signal Lab).

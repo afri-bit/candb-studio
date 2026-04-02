@@ -5,7 +5,7 @@ import { AdapterType } from '../../core/enums/AdapterType';
 import { CanBusState } from '../../core/enums/CanBusState';
 import { AdapterFactory } from '../../infrastructure/adapters/AdapterFactory';
 import type { EventBus } from '../../shared/events/EventBus';
-import { DEFAULT_BITRATE } from '../../shared/constants';
+import { Commands, DEFAULT_BITRATE } from '../../shared/constants';
 import { Logger } from '../../shared/utils/Logger';
 
 /**
@@ -15,7 +15,7 @@ import { Logger } from '../../shared/utils/Logger';
  * (ConnectionStatusBar, WebviewMessageHandler) react without tight coupling.
  */
 export class ConnectBusCommand {
-  static readonly ID = 'vscode-canbus.connectBus';
+  static readonly ID = Commands.CONNECT_BUS;
 
   private adapter: ICanBusAdapter | null = null;
   private adapterConnectedCallbacks = new Set<(adapter: ICanBusAdapter) => void>();

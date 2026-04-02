@@ -31,7 +31,7 @@
 
     function readStoredSidebarWidth(): number {
         try {
-            const v = localStorage.getItem('vscode-canbus.sidebarWidth');
+            const v = localStorage.getItem('candb-studio.sidebarWidth');
             if (v) {
                 const n = parseInt(v, 10);
                 if (!Number.isNaN(n)) return clampSidebarWidth(n);
@@ -46,7 +46,7 @@
 
     function persistSidebarWidth() {
         try {
-            localStorage.setItem('vscode-canbus.sidebarWidth', String(sidebarWidthPx));
+            localStorage.setItem('candb-studio.sidebarWidth', String(sidebarWidthPx));
         } catch {
             /* ignore */
         }

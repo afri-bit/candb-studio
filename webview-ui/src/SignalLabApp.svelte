@@ -14,7 +14,7 @@
     import SignalChartPanel from './lib/components/bus/SignalChartPanel.svelte';
     import type { WebviewInboundMessage } from './lib/types';
 
-    const INTRO_STORAGE_KEY = 'vscode-canbus.signalLab.introDismissed';
+    const INTRO_STORAGE_KEY = 'candb-studio.signalLab.introDismissed';
 
     type Tab = 'monitor' | 'transmit' | 'charts';
 

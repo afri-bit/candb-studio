@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import type { ConnectBusCommand } from './ConnectBusCommand';
+import { Commands } from '../../shared/constants';
 import { Logger } from '../../shared/utils/Logger';
 
 /**
  * Command to disconnect from the currently connected CAN bus.
  */
 export class DisconnectBusCommand {
-  static readonly ID = 'vscode-canbus.disconnectBus';
+  static readonly ID = Commands.DISCONNECT_BUS;
 
   constructor(private readonly connectCommand: ConnectBusCommand) {}
 

@@ -29,7 +29,7 @@ import { Commands, SIGNAL_LAB_SIDEBAR_VIEW_ID } from './shared/constants';
 
 export function activate(context: vscode.ExtensionContext): void {
   Logger.initialize();
-  Logger.info('Activating vscode-canbus extension');
+  Logger.info('Activating candb-studio extension');
 
   // ── Shared cross-cutting infrastructure ────────────────────────────────
   const eventBus = new EventBus();
@@ -172,9 +172,9 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
   );
 
-  Logger.info('vscode-canbus extension activated');
+  Logger.info('candb-studio extension activated');
 }
 
 export function deactivate(): void {
-  Logger.info('vscode-canbus extension deactivated');
+  Logger.info('candb-studio extension deactivated');
 }
