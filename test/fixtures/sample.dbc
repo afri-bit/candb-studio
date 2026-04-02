@@ -1,0 +1,26 @@
+VERSION "1.0"
+
+NS_ :
+
+BS_:
+
+BU_: ECU1 ECU2
+
+BO_ 100 EngineStatus: 8 ECU1
+ SG_ RPM : 0|16@1+ (0.25,0) [0|16383.75] "rpm" ECU2
+ SG_ Temperature : 16|8@1+ (0.5,-40) [-40|87.5] "degC" ECU2
+ SG_ ThrottlePos : 24|8@1+ (0.392157,0) [0|100] "%" ECU2
+
+BO_ 200 BrakeStatus: 4 ECU2
+ SG_ BrakePressure : 0|12@1+ (0.1,0) [0|409.5] "bar" ECU1
+ SG_ BrakeActive : 12|1@1+ (1,0) [0|1] "" ECU1
+
+BO_ 300 TransmissionStatus: 4 ECU1
+ SG_ CurrentGear : 0|4@1+ (1,0) [0|8] "" ECU2
+ SG_ GearState : 4|2@1+ (1,0) [0|3] "" ECU2
+
+CM_ SG_ 100 RPM "Engine rotational speed in RPM";
+CM_ SG_ 100 Temperature "Engine coolant temperature in degrees Celsius";
+CM_ SG_ 200 BrakePressure "Hydraulic brake line pressure";
+CM_ BO_ 100 "Engine status message broadcast by ECU1 at 10ms cycle";
+

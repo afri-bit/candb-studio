@@ -13,6 +13,7 @@ node_modules
 .vscode-test/
 *.vsix
 *.db*
+!test/fixtures/**/*.dbc
 build/
 dist/
 out/
