@@ -41,6 +41,8 @@ This repository is **CANdb Studio**, a VS Code extension for **DBC** (CAN databa
 npm run compile      # webview build + webpack
 npm run lint         # eslint on src/
 npm test             # pretest runs compile-tests, compile, lint; then vscode-test
+npm run test:coverage   # clean out/, unit tests + c8 coverage → coverage/
+npm run test:integration # compile + integration tests only (VS Code host)
 ```
 
 Use `npm run watch` for iterative extension work; rebuild webview when `webview-ui/` changes.

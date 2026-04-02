@@ -60,6 +60,12 @@ Tests live under **`test/`**, including:
 
 Parser or serializer changes should include or extend **unit** coverage where practical.
 
+| Script | Purpose |
+|--------|---------|
+| `npm test` | Full suite: compile, lint, then **@vscode/test-electron** (all tests under `out/test/`). |
+| `npm run test:coverage` | Clears `out/`, recompiles tests, runs **unit** tests under **c8** + mocha (minimal `vscode` shim). Writes `coverage/` (lcov, JSON summary, HTML). |
+| `npm run test:integration` | Builds the extension, compiles tests, runs **only** `test/integration/` in the real VS Code host (useful locally; CI runs this step after coverage). |
+
 ## Code style
 
 - Follow **existing** naming, imports, and structure in touched files.
