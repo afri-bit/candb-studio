@@ -112,7 +112,6 @@
             window.clearInterval(id);
         };
     });
-
 </script>
 
 <div class="signal-chart-panel">
@@ -123,12 +122,16 @@
     {#if !$isConnected}
         <div class="chart-hero" role="status">
             <p class="hero-title">Connect hardware</p>
-            <p class="hero-body">Connect a CAN adapter, then start the monitor on the Monitor tab.</p>
+            <p class="hero-body">
+                Connect a CAN adapter, then start the monitor on the Monitor tab.
+            </p>
         </div>
     {:else if !$monitorStore.isRunning}
         <div class="chart-hero" role="status">
             <p class="hero-title">Start monitoring</p>
-            <p class="hero-body">Start the monitor on the <strong>Monitor</strong> tab to decode frames.</p>
+            <p class="hero-body">
+                Start the monitor on the <strong>Monitor</strong> tab to decode frames.
+            </p>
         </div>
     {:else}
         <div class="chart-layout">
@@ -148,11 +151,14 @@
                                 <span class="picker-main" title="{o.messageName} · {o.signalName}">
                                     <span class="picker-line1"
                                         ><span class="picker-msg">{o.messageName}</span>
-                                        <span class="picker-id">0x{o.messageId.toString(16).toUpperCase()}</span></span
+                                        <span class="picker-id"
+                                            >0x{o.messageId.toString(16).toUpperCase()}</span
+                                        ></span
                                     >
                                     <span class="picker-line2"
                                         ><span class="picker-sig">{o.signalName}</span>
-                                        {#if o.unit}<span class="picker-unit">{o.unit}</span>{/if}</span
+                                        {#if o.unit}<span class="picker-unit">{o.unit}</span
+                                            >{/if}</span
                                     >
                                 </span>
                             </label>
@@ -214,9 +220,17 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
-        border: 1px solid var(--vscode-widget-border, color-mix(in srgb, var(--vscode-foreground) 14%, transparent));
+        border: 1px solid
+            var(
+                --vscode-widget-border,
+                color-mix(in srgb, var(--vscode-foreground) 14%, transparent)
+            );
         border-radius: 8px;
-        background: color-mix(in srgb, var(--vscode-editorWidget-background) 55%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editorWidget-background) 55%,
+            var(--vscode-editor-background)
+        );
         overflow: hidden;
     }
 
@@ -227,7 +241,11 @@
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--vscode-descriptionForeground);
-        border-bottom: 1px solid var(--vscode-widget-border, color-mix(in srgb, var(--vscode-foreground) 12%, transparent));
+        border-bottom: 1px solid
+            var(
+                --vscode-widget-border,
+                color-mix(in srgb, var(--vscode-foreground) 12%, transparent)
+            );
     }
 
     .picker-list {
@@ -262,7 +280,11 @@
     }
 
     .picker-row:has(input:checked) {
-        background: color-mix(in srgb, var(--vscode-charts-green) 10%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-charts-green) 10%,
+            var(--vscode-editor-background)
+        );
         border-color: color-mix(in srgb, var(--vscode-charts-green) 35%, transparent);
     }
 
@@ -334,8 +356,16 @@
         flex-shrink: 0;
         padding: 12px 14px 14px;
         border-radius: 8px;
-        border: 1px solid var(--vscode-widget-border, color-mix(in srgb, var(--vscode-foreground) 14%, transparent));
-        background: color-mix(in srgb, var(--vscode-editorWidget-background) 35%, var(--vscode-editor-background));
+        border: 1px solid
+            var(
+                --vscode-widget-border,
+                color-mix(in srgb, var(--vscode-foreground) 14%, transparent)
+            );
+        background: color-mix(
+            in srgb,
+            var(--vscode-editorWidget-background) 35%,
+            var(--vscode-editor-background)
+        );
     }
 
     .chart-hero {
@@ -350,7 +380,11 @@
         gap: 8px;
         border-radius: 8px;
         border: 1px dashed color-mix(in srgb, var(--vscode-foreground) 20%, transparent);
-        background: color-mix(in srgb, var(--vscode-editor-background) 94%, var(--vscode-sideBar-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 94%,
+            var(--vscode-sideBar-background)
+        );
     }
 
     .chart-hero-inline {

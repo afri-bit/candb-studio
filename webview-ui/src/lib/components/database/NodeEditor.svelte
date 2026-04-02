@@ -56,9 +56,7 @@
         })),
     );
 
-    let selectedNode = $derived(
-        selectedIndex !== null ? nodes[selectedIndex] ?? null : null,
-    );
+    let selectedNode = $derived(selectedIndex !== null ? (nodes[selectedIndex] ?? null) : null);
 
     let nodeTitle = $derived(selectedNode ? `Node '${selectedNode.name}'` : '');
 
@@ -273,7 +271,12 @@
             bind:value={newNodeName}
             onkeydown={(e) => e.key === 'Enter' && addNode()}
         />
-        <button type="button" class="btn btn-primary" onclick={addNode} disabled={!newNodeName.trim()}>
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick={addNode}
+            disabled={!newNodeName.trim()}
+        >
             Add node
         </button>
     </div>
@@ -313,16 +316,31 @@
 
                     <div class="dbc-card-body node-tab-body">
                         {#if nodeTab === 'definition'}
-                            <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+                            <PropertyGrid
+                                properties={definitionProps}
+                                onChange={onPropertyChange}
+                            />
                         {:else if nodeTab === 'mappedTx'}
                             <div class="mapped-toolbar">
-                                <button type="button" class="btn btn-disabled" disabled title="Edit mappings in Messages → Signals"
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Edit mappings in Messages → Signals"
                                     >Add: individual signal</button
                                 >
-                                <button type="button" class="btn btn-disabled" disabled title="Link signals via Messages tab"
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Link signals via Messages tab"
                                     >Add: all from one message</button
                                 >
-                                <button type="button" class="btn btn-disabled" disabled title="Unlink via message frame">Remove</button
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Unlink via message frame">Remove</button
                                 >
                             </div>
                             <div class="table-wrap">
@@ -334,14 +352,25 @@
                             </div>
                         {:else if nodeTab === 'mappedRx'}
                             <div class="mapped-toolbar">
-                                <button type="button" class="btn btn-disabled" disabled title="Add receiver on the signal definition"
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Add receiver on the signal definition"
                                     >Add: individual signal</button
                                 >
-                                <button type="button" class="btn btn-disabled" disabled title="Bulk-edit receivers via signal pool"
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Bulk-edit receivers via signal pool"
                                     >Add: all from one message</button
                                 >
-                                <button type="button" class="btn btn-disabled" disabled title="Edit SG_ receivers on the signal"
-                                    >Remove</button
+                                <button
+                                    type="button"
+                                    class="btn btn-disabled"
+                                    disabled
+                                    title="Edit SG_ receivers on the signal">Remove</button
                                 >
                             </div>
                             <div class="table-wrap">
@@ -379,8 +408,9 @@
                             </ul>
                         {:else if nodeTab === 'attributes'}
                             <p class="empty-tab">
-                                Node-level attribute instances are not edited in the visual database view yet. Use the text
-                                editor for <code>BA_</code> / <code>CM_</code> on nodes, or extend the serializer later.
+                                Node-level attribute instances are not edited in the visual database
+                                view yet. Use the text editor for <code>BA_</code> /
+                                <code>CM_</code> on nodes, or extend the serializer later.
                             </p>
                         {:else if nodeTab === 'comment'}
                             <label class="comment-block">
@@ -398,7 +428,8 @@
                 </div>
             {:else}
                 <div class="detail-placeholder">
-                    Select a node in the list to edit definition, mapped signals, and transmit frames.
+                    Select a node in the list to edit definition, mapped signals, and transmit
+                    frames.
                 </div>
             {/if}
         </section>
@@ -530,7 +561,11 @@
         padding: 12px 14px;
         border-radius: 8px;
         border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
-        background: color-mix(in srgb, var(--vscode-editor-background) 96%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 96%,
+            var(--vscode-list-hoverBackground)
+        );
         max-width: 400px;
     }
 
@@ -588,7 +623,11 @@
         color: var(--vscode-descriptionForeground);
         border: 1px dashed color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
         border-radius: var(--dbc-radius, 10px);
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     @media (max-width: 720px) {

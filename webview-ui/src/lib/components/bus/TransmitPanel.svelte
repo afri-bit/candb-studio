@@ -38,9 +38,7 @@
         if (!filterText) return messages;
         const lower = filterText.toLowerCase();
         return messages.filter(
-            (m) =>
-                m.name.toLowerCase().includes(lower) ||
-                m.id.toString(16).includes(lower),
+            (m) => m.name.toLowerCase().includes(lower) || m.id.toString(16).includes(lower),
         );
     });
 
@@ -84,7 +82,9 @@
 
     function applySignalPhysical(sig: SignalDescriptor, physical: number) {
         if (!selectedMessage || Number.isNaN(physical)) return;
-        const buf = new Uint8Array(transmitFormStore.getPayload(selectedMessage.id, selectedMessage.dlc));
+        const buf = new Uint8Array(
+            transmitFormStore.getPayload(selectedMessage.id, selectedMessage.dlc),
+        );
         encodePhysical(sig, physical, buf);
         const bytes = [...buf];
         transmitFormStore.setPayload(selectedMessage.id, bytes);
@@ -111,12 +111,19 @@
     }
 
     function getIntervalMs(): number {
-        return intervalMsFromValueAndUnit($transmitFormStore.intervalValue, $transmitFormStore.intervalUnit);
+        return intervalMsFromValueAndUnit(
+            $transmitFormStore.intervalValue,
+            $transmitFormStore.intervalUnit,
+        );
     }
 
     function syncPeriodicIntervalIfRunning(messageId: number, ms: number): void {
         if (get(transmitPeriodicStore).intervals[messageId] !== undefined) {
-            vscode.postMessage({ type: 'transmit.updatePeriodicInterval', messageId, intervalMs: ms });
+            vscode.postMessage({
+                type: 'transmit.updatePeriodicInterval',
+                messageId,
+                intervalMs: ms,
+            });
             transmitPeriodicStore.updateInterval(messageId, ms);
         }
     }
@@ -137,7 +144,11 @@
 
     function handleSendOnce() {
         if (!selectedMessage) return;
-        vscode.postMessage({ type: 'transmit.send', messageId: selectedMessage.id, data: parseDataHex() });
+        vscode.postMessage({
+            type: 'transmit.send',
+            messageId: selectedMessage.id,
+            data: parseDataHex(),
+        });
     }
 
     function stopPeriodicForId(id: number) {
@@ -191,14 +202,19 @@
 
 <div class="transmit-panel">
     <div class="toolbar">
-        <SearchFilter placeholder="Filter messages…" onFilter={(t) => transmitFormStore.setFilterText(t)} />
+        <SearchFilter
+            placeholder="Filter messages…"
+            onFilter={(t) => transmitFormStore.setFilterText(t)}
+        />
     </div>
 
     {#if periodicMessageIds.length > 0}
         <div class="periodic-banner" role="status">
             <div class="periodic-banner-head">
                 <span class="periodic-banner-title">Transmitting periodically</span>
-                <button type="button" class="btn-stop-all" onclick={stopAllPeriodic}>Stop all</button>
+                <button type="button" class="btn-stop-all" onclick={stopAllPeriodic}
+                    >Stop all</button
+                >
             </div>
             <ul class="periodic-list">
                 {#each periodicMessageIds as id (id)}
@@ -207,7 +223,11 @@
                         <span class="periodic-item-rate"
                             >{formatIntervalLabel($transmitPeriodicStore.intervals[id] ?? 0)}</span
                         >
-                        <button type="button" class="btn-stop-one" onclick={() => stopPeriodicForId(id)}>Stop</button>
+                        <button
+                            type="button"
+                            class="btn-stop-one"
+                            onclick={() => stopPeriodicForId(id)}>Stop</button
+                        >
                     </li>
                 {/each}
             </ul>
@@ -222,11 +242,15 @@
                     class:selected={$transmitFormStore.selectedMessageId === msg.id}
                     onclick={() => selectMessage(msg)}
                 >
-                    <span class="msg-id">0x{msg.id.toString(16).toUpperCase().padStart(3, '0')}</span>
+                    <span class="msg-id"
+                        >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')}</span
+                    >
                     <span class="msg-name">{msg.name}</span>
                     {#if $transmitPeriodicStore.intervals[msg.id] !== undefined}
                         <span class="periodic-badge" title="Periodic transmit active"
-                            >{formatIntervalLabel($transmitPeriodicStore.intervals[msg.id] ?? 0)}</span
+                            >{formatIntervalLabel(
+                                $transmitPeriodicStore.intervals[msg.id] ?? 0,
+                            )}</span
                         >
                     {/if}
                 </button>
@@ -235,8 +259,8 @@
             {#if filteredMessages.length === 0}
                 <div class="empty">
                     {#if messages.length === 0}
-                        No frames are defined in the active database. Load a different DBC as the active database for decode, or add
-                        messages in the CAN Database Editor.
+                        No frames are defined in the active database. Load a different DBC as the
+                        active database for decode, or add messages in the CAN Database Editor.
                     {:else}
                         No messages match the filter.
                     {/if}
@@ -249,7 +273,11 @@
                 <h3>{selectedMessage.name} (0x{selectedMessage.id.toString(16).toUpperCase()})</h3>
 
                 <label class="field">
-                    <span>Payload (hex, {selectedMessage.dlc} byte{selectedMessage.dlc === 1 ? '' : 's'})</span>
+                    <span
+                        >Payload (hex, {selectedMessage.dlc} byte{selectedMessage.dlc === 1
+                            ? ''
+                            : 's'})</span
+                    >
                     <input
                         type="text"
                         class="hex-input"
@@ -262,9 +290,10 @@
                         oninput={handleHexInput}
                     />
                     <span class="field-hint"
-                        >Digits 0–9 and A–F only; spaces optional. Values persist when you switch tabs. Editing payload, signals, or
-                        repeat interval updates the running periodic transmit for this frame without stop/start. Signal fields
-                        below decode from this payload.</span
+                        >Digits 0–9 and A–F only; spaces optional. Values persist when you switch
+                        tabs. Editing payload, signals, or repeat interval updates the running
+                        periodic transmit for this frame without stop/start. Signal fields below
+                        decode from this payload.</span
                     >
                 </label>
 
@@ -276,7 +305,9 @@
                             value={$transmitFormStore.intervalValue}
                             min={$transmitFormStore.intervalUnit === 's' ? 0.001 : 1}
                             step={$transmitFormStore.intervalUnit === 's' ? 0.001 : 1}
-                            title={$transmitFormStore.intervalUnit === 's' ? 'Interval in seconds' : 'Interval in milliseconds'}
+                            title={$transmitFormStore.intervalUnit === 's'
+                                ? 'Interval in seconds'
+                                : 'Interval in milliseconds'}
                             oninput={(e) => {
                                 const v = +e.currentTarget.value;
                                 const u = $transmitFormStore.intervalUnit;
@@ -309,7 +340,11 @@
                             <option value="ms">milliseconds</option>
                         </select>
                     </div>
-                    <span class="field-hint">Sends about once every {getIntervalMs()} ms ({(getIntervalMs() / 1000).toFixed(3)} s)</span>
+                    <span class="field-hint"
+                        >Sends about once every {getIntervalMs()} ms ({(
+                            getIntervalMs() / 1000
+                        ).toFixed(3)} s)</span
+                    >
                 </div>
 
                 <div class="actions">
@@ -323,7 +358,9 @@
                     <button
                         onclick={handleTogglePeriodic}
                         disabled={!$isConnected}
-                        class:btn-periodic-on={$transmitPeriodicStore.intervals[selectedMessage.id] !== undefined}
+                        class:btn-periodic-on={$transmitPeriodicStore.intervals[
+                            selectedMessage.id
+                        ] !== undefined}
                     >
                         {$transmitPeriodicStore.intervals[selectedMessage.id] !== undefined
                             ? 'Stop periodic for this message'
@@ -335,15 +372,16 @@
                     <div class="signal-summary">
                         <h4>Signals (physical)</h4>
                         <p class="signal-hint">
-                            Edit a value to pack it into the payload using factor, offset, and bit layout from the DBC. Raw column
-                            shows the integer raw before scaling.
+                            Edit a value to pack it into the payload using factor, offset, and bit
+                            layout from the DBC. Raw column shows the integer raw before scaling.
                         </p>
                         {#each selectedMessage.signals as sig}
                             <div class="signal-row">
                                 <div class="sig-header">
                                     <span class="sig-name">{sig.name}</span>
                                     <span class="sig-meta"
-                                        >{sig.byteOrder === 'little_endian' ? 'Intel' : 'Motorola'} · [{sig.startBit}:{sig.bitLength}]</span
+                                        >{sig.byteOrder === 'little_endian' ? 'Intel' : 'Motorola'} ·
+                                        [{sig.startBit}:{sig.bitLength}]</span
                                     >
                                 </div>
                                 <div class="sig-input-row">
@@ -361,7 +399,9 @@
                                     {#if sig.unit}
                                         <span class="sig-unit">{sig.unit}</span>
                                     {/if}
-                                    <span class="sig-raw" title="Raw integer (decoded from payload)">raw {rawValue(sig)}</span>
+                                    <span class="sig-raw" title="Raw integer (decoded from payload)"
+                                        >raw {rawValue(sig)}</span
+                                    >
                                 </div>
                             </div>
                         {/each}
@@ -386,8 +426,13 @@
         flex-shrink: 0;
         padding: 10px 12px;
         border-radius: 6px;
-        border: 1px solid color-mix(in srgb, var(--vscode-charts-green) 45%, var(--vscode-widget-border));
-        background: color-mix(in srgb, var(--vscode-charts-green) 12%, var(--vscode-editor-background));
+        border: 1px solid
+            color-mix(in srgb, var(--vscode-charts-green) 45%, var(--vscode-widget-border));
+        background: color-mix(
+            in srgb,
+            var(--vscode-charts-green) 12%,
+            var(--vscode-editor-background)
+        );
     }
 
     .periodic-banner-head {
@@ -623,7 +668,11 @@
     }
 
     .actions button.btn-periodic-on {
-        background: color-mix(in srgb, var(--vscode-charts-green) 35%, var(--vscode-button-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-charts-green) 35%,
+            var(--vscode-button-background)
+        );
         border-color: var(--vscode-charts-green);
     }
 

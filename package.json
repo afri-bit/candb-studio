@@ -128,8 +128,8 @@
     "watch-tests": "tsc -p ./tsconfig.test.json -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
     "test": "vscode-test",
     "test:unit": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\" && npm run compile-tests && mocha --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && npm run compile-tests && cross-env VSCODE_TEST_FILES=out/test/integration/**/*.test.js vscode-test"
@@ -144,6 +144,7 @@
     "eslint": "^9.39.2",
     "mocha": "^11.7.5",
     "prettier": "^3.8.1",
+    "prettier-plugin-svelte": "^3.5.1",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",

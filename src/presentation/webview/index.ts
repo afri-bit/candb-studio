@@ -1,4 +1,5 @@
 export type {
-    ExtensionToWebviewMessage, WebviewToExtensionMessage
+    ExtensionToWebviewMessage,
+    WebviewToExtensionMessage,
 } from './messages/WebviewMessageTypes';
 export { WebviewMessageHandler } from './WebviewMessageHandler';

@@ -11,7 +11,7 @@ function extractBitsIntel(startBit: number, bitLength: number, data: Uint8Array)
     for (let i = 0; i < bitLength; i++) {
         const byteIndex = bitPos >> 3;
         const bitIndex = bitPos & 7;
-        if (byteIndex < data.length && (data[byteIndex] & (1 << bitIndex))) {
+        if (byteIndex < data.length && data[byteIndex] & (1 << bitIndex)) {
             value |= 1 << i;
         }
         bitPos++;
@@ -26,7 +26,7 @@ function extractBitsMotorola(startBit: number, bitLength: number, data: Uint8Arr
         const bitPos = startBit + bitLength - 1 - i;
         const byteIndex = bitPos >> 3;
         const bitIndex = bitPos & 7;
-        if (byteIndex < data.length && (data[byteIndex] & (1 << bitIndex))) {
+        if (byteIndex < data.length && data[byteIndex] & (1 << bitIndex)) {
             value |= 1 << i;
         }
     }
@@ -63,7 +63,12 @@ export function rawToUnsignedPattern(raw: number, bitLength: number): number {
     return raw & mask;
 }
 
-function writeBitsIntel(startBit: number, bitLength: number, rawUnsigned: number, data: Uint8Array): void {
+function writeBitsIntel(
+    startBit: number,
+    bitLength: number,
+    rawUnsigned: number,
+    data: Uint8Array,
+): void {
     let value = rawUnsigned >>> 0;
     if (bitLength < 32) {
         value &= (1 << bitLength) - 1;
@@ -84,7 +89,12 @@ function writeBitsIntel(startBit: number, bitLength: number, rawUnsigned: number
     }
 }
 
-function writeBitsMotorola(startBit: number, bitLength: number, rawUnsigned: number, data: Uint8Array): void {
+function writeBitsMotorola(
+    startBit: number,
+    bitLength: number,
+    rawUnsigned: number,
+    data: Uint8Array,
+): void {
     let value = rawUnsigned >>> 0;
     if (bitLength < 32) {
         value &= (1 << bitLength) - 1;

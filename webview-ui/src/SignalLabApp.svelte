@@ -138,8 +138,9 @@
     {#if showIntro}
         <div class="intro-banner" role="status">
             <div class="intro-copy">
-                <strong>Signal Lab</strong> — connect hardware from the status bar, start the monitor, and watch raw traffic without a
-                database. Load a <code>.dbc</code> when you want decoded names and signals.
+                <strong>Signal Lab</strong> — connect hardware from the status bar, start the
+                monitor, and watch raw traffic without a database. Load a <code>.dbc</code> when you want
+                decoded names and signals.
             </div>
             <button type="button" class="intro-dismiss" onclick={dismissIntro}>Got it</button>
         </div>
@@ -163,7 +164,12 @@
                         <span class="ribbon-icon" aria-hidden="true">▶</span> Start
                     {/if}
                 </button>
-                <button type="button" class="ribbon-btn" title="Open a CAN database file" onclick={openDatabase}>
+                <button
+                    type="button"
+                    class="ribbon-btn"
+                    title="Open a CAN database file"
+                    onclick={openDatabase}
+                >
                     Load CAN database…
                 </button>
             </div>
@@ -176,7 +182,9 @@
                     value={activeBusUri ?? ''}
                     onchange={onSessionChange}
                     disabled={sessionUris.length === 0}
-                    title={activeBusUri ? displayPath(activeBusUri) : 'Raw frames only — no DBC decode'}
+                    title={activeBusUri
+                        ? displayPath(activeBusUri)
+                        : 'Raw frames only — no DBC decode'}
                 >
                     {#if sessionUris.length === 0}
                         <option value="">No database in memory</option>
@@ -188,7 +196,9 @@
                     {/if}
                 </select>
                 {#if activeBusUri}
-                    <span class="ribbon-file" title={displayPath(activeBusUri)}>{shortName(activeBusUri)}</span>
+                    <span class="ribbon-file" title={displayPath(activeBusUri)}
+                        >{shortName(activeBusUri)}</span
+                    >
                     <button
                         type="button"
                         class="ribbon-btn ribbon-btn--ghost"
@@ -211,15 +221,28 @@
 
         {#if sessionUris.length > 0 && activeBusUri === null}
             <p class="ribbon-info" role="status">
-                Decode unlinked — traffic is raw ID and payload bytes. Pick a session above to attach signal definitions again.
+                Decode unlinked — traffic is raw ID and payload bytes. Pick a session above to
+                attach signal definitions again.
             </p>
         {/if}
     </header>
 
     <nav class="lab-tabs" aria-label="Signal Lab panels">
-        <button type="button" class:active={activeTab === 'monitor'} onclick={() => (activeTab = 'monitor')}>Monitor</button>
-        <button type="button" class:active={activeTab === 'transmit'} onclick={() => (activeTab = 'transmit')}>Transmit</button>
-        <button type="button" class:active={activeTab === 'charts'} onclick={() => (activeTab = 'charts')}>Charts</button>
+        <button
+            type="button"
+            class:active={activeTab === 'monitor'}
+            onclick={() => (activeTab = 'monitor')}>Monitor</button
+        >
+        <button
+            type="button"
+            class:active={activeTab === 'transmit'}
+            onclick={() => (activeTab = 'transmit')}>Transmit</button
+        >
+        <button
+            type="button"
+            class:active={activeTab === 'charts'}
+            onclick={() => (activeTab = 'charts')}>Charts</button
+        >
     </nav>
 
     <div class="lab-body">
@@ -230,13 +253,22 @@
         {:else if activeTab === 'transmit'}
             <div class="lab-panel">
                 {#if $databaseStore.messages.length === 0}
-                    <div class="tab-placeholder" role="region" aria-label="Transmit requires a database">
+                    <div
+                        class="tab-placeholder"
+                        role="region"
+                        aria-label="Transmit requires a database"
+                    >
                         <p class="tab-placeholder-title">Load a CAN database to transmit</p>
                         <p class="tab-placeholder-body">
-                            Transmit uses message definitions from your <code>.dbc</code> (ID, DLC, signal layout). Use
+                            Transmit uses message definitions from your <code>.dbc</code> (ID, DLC,
+                            signal layout). Use
                             <strong>Load CAN database…</strong> in the ribbon, then pick a frame here.
                         </p>
-                        <button type="button" class="ribbon-btn ribbon-btn--accent" onclick={openDatabase}>Load CAN database…</button>
+                        <button
+                            type="button"
+                            class="ribbon-btn ribbon-btn--accent"
+                            onclick={openDatabase}>Load CAN database…</button
+                        >
                     </div>
                 {:else}
                     <TransmitPanel messages={$databaseStore.messages} />
@@ -245,13 +277,21 @@
         {:else}
             <div class="lab-panel charts-panel">
                 {#if $databaseStore.messages.length === 0}
-                    <div class="tab-placeholder" role="region" aria-label="Charts require decoded signals">
+                    <div
+                        class="tab-placeholder"
+                        role="region"
+                        aria-label="Charts require decoded signals"
+                    >
                         <p class="tab-placeholder-title">Load a CAN database for charts</p>
                         <p class="tab-placeholder-body">
-                            Charts plot decoded signals from the monitor. Open a <code>.dbc</code> and select signals after traffic
-                            is decoded.
+                            Charts plot decoded signals from the monitor. Open a <code>.dbc</code> and
+                            select signals after traffic is decoded.
                         </p>
-                        <button type="button" class="ribbon-btn ribbon-btn--accent" onclick={openDatabase}>Load CAN database…</button>
+                        <button
+                            type="button"
+                            class="ribbon-btn ribbon-btn--accent"
+                            onclick={openDatabase}>Load CAN database…</button
+                        >
                     </div>
                 {:else}
                     <SignalChartPanel messages={$databaseStore.messages} />
@@ -295,7 +335,12 @@
         font-weight: 600;
         letter-spacing: 0.02em;
         color: var(--vscode-sideBarTitle-foreground, var(--vscode-foreground));
-        border-bottom: 1px solid color-mix(in srgb, var(--vscode-sideBar-border, var(--vscode-widget-border)) 80%, transparent);
+        border-bottom: 1px solid
+            color-mix(
+                in srgb,
+                var(--vscode-sideBar-border, var(--vscode-widget-border)) 80%,
+                transparent
+            );
     }
 
     .lab-ribbon {
@@ -304,7 +349,10 @@
         align-items: center;
         gap: 10px 16px;
         padding: 8px 12px 10px;
-        background: var(--vscode-toolbar-background, var(--vscode-editorGroupHeader-tabsBackground));
+        background: var(
+            --vscode-toolbar-background,
+            var(--vscode-editorGroupHeader-tabsBackground)
+        );
         border-bottom: 1px solid var(--vscode-toolbar-border, var(--vscode-widget-border));
     }
 
@@ -339,7 +387,11 @@
         font-family: inherit;
         font-weight: 500;
         border-radius: 4px;
-        border: 1px solid var(--vscode-button-border, color-mix(in srgb, var(--vscode-foreground) 12%, transparent));
+        border: 1px solid
+            var(
+                --vscode-button-border,
+                color-mix(in srgb, var(--vscode-foreground) 12%, transparent)
+            );
         background: var(--vscode-button-secondaryBackground);
         color: var(--vscode-button-secondaryForeground);
         cursor: pointer;
@@ -410,7 +462,11 @@
         margin: 0;
         padding: 6px 12px 8px;
         font-size: 0.82rem;
-        background: color-mix(in srgb, var(--vscode-sideBar-background) 90%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-sideBar-background) 90%,
+            var(--vscode-editor-background)
+        );
         color: var(--vscode-descriptionForeground);
         border-top: 1px solid color-mix(in srgb, var(--vscode-widget-border) 50%, transparent);
     }
@@ -434,7 +490,11 @@
         gap: 12px;
         padding: 10px 14px;
         border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, transparent);
-        background: color-mix(in srgb, var(--vscode-textLink-foreground) 10%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-textLink-foreground) 10%,
+            var(--vscode-editor-background)
+        );
         flex-shrink: 0;
         font-size: 0.92em;
         line-height: 1.45;
@@ -528,7 +588,11 @@
         gap: 12px;
         border: 1px dashed color-mix(in srgb, var(--vscode-widget-border) 90%, transparent);
         border-radius: 8px;
-        background: color-mix(in srgb, var(--vscode-sideBar-background) 35%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-sideBar-background) 35%,
+            var(--vscode-editor-background)
+        );
     }
 
     .tab-placeholder-title {

@@ -31,7 +31,8 @@
 
     let rows = $derived.by((): Array<{ id: number; snap: LiveMessageSnapshot }> => {
         const q = filterText.trim().toLowerCase();
-        const live = which === 'rx' ? $monitorStore.liveRxByMessageId : $monitorStore.liveTxByMessageId;
+        const live =
+            which === 'rx' ? $monitorStore.liveRxByMessageId : $monitorStore.liveTxByMessageId;
         const out: Array<{ id: number; snap: LiveMessageSnapshot }> = [];
         for (const idStr of Object.keys(live)) {
             const id = Number(idStr);
@@ -52,12 +53,13 @@
 <div class="raw-root">
     {#if noDatabaseHint && which === 'rx'}
         <p class="raw-hint">
-            Raw traffic only — no DBC required. Connect, start monitoring, and confirm IDs and payloads. Load a CAN database in
-            the ribbon when you want decoded signals and names.
+            Raw traffic only — no DBC required. Connect, start monitoring, and confirm IDs and
+            payloads. Load a CAN database in the ribbon when you want decoded signals and names.
         </p>
     {:else if noDatabaseHint && which === 'tx'}
         <p class="raw-hint raw-hint--tx">
-            Transmit path: frames you send, echoed back on the bus (loopback). Pure receive traffic is under <strong>Rx</strong>.
+            Transmit path: frames you send, echoed back on the bus (loopback). Pure receive traffic
+            is under <strong>Rx</strong>.
         </p>
     {:else}
         <p class="raw-hint">
@@ -65,7 +67,11 @@
         </p>
     {/if}
 
-    <div class="raw-table" role="table" aria-label={which === 'rx' ? 'Received CAN frames' : 'Transmitted echo frames'}>
+    <div
+        class="raw-table"
+        role="table"
+        aria-label={which === 'rx' ? 'Received CAN frames' : 'Transmitted echo frames'}
+    >
         <div class="raw-head" role="row">
             <span class="cell id" role="columnheader">ID</span>
             <span class="cell ext" role="columnheader">Bus</span>
@@ -76,8 +82,12 @@
         <div class="raw-body">
             {#each rows as { id, snap } (id)}
                 <div class="raw-row" role="row">
-                    <span class="cell id mono" title="CAN identifier">{formatId(id, snap.isExtended)}</span>
-                    <span class="cell ext" title={snap.isExtended ? 'Extended 29-bit' : 'Standard 11-bit'}
+                    <span class="cell id mono" title="CAN identifier"
+                        >{formatId(id, snap.isExtended)}</span
+                    >
+                    <span
+                        class="cell ext"
+                        title={snap.isExtended ? 'Extended 29-bit' : 'Standard 11-bit'}
                         >{snap.isExtended ? 'EXT' : 'STD'}</span
                     >
                     <span class="cell dlc">{snap.dlc}</span>
@@ -86,7 +96,9 @@
                 </div>
             {:else}
                 <div class="raw-empty" role="status">
-                    {$monitorStore.isRunning ? 'Waiting for frames…' : 'Start monitoring from the ribbon.'}
+                    {$monitorStore.isRunning
+                        ? 'Waiting for frames…'
+                        : 'Start monitoring from the ribbon.'}
                 </div>
             {/each}
         </div>

@@ -10,6 +10,10 @@ description: Builds, layout, and workflows for the candb-studio repo — extensi
 - **Webview only**: `npm run build --prefix webview-ui`.
 - Extension entry: `package.json` → `main: ./dist/extension.js`.
 
+## Formatting
+- **Prettier** (root): `npm run format` formats `src/**/*.ts` and `webview-ui/**/*.{ts,svelte,css,js}` (4 spaces, `prettier-plugin-svelte` for `.svelte`).
+- **Svelte check**: `npm run check --prefix webview-ui` before merging large UI changes.
+
 ## Repository map
 | Area | Path |
 |------|------|

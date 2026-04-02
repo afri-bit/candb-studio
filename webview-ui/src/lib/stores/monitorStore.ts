@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import type { DecodedFrameDescriptor } from '../types';
 
 /** Maximum number of frames to keep in the buffer (Rx + Tx combined). */
@@ -67,7 +67,8 @@ function createMonitorStore() {
                 }
 
                 const id = frame.frame.id;
-                const liveKey = frame.direction === 'tx' ? 'liveTxByMessageId' : 'liveRxByMessageId';
+                const liveKey =
+                    frame.direction === 'tx' ? 'liveTxByMessageId' : 'liveRxByMessageId';
                 const prev = state[liveKey][id]?.signals ?? {};
                 const signals: Record<string, LiveSignalEntry> = { ...prev };
                 for (const s of frame.signals) {

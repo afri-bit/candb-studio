@@ -24,12 +24,17 @@
     let timeStr = $derived(formatTime(decoded.frame.timestamp));
 
     let idHex = $derived(
-        `0x${decoded.frame.id.toString(16).toUpperCase().padStart(decoded.frame.isExtended ? 8 : 3, '0')}`,
+        `0x${decoded.frame.id
+            .toString(16)
+            .toUpperCase()
+            .padStart(decoded.frame.isExtended ? 8 : 3, '0')}`,
     );
 </script>
 
 <div class="frame-row monitor-table-grid">
-    <span class="col-time" title="Unix ms: {String(Math.round(decoded.frame.timestamp))}">{timeStr}</span>
+    <span class="col-time" title="Unix ms: {String(Math.round(decoded.frame.timestamp))}"
+        >{timeStr}</span
+    >
     <span
         class="col-dir"
         class:col-dir--tx={decoded.direction === 'tx'}
@@ -39,7 +44,11 @@
     <span class="col-id">{idHex}</span>
     <span class="col-name">{decoded.messageName}</span>
     <span class="col-dlc">{decoded.frame.dlc}</span>
-    <span class="col-data">{decoded.frame.data.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')}</span>
+    <span class="col-data"
+        >{decoded.frame.data
+            .map((b) => b.toString(16).toUpperCase().padStart(2, '0'))
+            .join(' ')}</span
+    >
     <span class="col-signals">
         {#each decoded.signals as sig}
             <SignalValueDisplay signal={sig} />

@@ -82,7 +82,13 @@
 
     /** Overview segments — one bar per signal (may visually overlap) */
     let overviewSegments = $derived.by(() => {
-        type Seg = { sig: SignalDescriptor; sigIndex: number; start: number; end: number; hasOverlap: boolean };
+        type Seg = {
+            sig: SignalDescriptor;
+            sigIndex: number;
+            start: number;
+            end: number;
+            hasOverlap: boolean;
+        };
         const segs: Seg[] = [];
         const overlapSet = new Set(analysis.overlapBits);
         message.signals.forEach((sig, sigIdx) => {
@@ -135,7 +141,10 @@
     }
 
     /** lsb/msb tag for a grid cell when exactly one signal occupies it. */
-    function cellBitEndLabel(cellBit: number, sig: SignalDescriptor): 'lsb' | 'msb' | 'lsb/msb' | null {
+    function cellBitEndLabel(
+        cellBit: number,
+        sig: SignalDescriptor,
+    ): 'lsb' | 'msb' | 'lsb/msb' | null {
         const { lsb, msb } = lsbMsb(sig);
         if (lsb === msb && cellBit === lsb) return 'lsb/msb';
         if (cellBit === lsb) return 'lsb';
@@ -180,16 +189,12 @@
         {/if}
 
         <p class="hint">
-            Linear bit indices 0…(DLC×8−1). Endpoint cells show <strong>lsb</strong> / <strong>msb</strong> (or both for a
-            1-bit field), then the bit index. The arrow points from LSB toward MSB along the bus index. Hover a signal in
-            the legend or layout to highlight it.
+            Linear bit indices 0…(DLC×8−1). Endpoint cells show <strong>lsb</strong> /
+            <strong>msb</strong> (or both for a 1-bit field), then the bit index. The arrow points from
+            LSB toward MSB along the bus index. Hover a signal in the legend or layout to highlight it.
         </p>
 
-        <div
-            class="overview-wrap"
-            class:dim={hoveredSigIndex !== null}
-            aria-hidden="true"
-        >
+        <div class="overview-wrap" class:dim={hoveredSigIndex !== null} aria-hidden="true">
             <div class="overview-rail" style:width="100%">
                 <div class="overview-track">
                     {#each overviewSegments as seg}
@@ -197,13 +202,17 @@
                         <div
                             class="overview-seg"
                             class:overlap={seg.hasOverlap}
-                            class:dim-seg={hoveredSigIndex !== null && hoveredSigIndex !== seg.sigIndex}
+                            class:dim-seg={hoveredSigIndex !== null &&
+                                hoveredSigIndex !== seg.sigIndex}
                             class:hover-seg={hoveredSigIndex === seg.sigIndex}
                             style:left={segmentLeft(seg.start)}
                             style:width={segmentWidth(seg.start, seg.end)}
                             style:background-color={colorForSignal(seg.sigIndex)}
                             style:z-index={seg.sigIndex}
-                            title="{seg.sig.name} — bits {seg.start}…{seg.end} · LSB @ {lm.lsb}, MSB @ {lm.msb}{seg.hasOverlap ? ' · overlap' : ''}"
+                            title="{seg.sig
+                                .name} — bits {seg.start}…{seg.end} · LSB @ {lm.lsb}, MSB @ {lm.msb}{seg.hasOverlap
+                                ? ' · overlap'
+                                : ''}"
                             onmouseenter={() => setHover(seg.sigIndex)}
                             onmouseleave={() => setHover(null)}
                             role="presentation"
@@ -211,7 +220,9 @@
                             <span class="overview-inner">
                                 <span class="overview-label">{seg.sig.name}</span>
                                 {#if seg.sig.bitLength > 1}
-                                    <span class="overview-arrow" aria-hidden="true">{arrowSymbol(seg.sig)}</span>
+                                    <span class="overview-arrow" aria-hidden="true"
+                                        >{arrowSymbol(seg.sig)}</span
+                                    >
                                 {/if}
                             </span>
                         </div>
@@ -243,11 +254,14 @@
                         {@const oneSig = sigs.length === 1 ? message.signals[sigs[0]] : null}
                         {@const endTag = oneSig ? cellBitEndLabel(cell.bit, oneSig) : null}
                         {@const showFlowArrow =
-                            oneSig && oneSig.bitLength > 1 && endTag === 'lsb' && arrowSymbol(oneSig)}
+                            oneSig &&
+                            oneSig.bitLength > 1 &&
+                            endTag === 'lsb' &&
+                            arrowSymbol(oneSig)}
                         <div
                             class="bit-cell"
                             class:occupied={sigs.length > 0}
-                            class:overlap={overlap}
+                            class:overlap
                             class:unallocated={sigs.length === 0}
                             class:highlight={isHighlighted(sigs)}
                             class:dim-cell={isDimmed(sigs)}
@@ -271,7 +285,9 @@
                                 {/if}
                                 <span class="bit-num">{cell.bit}</span>
                                 {#if showFlowArrow}
-                                    <span class="bit-flow-arrow" aria-hidden="true">{showFlowArrow}</span>
+                                    <span class="bit-flow-arrow" aria-hidden="true"
+                                        >{showFlowArrow}</span
+                                    >
                                 {/if}
                             </div>
                         </div>
@@ -298,13 +314,16 @@
                             <span class="swatch"></span>
                             <span class="name">{sig.name}</span>
                             {#if pair}
-                                <span class="overlap-badge" title="Overlaps with another signal">Overlap</span>
+                                <span class="overlap-badge" title="Overlaps with another signal"
+                                    >Overlap</span
+                                >
                             {/if}
                             <span class="range">
                                 {#if sig.bitLength <= 1}
                                     len {sig.bitLength} · LSB/MSB @ {lsbMsb(sig).lsb}
                                 {:else}
-                                    len {sig.bitLength} · LSB @{lsbMsb(sig).lsb} {arrowSymbol(sig)} MSB @{lsbMsb(sig).msb}
+                                    len {sig.bitLength} · LSB @{lsbMsb(sig).lsb}
+                                    {arrowSymbol(sig)} MSB @{lsbMsb(sig).msb}
                                 {/if}
                             </span>
                             {#if sig.unit}
@@ -332,13 +351,21 @@
     }
 
     .banner.error {
-        background: color-mix(in srgb, var(--vscode-inputValidation-errorBackground) 85%, transparent);
+        background: color-mix(
+            in srgb,
+            var(--vscode-inputValidation-errorBackground) 85%,
+            transparent
+        );
         border: 1px solid var(--vscode-inputValidation-errorBorder, #f14c4c);
         color: var(--vscode-errorForeground);
     }
 
     .banner.warn {
-        background: color-mix(in srgb, var(--vscode-inputValidation-warningBackground) 85%, transparent);
+        background: color-mix(
+            in srgb,
+            var(--vscode-inputValidation-warningBackground) 85%,
+            transparent
+        );
         border: 1px solid var(--vscode-inputValidation-warningBorder, #cca700);
         color: var(--vscode-editorWarning-foreground, var(--vscode-foreground));
     }
@@ -391,7 +418,11 @@
         position: relative;
         height: 40px;
         border-radius: 6px;
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-input-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-input-background)
+        );
         border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
         overflow: visible;
     }
@@ -536,7 +567,11 @@
         justify-content: center;
         border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
         border-radius: 3px;
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-input-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-input-background)
+        );
         font-size: 0.65rem;
         cursor: default;
         transition:
@@ -634,7 +669,9 @@
         cursor: pointer;
         text-align: left;
         font-family: inherit;
-        transition: border-color 0.12s ease, box-shadow 0.12s ease;
+        transition:
+            border-color 0.12s ease,
+            box-shadow 0.12s ease;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         position: relative;
     }
@@ -663,7 +700,11 @@
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--vscode-errorForeground);
-        background: color-mix(in srgb, var(--vscode-inputValidation-errorBackground) 60%, transparent);
+        background: color-mix(
+            in srgb,
+            var(--vscode-inputValidation-errorBackground) 60%,
+            transparent
+        );
         padding: 2px 6px;
         border-radius: 4px;
     }

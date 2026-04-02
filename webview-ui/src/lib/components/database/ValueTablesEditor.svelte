@@ -32,9 +32,7 @@
         { raw: '1', label: 'On' },
     ]);
 
-    let selected = $derived(
-        selectedIndex !== null ? valueTables[selectedIndex] ?? null : null,
-    );
+    let selected = $derived(selectedIndex !== null ? (valueTables[selectedIndex] ?? null) : null);
 
     const q = $derived(filterText.trim().toLowerCase());
 
@@ -87,7 +85,9 @@
         return keys.map((k) => ({ raw: String(k), label: e[k] ?? '' }));
     }
 
-    function rowsToEntries(rows: EntryRow[]): { ok: true; entries: Record<number, string> } | { ok: false; msg: string } {
+    function rowsToEntries(
+        rows: EntryRow[],
+    ): { ok: true; entries: Record<number, string> } | { ok: false; msg: string } {
         const out: Record<number, string> = {};
         for (const r of rows) {
             const rawTrim = r.raw.trim();
@@ -96,7 +96,10 @@
                 continue;
             }
             if (rawTrim === '') {
-                return { ok: false, msg: 'Fill in the raw value for each row that has a label, or clear the row.' };
+                return {
+                    ok: false,
+                    msg: 'Fill in the raw value for each row that has a label, or clear the row.',
+                };
             }
             const n = Number(rawTrim);
             if (!Number.isFinite(n) || !Number.isInteger(n)) {
@@ -180,7 +183,11 @@
 
     function removeSelected() {
         if (selectedIndex === null || !selected) return;
-        if (!window.confirm(`Remove value table "${selected.name}"? Signals using it will clear the reference.`)) {
+        if (
+            !window.confirm(
+                `Remove value table "${selected.name}"? Signals using it will clear the reference.`,
+            )
+        ) {
             return;
         }
         const uri = get(documentUri);
@@ -247,7 +254,12 @@
         <button type="button" class="btn btn-primary" onclick={() => (showCreate = !showCreate)}>
             {showCreate ? 'Close' : 'New value table'}
         </button>
-        <button type="button" class="btn danger" onclick={removeSelected} disabled={selected === null}>
+        <button
+            type="button"
+            class="btn danger"
+            onclick={removeSelected}
+            disabled={selected === null}
+        >
             Remove
         </button>
     </div>
@@ -258,16 +270,27 @@
             <div class="dbc-card-body create-body">
                 <label class="field">
                     <span class="lbl">Name <span class="req">*</span></span>
-                    <input type="text" class="inp" placeholder="e.g. GearPosition" bind:value={createName} />
+                    <input
+                        type="text"
+                        class="inp"
+                        placeholder="e.g. GearPosition"
+                        bind:value={createName}
+                    />
                 </label>
                 <label class="field">
                     <span class="lbl">Comment</span>
-                    <textarea class="ta ta-sm" rows="2" placeholder="Shown as CM_ VAL_TABLE_ in DBC" bind:value={createComment}
+                    <textarea
+                        class="ta ta-sm"
+                        rows="2"
+                        placeholder="Shown as CM_ VAL_TABLE_ in DBC"
+                        bind:value={createComment}
                     ></textarea>
                 </label>
                 <div class="field">
                     <span class="lbl">Value descriptions</span>
-                    <p class="hint hint-tight">One row per raw value. Integer raw values only (decoded CAN payload).</p>
+                    <p class="hint hint-tight">
+                        One row per raw value. Integer raw values only (decoded CAN payload).
+                    </p>
                     <div class="entries-table-wrap">
                         <table class="entries-table">
                             <thead>
@@ -312,10 +335,13 @@
                             </tbody>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-add" onclick={addCreateRow}>Add row</button>
+                    <button type="button" class="btn btn-add" onclick={addCreateRow}>Add row</button
+                    >
                 </div>
                 <div class="create-actions">
-                    <button type="button" class="btn btn-primary" onclick={submitCreate}>Create</button>
+                    <button type="button" class="btn btn-primary" onclick={submitCreate}
+                        >Create</button
+                    >
                     <button type="button" class="btn" onclick={cancelCreate}>Cancel</button>
                 </div>
             </div>
@@ -325,7 +351,10 @@
     <div class="editor-split">
         <section class="list-pane" aria-label="Value tables">
             <div class="vt-filter">
-                <SearchFilter placeholder="Search value tables…" onFilter={(t) => (filterText = t)} />
+                <SearchFilter
+                    placeholder="Search value tables…"
+                    onFilter={(t) => (filterText = t)}
+                />
             </div>
             <div class="table-area dbc-card">
                 <DataTable
@@ -356,14 +385,21 @@
                         </label>
                         <label class="field">
                             <span class="lbl">Comment</span>
-                            <textarea class="ta ta-sm" rows="2" bind:value={commentDraft}></textarea>
+                            <textarea class="ta ta-sm" rows="2" bind:value={commentDraft}
+                            ></textarea>
                         </label>
-                        <button type="button" class="btn btn-primary btn-inline" onclick={() => applyComment()}>
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-inline"
+                            onclick={() => applyComment()}
+                        >
                             Apply comment
                         </button>
                         <div class="field field-gap">
                             <span class="lbl">Value descriptions</span>
-                            <p class="hint hint-tight">Integer raw value per row. Empty rows are ignored.</p>
+                            <p class="hint hint-tight">
+                                Integer raw value per row. Empty rows are ignored.
+                            </p>
                             <div class="entries-table-wrap">
                                 <table class="entries-table">
                                     <thead>
@@ -408,14 +444,19 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <button type="button" class="btn btn-add" onclick={addEditRow}>Add row</button>
+                            <button type="button" class="btn btn-add" onclick={addEditRow}
+                                >Add row</button
+                            >
                         </div>
-                        <button type="button" class="btn btn-primary" onclick={() => applyEntries()}>Apply entries</button>
+                        <button type="button" class="btn btn-primary" onclick={() => applyEntries()}
+                            >Apply entries</button
+                        >
                     </div>
                 </div>
             {:else}
                 <div class="detail-placeholder">
-                    Select a table or create one. Pool signals reference a table by name (Signals tab).
+                    Select a table or create one. Pool signals reference a table by name (Signals
+                    tab).
                 </div>
             {/if}
         </section>
@@ -615,7 +656,11 @@
     .entries-table th {
         text-align: left;
         padding: 8px 10px;
-        background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 88%,
+            var(--vscode-list-hoverBackground)
+        );
         border-bottom: 1px solid var(--dbc-border, var(--vscode-panel-border));
         font-weight: 600;
         position: sticky;

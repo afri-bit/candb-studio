@@ -54,7 +54,9 @@
     let commentDraft = $state('');
 
     let sortedNodeNames = $derived(
-        [...nodes].map((n) => n.name).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+        [...nodes]
+            .map((n) => n.name)
+            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
     );
 
     const columns = [
@@ -88,7 +90,9 @@
     );
 
     let selectedMessage = $derived(
-        selectedMessageId !== null ? messages.find((m) => m.id === selectedMessageId) ?? null : null,
+        selectedMessageId !== null
+            ? (messages.find((m) => m.id === selectedMessageId) ?? null)
+            : null,
     );
 
     /** Unique ECU names that receive this message (from SG_ receiver lists). */
@@ -119,8 +123,18 @@
     let definitionProps = $derived(
         selectedMessage
             ? [
-                  { key: 'name', label: 'Name', value: selectedMessage.name, type: 'text' as const },
-                  { key: 'id', label: 'ID (decimal)', value: selectedMessage.id, type: 'number' as const },
+                  {
+                      key: 'name',
+                      label: 'Name',
+                      value: selectedMessage.name,
+                      type: 'text' as const,
+                  },
+                  {
+                      key: 'id',
+                      label: 'ID (decimal)',
+                      value: selectedMessage.id,
+                      type: 'number' as const,
+                  },
                   { key: 'dlc', label: 'DLC', value: selectedMessage.dlc, type: 'number' as const },
               ]
             : [],
@@ -284,7 +298,12 @@
     <div class="toolbar">
         <SearchFilter placeholder="Filter messages…" onFilter={(t) => (filterText = t)} />
         <button type="button" class="btn" onclick={addMessage}>Add message</button>
-        <button type="button" class="btn danger" onclick={removeSelectedMessage} disabled={selectedMessageId === null}>
+        <button
+            type="button"
+            class="btn danger"
+            onclick={removeSelectedMessage}
+            disabled={selectedMessageId === null}
+        >
             Remove message
         </button>
     </div>
@@ -303,7 +322,11 @@
                             <span class="ctx-tx">
                                 Tx:
                                 {#if transmitterKnown && onGotoNode}
-                                    <button type="button" class="dbc-link" onclick={() => onGotoNode(msg.transmitter)}>
+                                    <button
+                                        type="button"
+                                        class="dbc-link"
+                                        onclick={() => onGotoNode(msg.transmitter)}
+                                    >
                                         {msg.transmitter}
                                     </button>
                                 {:else}
@@ -353,17 +376,27 @@
 
                     <div class="dbc-card-body message-tab-body">
                         {#if messageDetailTab === 'definition'}
-                            <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+                            <PropertyGrid
+                                properties={definitionProps}
+                                onChange={onPropertyChange}
+                            />
                         {:else if messageDetailTab === 'signals'}
                             <div class="signals-toolbar">
                                 {#if onNavigateToSignals}
-                                    <button type="button" class="dbc-link sm-link" onclick={() => onNavigateToSignals()}>
+                                    <button
+                                        type="button"
+                                        class="dbc-link sm-link"
+                                        onclick={() => onNavigateToSignals()}
+                                    >
                                         Open Signals tab →
                                     </button>
                                 {/if}
                                 <label class="link-pick">
                                     <span class="sr-only">Signal from pool</span>
-                                    <select bind:value={linkPick} title="Signals must exist in the pool">
+                                    <select
+                                        bind:value={linkPick}
+                                        title="Signals must exist in the pool"
+                                    >
                                         <option value="">Add from pool…</option>
                                         {#each poolSignalsNotOnFrame as s}
                                             <option value={s.name}>{s.name}</option>
@@ -413,7 +446,9 @@
                                         <tbody>
                                             {#if msg.signals.length === 0}
                                                 <tr>
-                                                    <td colspan="5" class="cell-empty">No signals linked — add from pool</td>
+                                                    <td colspan="5" class="cell-empty"
+                                                        >No signals linked — add from pool</td
+                                                    >
                                                 </tr>
                                             {:else}
                                                 {#each msg.signals as s, si}
@@ -431,7 +466,10 @@
                                                                     class="dbc-link row-link"
                                                                     onclick={(e) => {
                                                                         e.stopPropagation();
-                                                                        onNavigateToSignal(msg.id, s.name);
+                                                                        onNavigateToSignal(
+                                                                            msg.id,
+                                                                            s.name,
+                                                                        );
                                                                     }}
                                                                 >
                                                                     {s.name}
@@ -452,13 +490,19 @@
                                                                 onchange={(e) =>
                                                                     onSignalStartBitChange(
                                                                         s.name,
-                                                                        Number((e.currentTarget as HTMLInputElement).value),
+                                                                        Number(
+                                                                            (
+                                                                                e.currentTarget as HTMLInputElement
+                                                                            ).value,
+                                                                        ),
                                                                     )}
                                                             />
                                                         </td>
                                                         <td class="cell-mono">{s.bitLength}</td>
                                                         <td class="cell-mono">
-                                                            {s.byteOrder === 'little_endian' ? 'Intel' : 'Motorola'}
+                                                            {s.byteOrder === 'little_endian'
+                                                                ? 'Intel'
+                                                                : 'Motorola'}
                                                         </td>
                                                         <td class="cell-mono">{s.unit || '—'}</td>
                                                     </tr>
@@ -483,7 +527,12 @@
                                             <tr>
                                                 <td class="cell-name">
                                                     {#if transmitterKnown && onGotoNode}
-                                                        <button type="button" class="dbc-link row-link" onclick={() => onGotoNode(msg.transmitter)}>
+                                                        <button
+                                                            type="button"
+                                                            class="dbc-link row-link"
+                                                            onclick={() =>
+                                                                onGotoNode(msg.transmitter)}
+                                                        >
                                                             {msg.transmitter}
                                                         </button>
                                                     {:else}
@@ -492,14 +541,20 @@
                                                 </td>
                                                 <td class="cell-muted">—</td>
                                                 <td class="cell-actions">
-                                                    <button type="button" class="btn danger btn-compact" onclick={clearTransmitter}>
+                                                    <button
+                                                        type="button"
+                                                        class="btn danger btn-compact"
+                                                        onclick={clearTransmitter}
+                                                    >
                                                         Remove
                                                     </button>
                                                 </td>
                                             </tr>
                                         {:else}
                                             <tr>
-                                                <td colspan="3" class="cell-empty">No transmitter set — use the fields below.</td>
+                                                <td colspan="3" class="cell-empty"
+                                                    >No transmitter set — use the fields below.</td
+                                                >
                                             </tr>
                                         {/if}
                                     </tbody>
@@ -527,7 +582,8 @@
                                         bind:value={txDraft}
                                         onblur={() => commitTransmitter()}
                                         onkeydown={(e: KeyboardEvent) =>
-                                            e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+                                            e.key === 'Enter' &&
+                                            (e.currentTarget as HTMLInputElement).blur()}
                                     />
                                     <datalist id="tx-ecu-datalist-{msg.id}">
                                         {#each sortedNodeNames as n}
@@ -550,7 +606,11 @@
                                             <tr>
                                                 <td class="cell-name">
                                                     {#if onGotoNode && nodes.some((n) => n.name === name)}
-                                                        <button type="button" class="dbc-link row-link" onclick={() => onGotoNode(name)}>
+                                                        <button
+                                                            type="button"
+                                                            class="dbc-link row-link"
+                                                            onclick={() => onGotoNode(name)}
+                                                        >
                                                             {name}
                                                         </button>
                                                     {:else}
@@ -562,7 +622,8 @@
                                         {:else}
                                             <tr>
                                                 <td colspan="2" class="cell-empty">
-                                                    No receivers — add receiver nodes on the signals in this frame.
+                                                    No receivers — add receiver nodes on the signals
+                                                    in this frame.
                                                 </td>
                                             </tr>
                                         {/each}
@@ -571,12 +632,13 @@
                             </div>
                         {:else if messageDetailTab === 'layout'}
                             <div class="layout-bit-wrap">
-                                <BitLayoutView message={msg} onNavigateToSignal={onNavigateToSignal} />
+                                <BitLayoutView message={msg} {onNavigateToSignal} />
                             </div>
                         {:else if messageDetailTab === 'attributes'}
                             <p class="empty-tab">
-                                Message-level attribute instances are not edited in the visual database view yet. Use the
-                                text editor or extend serialization later.
+                                Message-level attribute instances are not edited in the visual
+                                database view yet. Use the text editor or extend serialization
+                                later.
                             </p>
                         {:else if messageDetailTab === 'comment'}
                             <label class="comment-block">
@@ -594,7 +656,8 @@
                 </div>
             {:else}
                 <div class="detail-placeholder">
-                    Select a message in the list to edit definition, signals, transmitters, and layout.
+                    Select a message in the list to edit definition, signals, transmitters, and
+                    layout.
                 </div>
             {/if}
         </section>
@@ -803,7 +866,11 @@
         color: var(--vscode-descriptionForeground);
         border: 1px dashed color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
         border-radius: var(--dbc-radius, 10px);
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     @media (max-width: 720px) {
@@ -866,7 +933,11 @@
         padding: 10px 12px;
         border-radius: 8px;
         border: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
-        background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 88%,
+            var(--vscode-list-hoverBackground)
+        );
         font-size: 12px;
     }
 
@@ -987,7 +1058,10 @@
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: var(--vscode-descriptionForeground);
-        background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-sideBar-background));
+        background: var(
+            --vscode-editorGroupHeader-tabsBackground,
+            var(--vscode-sideBar-background)
+        );
         white-space: nowrap;
     }
 

@@ -64,7 +64,8 @@
 
 <div class="static-root">
     <div class="static-hint">
-        Values update when frames arrive — <strong>Rx</strong> is bus receive, <strong>Tx</strong> is echo of frames you sent (loopback).
+        Values update when frames arrive — <strong>Rx</strong> is bus receive, <strong>Tx</strong>
+        is echo of frames you sent (loopback).
         {#if !$monitorStore.isRunning}
             <span class="static-warn">Start monitoring to receive updates.</span>
         {/if}
@@ -81,7 +82,9 @@
                         >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')} · DLC {msg.dlc}</span
                     >
                     {#if live}
-                        <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(live.timestamp)}</span>
+                        <span class="msg-live" title="Last frame receive time (Unix ms)"
+                            >{formatUnixMs(live.timestamp)}</span
+                        >
                     {:else}
                         <span class="msg-live none">—</span>
                     {/if}
@@ -136,7 +139,9 @@
                             <span class="msg-meta"
                                 >0x{id.toString(16).toUpperCase().padStart(3, '0')} · DLC {snap.dlc}</span
                             >
-                            <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(snap.timestamp)}</span>
+                            <span class="msg-live" title="Last frame receive time (Unix ms)"
+                                >{formatUnixMs(snap.timestamp)}</span
+                            >
                         </summary>
                         <div class="msg-body">
                             <div class="payload-row">
@@ -156,7 +161,9 @@
                                         {#each Object.entries(snap.signals) as [name, sig] (name)}
                                             <tr>
                                                 <td class="sig-name">{name}</td>
-                                                <td class="sig-val">{sig.physicalValue.toFixed(4)}</td>
+                                                <td class="sig-val"
+                                                    >{sig.physicalValue.toFixed(4)}</td
+                                                >
                                                 <td class="sig-unit">{sig.unit}</td>
                                             </tr>
                                         {/each}
@@ -179,7 +186,9 @@
                         >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')} · DLC {msg.dlc}</span
                     >
                     {#if live}
-                        <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(live.timestamp)}</span>
+                        <span class="msg-live" title="Last frame receive time (Unix ms)"
+                            >{formatUnixMs(live.timestamp)}</span
+                        >
                     {:else}
                         <span class="msg-live none">—</span>
                     {/if}
@@ -234,7 +243,9 @@
                             <span class="msg-meta"
                                 >0x{id.toString(16).toUpperCase().padStart(3, '0')} · DLC {snap.dlc}</span
                             >
-                            <span class="msg-live" title="Last frame receive time (Unix ms)">{formatUnixMs(snap.timestamp)}</span>
+                            <span class="msg-live" title="Last frame receive time (Unix ms)"
+                                >{formatUnixMs(snap.timestamp)}</span
+                            >
                         </summary>
                         <div class="msg-body">
                             <div class="payload-row">
@@ -254,7 +265,9 @@
                                         {#each Object.entries(snap.signals) as [name, sig] (name)}
                                             <tr>
                                                 <td class="sig-name">{name}</td>
-                                                <td class="sig-val">{sig.physicalValue.toFixed(4)}</td>
+                                                <td class="sig-val"
+                                                    >{sig.physicalValue.toFixed(4)}</td
+                                                >
                                                 <td class="sig-unit">{sig.unit}</td>
                                             </tr>
                                         {/each}
@@ -332,7 +345,11 @@
     }
 
     .msg-block--tx {
-        background: color-mix(in srgb, var(--vscode-charts-orange, #d18616) 6%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-charts-orange, #d18616) 6%,
+            var(--vscode-editor-background)
+        );
     }
 
     .msg-summary {
@@ -463,7 +480,11 @@
     }
 
     .msg-block.unknown {
-        background: color-mix(in srgb, var(--vscode-editor-inactiveSelectionBackground) 35%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-inactiveSelectionBackground) 35%,
+            var(--vscode-editor-background)
+        );
     }
 
     .empty-static {

@@ -7,7 +7,12 @@
      */
     import { tick, untrack } from 'svelte';
     import { get } from 'svelte/store';
-    import type { MessageDescriptor, SignalDescriptor, SignalValueType, ValueTableDescriptor } from '../../types';
+    import type {
+        MessageDescriptor,
+        SignalDescriptor,
+        SignalValueType,
+        ValueTableDescriptor,
+    } from '../../types';
     import DataTable from '../shared/DataTable.svelte';
     import PropertyGrid from '../shared/PropertyGrid.svelte';
     import SearchFilter from '../shared/SearchFilter.svelte';
@@ -71,7 +76,12 @@
     function messagesWithSignal(
         signalName: string,
     ): { messageId: number; messageName: string; dlc: number; sig: SignalDescriptor }[] {
-        const out: { messageId: number; messageName: string; dlc: number; sig: SignalDescriptor }[] = [];
+        const out: {
+            messageId: number;
+            messageName: string;
+            dlc: number;
+            sig: SignalDescriptor;
+        }[] = [];
         for (const m of messages) {
             const sig = m.signals.find((s) => s.name === signalName);
             if (sig) {
@@ -128,7 +138,7 @@
     );
 
     let selectedSignal: SignalDescriptor | null = $derived(
-        selectedIndex !== null ? filteredPool[selectedIndex] ?? null : null,
+        selectedIndex !== null ? (filteredPool[selectedIndex] ?? null) : null,
     );
 
     /** Messages that do not yet reference this pool signal. */
@@ -149,9 +159,7 @@
         );
     });
 
-    let frameRows = $derived(
-        selectedSignal ? messagesWithSignal(selectedSignal.name) : [],
-    );
+    let frameRows = $derived(selectedSignal ? messagesWithSignal(selectedSignal.name) : []);
 
     /** Definition tab — pool defaults (also propagated to all frames when layout changes). */
     let definitionProps = $derived(
@@ -179,11 +187,36 @@
                       type: 'select' as const,
                       options: ['integer', 'float', 'double'],
                   },
-                  { key: 'isSigned', label: 'Signed (integer)', value: selectedSignal.isSigned, type: 'boolean' as const },
-                  { key: 'factor', label: 'Factor', value: selectedSignal.factor, type: 'number' as const },
-                  { key: 'offset', label: 'Offset', value: selectedSignal.offset, type: 'number' as const },
-                  { key: 'minimum', label: 'Minimum', value: selectedSignal.minimum, type: 'number' as const },
-                  { key: 'maximum', label: 'Maximum', value: selectedSignal.maximum, type: 'number' as const },
+                  {
+                      key: 'isSigned',
+                      label: 'Signed (integer)',
+                      value: selectedSignal.isSigned,
+                      type: 'boolean' as const,
+                  },
+                  {
+                      key: 'factor',
+                      label: 'Factor',
+                      value: selectedSignal.factor,
+                      type: 'number' as const,
+                  },
+                  {
+                      key: 'offset',
+                      label: 'Offset',
+                      value: selectedSignal.offset,
+                      type: 'number' as const,
+                  },
+                  {
+                      key: 'minimum',
+                      label: 'Minimum',
+                      value: selectedSignal.minimum,
+                      type: 'number' as const,
+                  },
+                  {
+                      key: 'maximum',
+                      label: 'Maximum',
+                      value: selectedSignal.maximum,
+                      type: 'number' as const,
+                  },
                   {
                       key: 'valueTableName',
                       label: 'Value table',
@@ -209,7 +242,11 @@
             : [],
     );
 
-    function rawRangeForBits(bitLength: number, valueType: SignalValueType, isSigned: boolean): [number, number] {
+    function rawRangeForBits(
+        bitLength: number,
+        valueType: SignalValueType,
+        isSigned: boolean,
+    ): [number, number] {
         if (bitLength <= 0 || bitLength > 64) {
             return [0, 0];
         }
@@ -341,7 +378,9 @@
         });
     }
 
-    function entriesToValRows(entries: Record<number, string> | undefined): { raw: string; label: string }[] {
+    function entriesToValRows(
+        entries: Record<number, string> | undefined,
+    ): { raw: string; label: string }[] {
         const e = entries ?? {};
         const keys = Object.keys(e)
             .map((k) => Number(k))
@@ -353,7 +392,9 @@
         return keys.map((k) => ({ raw: String(k), label: e[k] ?? '' }));
     }
 
-    function valRowsToEntries(rows: { raw: string; label: string }[]): Record<number, string> | null {
+    function valRowsToEntries(
+        rows: { raw: string; label: string }[],
+    ): Record<number, string> | null {
         const out: Record<number, string> = {};
         for (const r of rows) {
             const rawTrim = r.raw.trim();
@@ -504,9 +545,9 @@
 
 <div class="signal-editor">
     <p class="hint">
-        Pool signals are shared by name. <strong>Definition</strong> sets bit length, byte order, scaling, and the
-        default start bit (defaults apply to all linked frames). On <strong>Messages</strong>, pick a frame and set only
-        the <strong>start bit</strong> for that frame.
+        Pool signals are shared by name. <strong>Definition</strong> sets bit length, byte order,
+        scaling, and the default start bit (defaults apply to all linked frames). On
+        <strong>Messages</strong>, pick a frame and set only the <strong>start bit</strong> for that frame.
     </p>
     <div class="toolbar">
         <label class="filter-label">
@@ -524,12 +565,15 @@
             </select>
         </label>
         <SearchFilter placeholder="Filter signals…" onFilter={(t) => (filterText = t)} />
-        <button type="button" class="btn btn-primary" onclick={addSignalToPool}>Create signal</button>
+        <button type="button" class="btn btn-primary" onclick={addSignalToPool}
+            >Create signal</button
+        >
         <button
             type="button"
             class="btn danger"
             onclick={removeSelectedFromPool}
-            disabled={selectedSignal === null || (selectedSignal !== null && isSignalLinked(selectedSignal.name))}
+            disabled={selectedSignal === null ||
+                (selectedSignal !== null && isSignalLinked(selectedSignal.name))}
             title={selectedSignal && isSignalLinked(selectedSignal.name)
                 ? 'Unlink this signal from all messages in the Messages tab first'
                 : 'Remove from pool'}
@@ -556,9 +600,15 @@
                     <div class="dbc-card-header detail-head">
                         <span>{selectedSignal.name}</span>
                         {#if onOpenMessage && isSignalLinked(selectedSignal.name)}
-                            {@const firstMsg = messages.find((m) => m.signals.some((s) => s.name === selectedSignal.name))}
+                            {@const firstMsg = messages.find((m) =>
+                                m.signals.some((s) => s.name === selectedSignal.name),
+                            )}
                             {#if firstMsg}
-                                <button type="button" class="dbc-link" onclick={() => onOpenMessage(firstMsg.id)}>
+                                <button
+                                    type="button"
+                                    class="dbc-link"
+                                    onclick={() => onOpenMessage(firstMsg.id)}
+                                >
                                     Open a message using this signal →
                                 </button>
                             {/if}
@@ -581,10 +631,16 @@
 
                     <div class="dbc-card-body signal-tab-body">
                         {#if signalTab === 'definition'}
-                            <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+                            <PropertyGrid
+                                properties={definitionProps}
+                                onChange={onPropertyChange}
+                            />
                             <div class="layout-extra">
                                 <span class="subheading">Frame placement defaults</span>
-                                <PropertyGrid properties={layoutDefaultProps} onChange={onPropertyChange} />
+                                <PropertyGrid
+                                    properties={layoutDefaultProps}
+                                    onChange={onPropertyChange}
+                                />
                             </div>
                             <div class="calc-row">
                                 <button type="button" class="btn" onclick={calculateMinMaxFromRaw}>
@@ -615,7 +671,8 @@
                                             <option value="">Choose message…</option>
                                             {#each filteredMessagesToLink as m}
                                                 <option value={String(m.id)}>
-                                                    {m.name} (0x{m.id.toString(16).toUpperCase()}) · DLC {m.dlc}
+                                                    {m.name} (0x{m.id.toString(16).toUpperCase()}) ·
+                                                    DLC {m.dlc}
                                                 </option>
                                             {/each}
                                         </select>
@@ -632,7 +689,10 @@
                             </div>
 
                             {#if frameRows.length === 0}
-                                <p class="empty-tab">Not linked to any message yet. Choose a message above and click Add.</p>
+                                <p class="empty-tab">
+                                    Not linked to any message yet. Choose a message above and click
+                                    Add.
+                                </p>
                             {:else}
                                 <span class="subheading linked-heading">Linked frames</span>
                                 <div class="msg-linked-table-wrap">
@@ -651,9 +711,15 @@
                                             {#each frameRows as fr (fr.messageId)}
                                                 <tr>
                                                     <td class="cell-name">{fr.messageName}</td>
-                                                    <td class="cell-mono">0x{fr.messageId.toString(16).toUpperCase()}</td>
+                                                    <td class="cell-mono"
+                                                        >0x{fr.messageId
+                                                            .toString(16)
+                                                            .toUpperCase()}</td
+                                                    >
                                                     <td class="cell-mono">{fr.dlc}</td>
-                                                    <td class="cell-mono">{selectedSignal.bitLength}</td>
+                                                    <td class="cell-mono"
+                                                        >{selectedSignal.bitLength}</td
+                                                    >
                                                     <td class="cell-start">
                                                         <input
                                                             type="number"
@@ -664,7 +730,11 @@
                                                             onchange={(e) =>
                                                                 onFrameStartBitChange(
                                                                     fr.messageId,
-                                                                    Number((e.currentTarget as HTMLInputElement).value),
+                                                                    Number(
+                                                                        (
+                                                                            e.currentTarget as HTMLInputElement
+                                                                        ).value,
+                                                                    ),
                                                                 )}
                                                         />
                                                     </td>
@@ -673,7 +743,8 @@
                                                             <button
                                                                 type="button"
                                                                 class="dbc-link sm"
-                                                                onclick={() => onOpenMessage(fr.messageId)}
+                                                                onclick={() =>
+                                                                    onOpenMessage(fr.messageId)}
                                                             >
                                                                 Open
                                                             </button>
@@ -681,7 +752,10 @@
                                                         <button
                                                             type="button"
                                                             class="btn danger btn-compact"
-                                                            onclick={() => unlinkSignalFromMessage(fr.messageId)}
+                                                            onclick={() =>
+                                                                unlinkSignalFromMessage(
+                                                                    fr.messageId,
+                                                                )}
                                                         >
                                                             Remove
                                                         </button>
@@ -705,8 +779,9 @@
                             </label>
                         {:else if signalTab === 'attributes'}
                             <p class="empty-tab">
-                                Custom DBC attribute instances for this signal are not shown in the visual editor yet.
-                                Use the text view for SG_-level attributes, or extend serialization in a future release.
+                                Custom DBC attribute instances for this signal are not shown in the
+                                visual editor yet. Use the text view for SG_-level attributes, or
+                                extend serialization in a future release.
                             </p>
                         {:else if signalTab === 'values'}
                             <div class="val-rows">
@@ -724,14 +799,24 @@
                                             placeholder="Label"
                                             bind:value={row.label}
                                         />
-                                        <button type="button" class="btn icon-btn" onclick={() => removeValRow(i)} title="Remove row"
-                                            >×</button>
+                                        <button
+                                            type="button"
+                                            class="btn icon-btn"
+                                            onclick={() => removeValRow(i)}
+                                            title="Remove row">×</button
+                                        >
                                     </div>
                                 {/each}
                             </div>
                             <div class="val-actions">
-                                <button type="button" class="btn" onclick={addValRow}>Add row</button>
-                                <button type="button" class="btn btn-primary" onclick={commitValueDescriptions}>
+                                <button type="button" class="btn" onclick={addValRow}
+                                    >Add row</button
+                                >
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    onclick={commitValueDescriptions}
+                                >
                                     Apply value descriptions
                                 </button>
                             </div>
@@ -802,7 +887,11 @@
         color: var(--vscode-descriptionForeground);
         border: 1px dashed color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
         border-radius: var(--dbc-radius, 10px);
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     @media (max-width: 720px) {
@@ -968,7 +1057,11 @@
         padding: 10px 12px;
         border-radius: 8px;
         border: 1px solid color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
-        background: color-mix(in srgb, var(--vscode-editor-background) 96%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 96%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     .msg-add-row {

@@ -1,13 +1,13 @@
+export { connectionStore, isConnected } from './connectionStore';
 export { databaseStore } from './databaseStore';
 export { documentUri } from './editorContext';
-export { monitorStore, filteredFrames, filteredRxFrames, filteredTxFrames } from './monitorStore';
-export { connectionStore, isConnected } from './connectionStore';
+export { filteredFrames, filteredRxFrames, filteredTxFrames, monitorStore } from './monitorStore';
 export {
-    signalChartStore,
-    signalChartSelectedKeys,
-    signalChartRevision,
-    signalChartIngestPaused,
-    seriesKey,
     MAX_CHART_POINTS,
+    seriesKey,
+    signalChartIngestPaused,
+    signalChartRevision,
+    signalChartSelectedKeys,
+    signalChartStore,
 } from './signalChartStore';
 export { transmitFormStore } from './transmitFormStore';

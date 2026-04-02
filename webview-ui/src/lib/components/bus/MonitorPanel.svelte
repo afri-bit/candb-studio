@@ -69,29 +69,46 @@
 <div class="monitor-panel">
     {#if messages.length === 0}
         <div class="toolbar">
-            <button type="button" onclick={handleClear} title="Clear frame log and per-ID snapshots">Clear</button>
+            <button type="button" onclick={handleClear} title="Clear frame log and per-ID snapshots"
+                >Clear</button
+            >
             <span class="spacer"></span>
-            <SearchFilter placeholder="Filter by CAN ID (hex or decimal)…" onFilter={(t) => monitorStore.setFilter(t)} />
+            <SearchFilter
+                placeholder="Filter by CAN ID (hex or decimal)…"
+                onFilter={(t) => monitorStore.setFilter(t)}
+            />
             <span class="frame-count">Rx {uniqueRxCount} · Tx {uniqueTxCount}</span>
         </div>
 
         {#if !$isConnected}
             <div class="status-message">
                 <p class="status-lead">Not connected to a CAN adapter.</p>
-                <p class="status-detail">Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.</p>
+                <p class="status-detail">
+                    Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.
+                </p>
                 <p class="status-meta">State: {$connectionStore.state}</p>
             </div>
         {:else}
             <div class="static-wrap split-raw">
                 <h3 class="log-section-title">Received (Rx)</h3>
-                <MonitorRawTable which="rx" filterText={$monitorStore.filterText} noDatabaseHint={true} />
+                <MonitorRawTable
+                    which="rx"
+                    filterText={$monitorStore.filterText}
+                    noDatabaseHint={true}
+                />
                 <h3 class="log-section-title">Transmitted (Tx)</h3>
-                <MonitorRawTable which="tx" filterText={$monitorStore.filterText} noDatabaseHint={true} />
+                <MonitorRawTable
+                    which="tx"
+                    filterText={$monitorStore.filterText}
+                    noDatabaseHint={true}
+                />
             </div>
         {/if}
     {:else}
         <div class="toolbar">
-            <button type="button" onclick={handleClear} title="Clear frame log and live values">Clear</button>
+            <button type="button" onclick={handleClear} title="Clear frame log and live values"
+                >Clear</button
+            >
 
             <div class="view-toggle" role="group" aria-label="Monitor view mode">
                 <button
@@ -129,7 +146,11 @@
 
             <span class="spacer"></span>
             <SearchFilter
-                placeholder={viewMode === 'log' ? 'Filter frames…' : viewMode === 'raw' ? 'Filter by CAN ID…' : 'Filter messages or signals…'}
+                placeholder={viewMode === 'log'
+                    ? 'Filter frames…'
+                    : viewMode === 'raw'
+                      ? 'Filter by CAN ID…'
+                      : 'Filter messages or signals…'}
                 onFilter={(t) => monitorStore.setFilter(t)}
             />
             {#if viewMode === 'log'}
@@ -144,7 +165,9 @@
         {#if !$isConnected}
             <div class="status-message">
                 <p class="status-lead">Not connected to a CAN adapter.</p>
-                <p class="status-detail">Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.</p>
+                <p class="status-detail">
+                    Use the status bar or <strong>CANdb Studio: Connect to CAN Bus</strong>.
+                </p>
                 <p class="status-meta">State: {$connectionStore.state}</p>
             </div>
         {:else if viewMode === 'log'}
@@ -181,20 +204,30 @@
                 </div>
                 {#if $filteredRxFrames.length === 0 && $filteredTxFrames.length === 0}
                     <div class="empty">
-                        {$monitorStore.isRunning ? 'Waiting for frames…' : 'Start monitoring from the ribbon.'}
+                        {$monitorStore.isRunning
+                            ? 'Waiting for frames…'
+                            : 'Start monitoring from the ribbon.'}
                     </div>
                 {/if}
             </div>
         {:else if viewMode === 'raw'}
             <div class="static-wrap split-raw">
                 <h3 class="log-section-title">Received (Rx)</h3>
-                <MonitorRawTable which="rx" filterText={$monitorStore.filterText} noDatabaseHint={false} />
+                <MonitorRawTable
+                    which="rx"
+                    filterText={$monitorStore.filterText}
+                    noDatabaseHint={false}
+                />
                 <h3 class="log-section-title">Transmitted (Tx)</h3>
-                <MonitorRawTable which="tx" filterText={$monitorStore.filterText} noDatabaseHint={false} />
+                <MonitorRawTable
+                    which="tx"
+                    filterText={$monitorStore.filterText}
+                    noDatabaseHint={false}
+                />
             </div>
         {:else}
             <div class="static-wrap">
-                <MonitorStaticView messages={messages} filterText={$monitorStore.filterText} />
+                <MonitorStaticView {messages} filterText={$monitorStore.filterText} />
             </div>
         {/if}
     {/if}

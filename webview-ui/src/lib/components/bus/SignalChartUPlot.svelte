@@ -147,7 +147,11 @@
         padding: 16px;
         font-size: 0.88em;
         color: var(--vscode-descriptionForeground);
-        background: color-mix(in srgb, var(--vscode-editorWidget-background) 88%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editorWidget-background) 88%,
+            var(--vscode-editor-background)
+        );
         border-radius: 6px;
         border: 1px dashed color-mix(in srgb, var(--vscode-foreground) 18%, transparent);
     }

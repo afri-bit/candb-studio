@@ -172,7 +172,10 @@
         />
     </symbol>
     <symbol id="sym-folder" viewBox="0 0 16 16">
-        <path fill="var(--vscode-symbolIcon-folderForeground, #dcb67a)" d="M2 4h4l1 1h7v9H2V4zm1 2v6h10V7H2z" />
+        <path
+            fill="var(--vscode-symbolIcon-folderForeground, #dcb67a)"
+            d="M2 4h4l1 1h7v9H2V4zm1 2v6h10V7H2z"
+        />
     </symbol>
     <symbol id="sym-message" viewBox="0 0 16 16">
         <path
@@ -206,10 +209,16 @@
         />
     </symbol>
     <symbol id="sym-env" viewBox="0 0 16 16">
-        <path fill="var(--vscode-charts-purple, #c586c0)" d="M8 2 10 7h4l-3.5 3 1.5 5L8 12.5 3.5 15 5 10 1.5 7H6L8 2z" />
+        <path
+            fill="var(--vscode-charts-purple, #c586c0)"
+            d="M8 2 10 7h4l-3.5 3 1.5 5L8 12.5 3.5 15 5 10 1.5 7H6L8 2z"
+        />
     </symbol>
     <symbol id="sym-attr" viewBox="0 0 16 16">
-        <path fill="var(--vscode-symbolIcon-propertyForeground, #75beff)" d="M3 3h7l3 3v7H3V3zm1 2v8h7V7H8V5H4z" />
+        <path
+            fill="var(--vscode-symbolIcon-propertyForeground, #75beff)"
+            d="M3 3h7l3 3v7H3V3zm1 2v8h7V7H8V5H4z"
+        />
     </symbol>
 </svg>
 
@@ -229,7 +238,10 @@
         <div class="branch" aria-expanded={isOpen('networks')}>
             <button type="button" class="row head" onclick={() => toggle('networks')}>
                 <span class="chev">{isOpen('networks') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-network" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-network" /></svg
+                    ></span
+                >
                 <span class="label">Networks</span>
             </button>
             {#if isOpen('networks')}
@@ -237,15 +249,27 @@
                     <div class="branch nested" aria-expanded={isOpen('net')}>
                         <button type="button" class="row" onclick={() => toggle('net')}>
                             <span class="chev">{isOpen('net') ? '▼' : '▶'}</span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-folder" /></svg></span>
+                            <span class="glyph"
+                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                    ><use href="#sym-folder" /></svg
+                                ></span
+                            >
                             <span class="label">{networkLabel}</span>
                         </button>
                         {#if isOpen('net')}
                             <div class="children" role="group">
                                 <div class="branch nested" aria-expanded={isOpen('net_tx')}>
-                                    <button type="button" class="row" onclick={() => toggle('net_tx')}>
+                                    <button
+                                        type="button"
+                                        class="row"
+                                        onclick={() => toggle('net_tx')}
+                                    >
                                         <span class="chev">{isOpen('net_tx') ? '▼' : '▶'}</span>
-                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-folder" /></svg></span>
+                                        <span class="glyph"
+                                            ><svg viewBox="0 0 16 16" class="svg-use"
+                                                ><use href="#sym-folder" /></svg
+                                            ></span
+                                        >
                                         <span class="label">Tx Messages</span>
                                     </button>
                                     {#if isOpen('net_tx')}
@@ -258,9 +282,18 @@
                                                     onclick={() => onSelectMessage(m.id)}
                                                 >
                                                     <span class="chev placeholder"></span>
-                                                    <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                                    <span class="glyph"
+                                                        ><svg viewBox="0 0 16 16" class="svg-use"
+                                                            ><use href="#sym-message" /></svg
+                                                        ></span
+                                                    >
                                                     <span class="label truncate"
-                                                        >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                                        >{m.name}
+                                                        <span class="id"
+                                                            >(0x{m.id
+                                                                .toString(16)
+                                                                .toUpperCase()})</span
+                                                        ></span
                                                     >
                                                 </button>
                                             {:else}
@@ -271,17 +304,33 @@
                                 </div>
 
                                 <div class="branch nested" aria-expanded={isOpen('net_sig')}>
-                                    <button type="button" class="row" onclick={() => toggle('net_sig')}>
+                                    <button
+                                        type="button"
+                                        class="row"
+                                        onclick={() => toggle('net_sig')}
+                                    >
                                         <span class="chev">{isOpen('net_sig') ? '▼' : '▶'}</span>
-                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-folder" /></svg></span>
+                                        <span class="glyph"
+                                            ><svg viewBox="0 0 16 16" class="svg-use"
+                                                ><use href="#sym-folder" /></svg
+                                            ></span
+                                        >
                                         <span class="label">Signals</span>
                                     </button>
                                     {#if isOpen('net_sig')}
                                         <div class="children" role="group">
                                             {#each filteredSignals as s (s.name)}
-                                                <button type="button" class="row leaf" onclick={() => onSelectSignal(s.name)}>
+                                                <button
+                                                    type="button"
+                                                    class="row leaf"
+                                                    onclick={() => onSelectSignal(s.name)}
+                                                >
                                                     <span class="chev placeholder"></span>
-                                                    <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span>
+                                                    <span class="glyph"
+                                                        ><svg viewBox="0 0 16 16" class="svg-use"
+                                                            ><use href="#sym-signal" /></svg
+                                                        ></span
+                                                    >
                                                     <span class="label truncate">{s.name}</span>
                                                 </button>
                                             {:else}
@@ -301,7 +350,9 @@
         <div class="branch" aria-expanded={isOpen('ecus')}>
             <button type="button" class="row head" onclick={() => toggle('ecus')}>
                 <span class="chev">{isOpen('ecus') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span
+                >
                 <span class="label">ECUs</span>
             </button>
             {#if isOpen('ecus')}
@@ -310,14 +361,26 @@
                         <div class="branch nested ecu-branch">
                             <button type="button" class="row" onclick={() => toggleEcuNode(n.name)}>
                                 <span class="chev">{ecuOpen[n.name] ? '▼' : '▶'}</span>
-                                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                <span class="glyph"
+                                    ><svg viewBox="0 0 16 16" class="svg-use"
+                                        ><use href="#sym-node" /></svg
+                                    ></span
+                                >
                                 <span class="label truncate">{n.name}</span>
                             </button>
                             {#if ecuOpen[n.name]}
                                 <div class="children" role="group">
-                                    <button type="button" class="row leaf" onclick={() => onSelectNode(n.name)}>
+                                    <button
+                                        type="button"
+                                        class="row leaf"
+                                        onclick={() => onSelectNode(n.name)}
+                                    >
                                         <span class="chev placeholder"></span>
-                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                        <span class="glyph"
+                                            ><svg viewBox="0 0 16 16" class="svg-use"
+                                                ><use href="#sym-node" /></svg
+                                            ></span
+                                        >
                                         <span class="label truncate">{n.name}</span>
                                     </button>
                                 </div>
@@ -334,7 +397,9 @@
         <div class="branch" aria-expanded={isOpen('env')}>
             <button type="button" class="row head" onclick={() => toggle('env')}>
                 <span class="chev">{isOpen('env') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-env" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-env" /></svg></span
+                >
                 <span class="label">Environment variables</span>
             </button>
             {#if isOpen('env')}
@@ -342,7 +407,11 @@
                     {#each filteredEnv as ev (ev.name)}
                         <div class="row leaf static" title="Edit EV_ entries in the text view">
                             <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-env" /></svg></span>
+                            <span class="glyph"
+                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                    ><use href="#sym-env" /></svg
+                                ></span
+                            >
                             <span class="label truncate">{ev.name}</span>
                         </div>
                     {:else}
@@ -356,24 +425,44 @@
         <div class="branch" aria-expanded={isOpen('netnodes')}>
             <button type="button" class="row head" onclick={() => toggle('netnodes')}>
                 <span class="chev">{isOpen('netnodes') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span
+                >
                 <span class="label">Network nodes</span>
             </button>
             {#if isOpen('netnodes')}
                 <div class="children" role="group">
                     {#each filteredNodesForNet as n (n.name)}
                         <div class="branch nested nn-node">
-                            <button type="button" class="row" onclick={() => toggleNn(n.name, 'root')}>
+                            <button
+                                type="button"
+                                class="row"
+                                onclick={() => toggleNn(n.name, 'root')}
+                            >
                                 <span class="chev">{isNnOpen(n.name, 'root') ? '▼' : '▶'}</span>
-                                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                <span class="glyph"
+                                    ><svg viewBox="0 0 16 16" class="svg-use"
+                                        ><use href="#sym-node" /></svg
+                                    ></span
+                                >
                                 <span class="label truncate">{n.name}</span>
                             </button>
                             {#if isNnOpen(n.name, 'root')}
                                 <div class="children nn-children" role="group">
                                     <div class="branch nested">
-                                        <button type="button" class="row" onclick={() => toggleNn(n.name, 'tx')}>
-                                            <span class="chev">{isNnOpen(n.name, 'tx') ? '▼' : '▶'}</span>
-                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                        <button
+                                            type="button"
+                                            class="row"
+                                            onclick={() => toggleNn(n.name, 'tx')}
+                                        >
+                                            <span class="chev"
+                                                >{isNnOpen(n.name, 'tx') ? '▼' : '▶'}</span
+                                            >
+                                            <span class="glyph"
+                                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                                    ><use href="#sym-message" /></svg
+                                                ></span
+                                            >
                                             <span class="label">Tx Messages</span>
                                         </button>
                                         {#if isNnOpen(n.name, 'tx')}
@@ -386,9 +475,20 @@
                                                         onclick={() => onSelectMessage(m.id)}
                                                     >
                                                         <span class="chev placeholder"></span>
-                                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                                        <span class="glyph"
+                                                            ><svg
+                                                                viewBox="0 0 16 16"
+                                                                class="svg-use"
+                                                                ><use href="#sym-message" /></svg
+                                                            ></span
+                                                        >
                                                         <span class="label truncate"
-                                                            >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                                            >{m.name}
+                                                            <span class="id"
+                                                                >(0x{m.id
+                                                                    .toString(16)
+                                                                    .toUpperCase()})</span
+                                                            ></span
                                                         >
                                                     </button>
                                                 {:else}
@@ -398,9 +498,19 @@
                                         {/if}
                                     </div>
                                     <div class="branch nested">
-                                        <button type="button" class="row" onclick={() => toggleNn(n.name, 'rx')}>
-                                            <span class="chev">{isNnOpen(n.name, 'rx') ? '▼' : '▶'}</span>
-                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                        <button
+                                            type="button"
+                                            class="row"
+                                            onclick={() => toggleNn(n.name, 'rx')}
+                                        >
+                                            <span class="chev"
+                                                >{isNnOpen(n.name, 'rx') ? '▼' : '▶'}</span
+                                            >
+                                            <span class="glyph"
+                                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                                    ><use href="#sym-message" /></svg
+                                                ></span
+                                            >
                                             <span class="label">Rx Messages</span>
                                         </button>
                                         {#if isNnOpen(n.name, 'rx')}
@@ -413,9 +523,20 @@
                                                         onclick={() => onSelectMessage(m.id)}
                                                     >
                                                         <span class="chev placeholder"></span>
-                                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                                        <span class="glyph"
+                                                            ><svg
+                                                                viewBox="0 0 16 16"
+                                                                class="svg-use"
+                                                                ><use href="#sym-message" /></svg
+                                                            ></span
+                                                        >
                                                         <span class="label truncate"
-                                                            >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                                            >{m.name}
+                                                            <span class="id"
+                                                                >(0x{m.id
+                                                                    .toString(16)
+                                                                    .toUpperCase()})</span
+                                                            ></span
                                                         >
                                                     </button>
                                                 {:else}
@@ -424,9 +545,17 @@
                                             </div>
                                         {/if}
                                     </div>
-                                    <button type="button" class="row leaf nn-goto" onclick={() => onSelectNode(n.name)}>
+                                    <button
+                                        type="button"
+                                        class="row leaf nn-goto"
+                                        onclick={() => onSelectNode(n.name)}
+                                    >
                                         <span class="chev placeholder"></span>
-                                        <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-node" /></svg></span>
+                                        <span class="glyph"
+                                            ><svg viewBox="0 0 16 16" class="svg-use"
+                                                ><use href="#sym-node" /></svg
+                                            ></span
+                                        >
                                         <span class="label truncate">Node definition →</span>
                                     </button>
                                 </div>
@@ -443,7 +572,10 @@
         <div class="branch" aria-expanded={isOpen('msgs')}>
             <button type="button" class="row head" onclick={() => toggle('msgs')}>
                 <span class="chev">{isOpen('msgs') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg
+                    ></span
+                >
                 <span class="label">Messages</span>
             </button>
             {#if isOpen('msgs')}
@@ -469,18 +601,32 @@
                                     class:active={selectedMessageId === m.id}
                                     onclick={() => onSelectMessage(m.id)}
                                 >
-                                    <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-message" /></svg></span>
+                                    <span class="glyph"
+                                        ><svg viewBox="0 0 16 16" class="svg-use"
+                                            ><use href="#sym-message" /></svg
+                                        ></span
+                                    >
                                     <span class="label truncate"
-                                        >{m.name} <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                                        >{m.name}
+                                        <span class="id">(0x{m.id.toString(16).toUpperCase()})</span
+                                        ></span
                                     >
                                 </button>
                             </div>
                             {#if msgSignalOpen[m.id] && m.signals.length > 0}
                                 <div class="children msg-sig-children" role="group">
                                     {#each m.signals as sig (sig.name)}
-                                        <button type="button" class="row leaf" onclick={() => onSelectSignal(sig.name)}>
+                                        <button
+                                            type="button"
+                                            class="row leaf"
+                                            onclick={() => onSelectSignal(sig.name)}
+                                        >
                                             <span class="chev placeholder"></span>
-                                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span>
+                                            <span class="glyph"
+                                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                                    ><use href="#sym-signal" /></svg
+                                                ></span
+                                            >
                                             <span class="label truncate">{sig.name}</span>
                                         </button>
                                     {/each}
@@ -498,15 +644,25 @@
         <div class="branch" aria-expanded={isOpen('sigs')}>
             <button type="button" class="row head" onclick={() => toggle('sigs')}>
                 <span class="chev">{isOpen('sigs') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span
+                >
                 <span class="label">Signals</span>
             </button>
             {#if isOpen('sigs')}
                 <div class="children" role="group">
                     {#each filteredSignals as s (s.name)}
-                        <button type="button" class="row leaf" onclick={() => onSelectSignal(s.name)}>
+                        <button
+                            type="button"
+                            class="row leaf"
+                            onclick={() => onSelectSignal(s.name)}
+                        >
                             <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-signal" /></svg></span>
+                            <span class="glyph"
+                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                    ><use href="#sym-signal" /></svg
+                                ></span
+                            >
                             <span class="label truncate">{s.name}</span>
                         </button>
                     {:else}
@@ -520,15 +676,25 @@
         <div class="branch" aria-expanded={isOpen('attrs')}>
             <button type="button" class="row head" onclick={() => toggle('attrs')}>
                 <span class="chev">{isOpen('attrs') ? '▼' : '▶'}</span>
-                <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-attr" /></svg></span>
+                <span class="glyph"
+                    ><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-attr" /></svg></span
+                >
                 <span class="label">Attribute definitions</span>
             </button>
             {#if isOpen('attrs')}
                 <div class="children" role="group">
                     {#each filteredAttributeEntries as { a, index } (`${index}-${a.name}`)}
-                        <button type="button" class="row leaf" onclick={() => onSelectAttribute(index)}>
+                        <button
+                            type="button"
+                            class="row leaf"
+                            onclick={() => onSelectAttribute(index)}
+                        >
                             <span class="chev placeholder"></span>
-                            <span class="glyph"><svg viewBox="0 0 16 16" class="svg-use"><use href="#sym-attr" /></svg></span>
+                            <span class="glyph"
+                                ><svg viewBox="0 0 16 16" class="svg-use"
+                                    ><use href="#sym-attr" /></svg
+                                ></span
+                            >
                             <span class="label truncate">{a.name}</span>
                         </button>
                     {:else}
@@ -585,7 +751,8 @@
 
     .children {
         margin-left: 14px;
-        border-left: 1px solid color-mix(in srgb, var(--vscode-tree-indentGuidesStroke) 55%, transparent);
+        border-left: 1px solid
+            color-mix(in srgb, var(--vscode-tree-indentGuidesStroke) 55%, transparent);
         padding-left: 12px;
     }
 

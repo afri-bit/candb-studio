@@ -28,12 +28,7 @@
 
 <div class="search-filter">
     <span class="icon">&#128269;</span>
-    <input
-        type="text"
-        {placeholder}
-        {value}
-        oninput={handleInput}
-    />
+    <input type="text" {placeholder} {value} oninput={handleInput} />
     {#if value}
         <button class="clear-btn" onclick={handleClear} title="Clear">×</button>
     {/if}

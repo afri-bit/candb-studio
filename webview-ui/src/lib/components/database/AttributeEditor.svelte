@@ -64,7 +64,7 @@
     );
 
     let selectedAttr = $derived(
-        selectedIndex !== null ? attributes[selectedIndex] ?? null : null,
+        selectedIndex !== null ? (attributes[selectedIndex] ?? null) : null,
     );
 
     function formatDefaultForInput(a: AttributeDescriptor): string {
@@ -174,7 +174,8 @@
 
 <div class="attribute-editor">
     <div class="attr-toolbar">
-        <button type="button" class="btn-add" onclick={addAttributeDefinition}>Add attribute</button>
+        <button type="button" class="btn-add" onclick={addAttributeDefinition}>Add attribute</button
+        >
         <button
             type="button"
             class="btn-remove"
@@ -236,7 +237,10 @@
                                     type="text"
                                     value={selectedAttr.name}
                                     onchange={(e) =>
-                                        onPropertyChange('name', (e.currentTarget as HTMLInputElement).value)}
+                                        onPropertyChange(
+                                            'name',
+                                            (e.currentTarget as HTMLInputElement).value,
+                                        )}
                                 />
 
                                 <label class="field-label" for="attr-obj">Object Type</label>
@@ -245,7 +249,10 @@
                                     class="field-input"
                                     value={selectedAttr.objectType}
                                     onchange={(e) =>
-                                        onPropertyChange('objectType', (e.currentTarget as HTMLSelectElement).value)}
+                                        onPropertyChange(
+                                            'objectType',
+                                            (e.currentTarget as HTMLSelectElement).value,
+                                        )}
                                 >
                                     {#each objectTypeOptionsFor(selectedAttr.objectType) as o}
                                         <option value={o}>{objectTypeOptionLabel(o)}</option>
@@ -258,7 +265,10 @@
                                     class="field-input"
                                     value={selectedAttr.valueType}
                                     onchange={(e) =>
-                                        onPropertyChange('valueType', (e.currentTarget as HTMLSelectElement).value)}
+                                        onPropertyChange(
+                                            'valueType',
+                                            (e.currentTarget as HTMLSelectElement).value,
+                                        )}
                                 >
                                     {#each VALUE_OPTIONS as o}
                                         <option value={o.value}>{o.label}</option>
@@ -271,7 +281,8 @@
                                     class="field-input"
                                     type="text"
                                     value={formatDefaultForInput(selectedAttr)}
-                                    onchange={(e) => onDefaultInput((e.currentTarget as HTMLInputElement).value)}
+                                    onchange={(e) =>
+                                        onDefaultInput((e.currentTarget as HTMLInputElement).value)}
                                 />
 
                                 <label class="field-label" for="attr-min">Minimum</label>
@@ -309,7 +320,10 @@
                                 value={selectedAttr.comment ?? ''}
                                 placeholder="Documentation for this attribute definition…"
                                 onchange={(e) =>
-                                    onPropertyChange('comment', (e.currentTarget as HTMLTextAreaElement).value)}
+                                    onPropertyChange(
+                                        'comment',
+                                        (e.currentTarget as HTMLTextAreaElement).value,
+                                    )}
                             ></textarea>
                         {/if}
                     </div>
@@ -323,11 +337,15 @@
                         >
                             Save
                         </button>
-                        <button type="button" class="btn" onclick={cancelSelection}>Clear selection</button>
+                        <button type="button" class="btn" onclick={cancelSelection}
+                            >Clear selection</button
+                        >
                     </div>
                 </div>
             {:else}
-                <div class="detail-placeholder">Select an attribute in the list to edit its definition.</div>
+                <div class="detail-placeholder">
+                    Select an attribute in the list to edit its definition.
+                </div>
             {/if}
         </section>
     </div>
@@ -374,7 +392,11 @@
         cursor: pointer;
         border-radius: 6px;
         border: 1px solid var(--vscode-button-border, transparent);
-        background: color-mix(in srgb, var(--vscode-inputValidation-errorBackground) 35%, var(--vscode-button-secondaryBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-inputValidation-errorBackground) 35%,
+            var(--vscode-button-secondaryBackground)
+        );
         color: var(--vscode-errorForeground);
     }
 
@@ -565,7 +587,11 @@
         color: var(--vscode-descriptionForeground);
         border: 1px dashed color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
         border-radius: var(--dbc-radius, 10px);
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     .sr-only {

@@ -12,13 +12,7 @@
     import DatabaseExplorer from './lib/components/database/DatabaseExplorer.svelte';
     import type { WebviewInboundMessage } from './lib/types';
 
-    type Tab =
-        | 'messages'
-        | 'signals'
-        | 'nodes'
-        | 'attributes'
-        | 'valueTables'
-        | 'architecture';
+    type Tab = 'messages' | 'signals' | 'nodes' | 'attributes' | 'valueTables' | 'architecture';
 
     const SIDEBAR_MIN = 180;
     const SIDEBAR_DEFAULT = 264;
@@ -208,12 +202,27 @@
 
     <div class="dbc-main">
         <nav class="tab-bar">
-            <button class:active={activeTab === 'messages'} onclick={() => (activeTab = 'messages')}>Messages</button>
-            <button class:active={activeTab === 'signals'} onclick={() => (activeTab = 'signals')}>Signals</button>
-            <button class:active={activeTab === 'nodes'} onclick={() => (activeTab = 'nodes')}>Nodes</button>
-            <button class:active={activeTab === 'attributes'} onclick={() => (activeTab = 'attributes')}>Attributes</button>
-            <button class:active={activeTab === 'valueTables'} onclick={() => (activeTab = 'valueTables')}>Value tables</button>
-            <button class:active={activeTab === 'architecture'} onclick={() => (activeTab = 'architecture')}>Architecture</button>
+            <button class:active={activeTab === 'messages'} onclick={() => (activeTab = 'messages')}
+                >Messages</button
+            >
+            <button class:active={activeTab === 'signals'} onclick={() => (activeTab = 'signals')}
+                >Signals</button
+            >
+            <button class:active={activeTab === 'nodes'} onclick={() => (activeTab = 'nodes')}
+                >Nodes</button
+            >
+            <button
+                class:active={activeTab === 'attributes'}
+                onclick={() => (activeTab = 'attributes')}>Attributes</button
+            >
+            <button
+                class:active={activeTab === 'valueTables'}
+                onclick={() => (activeTab = 'valueTables')}>Value tables</button
+            >
+            <button
+                class:active={activeTab === 'architecture'}
+                onclick={() => (activeTab = 'architecture')}>Architecture</button
+            >
             <span class="spacer"></span>
             <button
                 class="text-view-btn"
@@ -389,13 +398,21 @@
     .text-view-btn {
         font-weight: 500;
         border: 1px solid color-mix(in srgb, var(--vscode-foreground) 14%, transparent) !important;
-        background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 55%, transparent) !important;
+        background: color-mix(
+            in srgb,
+            var(--vscode-toolbar-hoverBackground) 55%,
+            transparent
+        ) !important;
         color: var(--vscode-foreground) !important;
         border-radius: 6px;
     }
 
     .text-view-btn:hover {
-        background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 85%, transparent) !important;
+        background: color-mix(
+            in srgb,
+            var(--vscode-toolbar-hoverBackground) 85%,
+            transparent
+        ) !important;
     }
 
     .save-btn {

@@ -74,7 +74,9 @@
     });
 
     let poolOnlySignals = $derived(
-        signalPool.filter((s) => !linkedSignalNames.has(s.name)).sort((a, b) => a.name.localeCompare(b.name)),
+        signalPool
+            .filter((s) => !linkedSignalNames.has(s.name))
+            .sort((a, b) => a.name.localeCompare(b.name)),
     );
 
     let stats = $derived({
@@ -115,12 +117,23 @@
     </header>
 
     <section class="stats-strip" aria-label="Database summary">
-        <div class="stat"><span class="stat-val">{stats.nodeCount}</span><span class="stat-lbl">ECUs (nodes)</span></div>
-        <div class="stat"><span class="stat-val">{stats.frameCount}</span><span class="stat-lbl">Frames</span></div>
-        <div class="stat"><span class="stat-val">{stats.onBusSignalCount}</span><span class="stat-lbl">Signals on frames</span></div>
+        <div class="stat">
+            <span class="stat-val">{stats.nodeCount}</span><span class="stat-lbl">ECUs (nodes)</span
+            >
+        </div>
+        <div class="stat">
+            <span class="stat-val">{stats.frameCount}</span><span class="stat-lbl">Frames</span>
+        </div>
+        <div class="stat">
+            <span class="stat-val">{stats.onBusSignalCount}</span><span class="stat-lbl"
+                >Signals on frames</span
+            >
+        </div>
         {#if stats.poolOnlyCount > 0}
             <div class="stat warn">
-                <span class="stat-val">{stats.poolOnlyCount}</span><span class="stat-lbl">Pool-only (not on a frame)</span>
+                <span class="stat-val">{stats.poolOnlyCount}</span><span class="stat-lbl"
+                    >Pool-only (not on a frame)</span
+                >
             </div>
         {/if}
     </section>
@@ -132,9 +145,15 @@
     </div>
 
     {#if messages.length === 0 && nodes.length === 0}
-        <p class="empty-hint">No nodes or frames yet. Add ECUs and messages in the Nodes and Messages tabs to see the bus map.</p>
+        <p class="empty-hint">
+            No nodes or frames yet. Add ECUs and messages in the Nodes and Messages tabs to see the
+            bus map.
+        </p>
     {:else if messages.length === 0}
-        <p class="empty-hint">No frames defined. Messages carry signals on the bus; add frames to map transmitters and receivers.</p>
+        <p class="empty-hint">
+            No frames defined. Messages carry signals on the bus; add frames to map transmitters and
+            receivers.
+        </p>
     {:else}
         <div class="bus-spine" aria-hidden="true">
             <span class="spine-label">Data flow (logical)</span>
@@ -155,7 +174,9 @@
                                 type="button"
                                 class="ecu-block"
                                 class:unknown={!row.txKnownNode}
-                                title={row.txKnownNode ? 'Open in Nodes' : 'Transmitter not in BU_ list'}
+                                title={row.txKnownNode
+                                    ? 'Open in Nodes'
+                                    : 'Transmitter not in BU_ list'}
                                 onclick={() => onSelectNode?.(row.tx)}
                             >
                                 <span class="ecu-role">Tx</span>
@@ -175,7 +196,9 @@
                                 onclick={() => onSelectMessage?.(row.message.id)}
                             >
                                 <span class="frame-name">{row.message.name}</span>
-                                <span class="frame-meta">{idHex(row.message.id)} · DLC {row.message.dlc}</span>
+                                <span class="frame-meta"
+                                    >{idHex(row.message.id)} · DLC {row.message.dlc}</span
+                                >
                             </button>
                             {#if row.message.signals.length === 0}
                                 <p class="frame-empty">No signals mapped to this frame</p>
@@ -187,7 +210,8 @@
                                                 type="button"
                                                 class="sig-pill"
                                                 title="Open signal in Signals tab"
-                                                onclick={() => onNavigateToSignal(row.message.id, sig.name)}
+                                                onclick={() =>
+                                                    onNavigateToSignal(row.message.id, sig.name)}
                                             >
                                                 {sig.name}
                                             </button>
@@ -204,7 +228,10 @@
 
                     <div class="flow-part rx-part">
                         {#if row.receivers.length === 0}
-                            <div class="ecu-block muted" title="No SG_ receivers on this frame’s signals">
+                            <div
+                                class="ecu-block muted"
+                                title="No SG_ receivers on this frame’s signals"
+                            >
                                 <span class="ecu-role">Rx</span>
                                 <span class="ecu-name">—</span>
                             </div>
@@ -217,7 +244,9 @@
                                             type="button"
                                             class="ecu-chip"
                                             class:unknown={!isReceiverKnownNode(rname)}
-                                            title={isReceiverKnownNode(rname) ? 'Open in Nodes' : 'Receiver not in BU_ list'}
+                                            title={isReceiverKnownNode(rname)
+                                                ? 'Open in Nodes'
+                                                : 'Receiver not in BU_ list'}
                                             onclick={() => onSelectNode?.(rname)}
                                         >
                                             {rname}
@@ -236,7 +265,8 @@
         <section class="aside-block">
             <h3 class="aside-title">ECUs without Tx/Rx in this map</h3>
             <p class="aside-text">
-                These <code>BU_</code> nodes are not used as a frame transmitter and never appear as a signal receiver:
+                These <code>BU_</code> nodes are not used as a frame transmitter and never appear as
+                a signal receiver:
                 {orphanNodes.join(', ')}.
             </p>
         </section>
@@ -246,8 +276,8 @@
         <section class="aside-block pool-block">
             <h3 class="aside-title">Signal pool (not placed on a frame)</h3>
             <p class="aside-text">
-                Definitions exist in the pool but are not mapped to any <code>BO_</code> frame yet — they do not appear on the
-                bus in this database.
+                Definitions exist in the pool but are not mapped to any <code>BO_</code> frame yet — they
+                do not appear on the bus in this database.
             </p>
             <ul class="pool-list">
                 {#each poolOnlySignals as ps (ps.name)}
@@ -286,7 +316,11 @@
         padding: 10px 12px;
         border-radius: var(--dbc-radius-sm, 6px);
         border: 1px solid var(--dbc-border, var(--vscode-panel-border));
-        background: color-mix(in srgb, var(--vscode-editor-background) 92%, var(--vscode-sideBar-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 92%,
+            var(--vscode-sideBar-background)
+        );
     }
 
     .stat {
@@ -340,7 +374,11 @@
     }
 
     .leg-swatch.frame {
-        background: color-mix(in srgb, var(--vscode-focusBorder) 25%, var(--vscode-editor-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-focusBorder) 25%,
+            var(--vscode-editor-background)
+        );
     }
 
     .leg-swatch.rx {
@@ -390,7 +428,10 @@
 
     .flow-block {
         display: grid;
-        grid-template-columns: minmax(100px, 140px) auto minmax(180px, 1fr) auto minmax(120px, 200px);
+        grid-template-columns: minmax(100px, 140px) auto minmax(180px, 1fr) auto minmax(
+                120px,
+                200px
+            );
         align-items: stretch;
         gap: 6px 8px;
     }
@@ -405,7 +446,8 @@
         }
 
         .flow-part.tx-part {
-            border-bottom: 1px dashed color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
+            border-bottom: 1px dashed
+                color-mix(in srgb, var(--vscode-panel-border) 80%, transparent);
             padding-bottom: 8px;
         }
 
@@ -449,7 +491,11 @@
 
     .ecu-block.muted {
         cursor: default;
-        background: color-mix(in srgb, var(--vscode-editor-background) 94%, var(--vscode-input-background));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 94%,
+            var(--vscode-input-background)
+        );
         color: var(--vscode-descriptionForeground);
     }
 
@@ -481,7 +527,8 @@
         min-height: 72px;
         padding: 10px 12px;
         border-radius: var(--dbc-radius-sm, 6px);
-        border: 2px solid color-mix(in srgb, var(--vscode-focusBorder) 55%, var(--vscode-panel-border));
+        border: 2px solid
+            color-mix(in srgb, var(--vscode-focusBorder) 55%, var(--vscode-panel-border));
         background: var(--vscode-editor-background);
         box-sizing: border-box;
     }
@@ -545,7 +592,8 @@
     .sig-pill {
         padding: 3px 8px;
         border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--vscode-focusBorder) 40%, var(--vscode-panel-border));
+        border: 1px solid
+            color-mix(in srgb, var(--vscode-focusBorder) 40%, var(--vscode-panel-border));
         background: color-mix(in srgb, var(--vscode-list-hoverBackground) 50%, transparent);
         font-size: 11px;
         font-family: var(--vscode-editor-font-family, monospace);
@@ -615,7 +663,11 @@
         padding: 12px 14px;
         border-radius: var(--dbc-radius-sm, 6px);
         border: 1px dashed var(--vscode-panel-border);
-        background: color-mix(in srgb, var(--vscode-editor-background) 96%, var(--vscode-list-hoverBackground));
+        background: color-mix(
+            in srgb,
+            var(--vscode-editor-background) 96%,
+            var(--vscode-list-hoverBackground)
+        );
     }
 
     .pool-block {

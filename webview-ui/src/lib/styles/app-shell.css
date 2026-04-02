@@ -4,9 +4,13 @@
 :root {
     --dbc-radius: 10px;
     --dbc-radius-sm: 6px;
-    --dbc-shadow: 0 1px 2px color-mix(in srgb, var(--vscode-widget-shadow) 35%, transparent),
+    --dbc-shadow:
+        0 1px 2px color-mix(in srgb, var(--vscode-widget-shadow) 35%, transparent),
         0 4px 12px color-mix(in srgb, var(--vscode-widget-shadow) 18%, transparent);
-    --dbc-border: var(--vscode-panel-border, color-mix(in srgb, var(--vscode-foreground) 10%, transparent));
+    --dbc-border: var(
+        --vscode-panel-border,
+        color-mix(in srgb, var(--vscode-foreground) 10%, transparent)
+    );
     --dbc-muted: var(--vscode-descriptionForeground);
     --dbc-accent: var(--vscode-focusBorder);
 }
@@ -25,7 +29,11 @@
     flex-direction: column;
     min-width: 0;
     border-right: 1px solid var(--dbc-border);
-    background: color-mix(in srgb, var(--vscode-sideBar-background) 96%, var(--vscode-editor-background));
+    background: color-mix(
+        in srgb,
+        var(--vscode-sideBar-background) 96%,
+        var(--vscode-editor-background)
+    );
     color: var(--vscode-sideBar-foreground, var(--vscode-foreground));
 }
 
@@ -63,7 +71,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--vscode-list-hoverBackground));
+    background: color-mix(
+        in srgb,
+        var(--vscode-editor-background) 88%,
+        var(--vscode-list-hoverBackground)
+    );
 }
 
 .dbc-card-body {

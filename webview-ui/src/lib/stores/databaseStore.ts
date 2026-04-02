@@ -1,9 +1,9 @@
 import { writable } from 'svelte/store';
 import type {
+    AttributeDescriptor,
     CanDatabaseDescriptor,
     MessageDescriptor,
     NodeDescriptor,
-    AttributeDescriptor,
 } from '../types';
 
 const emptyDatabase: CanDatabaseDescriptor = {
