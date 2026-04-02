@@ -47,5 +47,7 @@ jobs:
 
       - name: Integration tests (VS Code extension host)
         uses: coactions/setup-xvfb@v1
+        env:
+          VSCODE_TEST_FILES: out/test/integration/**/*.test.js
         with:
-          run: VSCODE_TEST_FILES='out/test/integration/**/*.test.js' npx vscode-test
+          run: npx vscode-test
