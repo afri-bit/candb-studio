@@ -39,7 +39,7 @@ This repository is **CANdb Studio**, a VS Code extension for **DBC** (CAN databa
 
 ```bash
 npm run compile      # webview build + webpack
-npm run format       # Prettier: src/ + webview-ui/ (ts, svelte, css, js)
+npm run format       # Prettier: src/ (4 spaces) + webview-ui/ (2 spaces)
 npm run lint         # eslint on src/
 npm test             # pretest runs compile-tests, compile, lint; then vscode-test
 npm run test:unit    # clean out/, compile tests, mocha unit tests (Node + vscode shim)

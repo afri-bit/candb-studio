@@ -12,6 +12,12 @@
             "options": {
                 "parser": "svelte"
             }
+        },
+        {
+            "files": "webview-ui/**/*",
+            "options": {
+                "tabWidth": 2
+            }
         }
     ]
 }

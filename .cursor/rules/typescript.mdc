@@ -8,7 +8,7 @@ alwaysApply: false
 
 ## Formatting
 
-- **Indentation:** **4 spaces** per level. **Prettier** applies to `src/**/*.ts` and **`webview-ui/**/*.{ts,svelte,css,js}`** (see `.prettierrc.json` + `prettier-plugin-svelte`). Run `npm run format` before large edits; `npm run format:check` in CI is optional.
+- **Indentation:** **4 spaces** in **`src/`** (extension host); **2 spaces** in **`webview-ui/`** (Svelte/TS/CSS — typical for front-end). **Prettier** applies to both (see `.prettierrc.json` overrides + `prettier-plugin-svelte`). Run `npm run format` before large edits; `npm run format:check` in CI is optional.
 - **Line length:** prefer ≤ 100 columns where Prettier allows (see `.prettierrc.json`).
 
 ## Documentation (JSDoc)

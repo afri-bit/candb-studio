@@ -9,20 +9,20 @@
  * @returns Human-readable diagnostic string.
  */
 export function formatUnknownError(err: unknown): string {
-    if (err instanceof Error) {
-        return err.stack ?? err.message;
-    }
-    if (typeof err === 'string') {
-        return err;
-    }
-    if (err === null || err === undefined) {
-        return String(err);
-    }
-    try {
-        return JSON.stringify(err);
-    } catch {
-        return String(err);
-    }
+  if (err instanceof Error) {
+    return err.stack ?? err.message;
+  }
+  if (typeof err === 'string') {
+    return err;
+  }
+  if (err === null || err === undefined) {
+    return String(err);
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
 }
 
 /**
@@ -31,7 +31,7 @@ export function formatUnknownError(err: unknown): string {
  * @param err - Value from a catch clause.
  */
 export function asError(err: unknown): Error | undefined {
-    return err instanceof Error ? err : undefined;
+  return err instanceof Error ? err : undefined;
 }
 
 /**
@@ -40,11 +40,11 @@ export function asError(err: unknown): Error | undefined {
  * @param err - Caught value.
  */
 export function messageForUser(err: unknown): string {
-    if (err instanceof Error) {
-        return err.message;
-    }
-    if (typeof err === 'string') {
-        return err;
-    }
-    return 'An unexpected error occurred.';
+  if (err instanceof Error) {
+    return err.message;
+  }
+  if (typeof err === 'string') {
+    return err;
+  }
+  return 'An unexpected error occurred.';
 }

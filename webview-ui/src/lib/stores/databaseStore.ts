@@ -1,107 +1,107 @@
 import { writable } from 'svelte/store';
 import type {
-    AttributeDescriptor,
-    CanDatabaseDescriptor,
-    MessageDescriptor,
-    NodeDescriptor,
+  AttributeDescriptor,
+  CanDatabaseDescriptor,
+  MessageDescriptor,
+  NodeDescriptor,
 } from '../types';
 
 const emptyDatabase: CanDatabaseDescriptor = {
-    version: '',
-    nodes: [],
-    messages: [],
-    signalPool: [],
-    attributes: [],
-    environmentVariables: [],
-    valueTables: [],
+  version: '',
+  nodes: [],
+  messages: [],
+  signalPool: [],
+  attributes: [],
+  environmentVariables: [],
+  valueTables: [],
 };
 
 function createDatabaseStore() {
-    const { subscribe, set, update } = writable<CanDatabaseDescriptor>(emptyDatabase);
+  const { subscribe, set, update } = writable<CanDatabaseDescriptor>(emptyDatabase);
 
-    return {
-        subscribe,
+  return {
+    subscribe,
 
-        setDatabase(db: CanDatabaseDescriptor) {
-            set(db);
-        },
+    setDatabase(db: CanDatabaseDescriptor) {
+      set(db);
+    },
 
-        reset() {
-            set(emptyDatabase);
-        },
+    reset() {
+      set(emptyDatabase);
+    },
 
-        /* ── Message mutations ── */
+    /* ── Message mutations ── */
 
-        addMessage(message: MessageDescriptor) {
-            update((db) => ({
-                ...db,
-                messages: [...db.messages, message],
-            }));
-        },
+    addMessage(message: MessageDescriptor) {
+      update((db) => ({
+        ...db,
+        messages: [...db.messages, message],
+      }));
+    },
 
-        updateMessage(index: number, message: MessageDescriptor) {
-            update((db) => {
-                const messages = [...db.messages];
-                messages[index] = message;
-                return { ...db, messages };
-            });
-        },
+    updateMessage(index: number, message: MessageDescriptor) {
+      update((db) => {
+        const messages = [...db.messages];
+        messages[index] = message;
+        return { ...db, messages };
+      });
+    },
 
-        removeMessage(index: number) {
-            update((db) => ({
-                ...db,
-                messages: db.messages.filter((_, i) => i !== index),
-            }));
-        },
+    removeMessage(index: number) {
+      update((db) => ({
+        ...db,
+        messages: db.messages.filter((_, i) => i !== index),
+      }));
+    },
 
-        /* ── Node mutations ── */
+    /* ── Node mutations ── */
 
-        addNode(node: NodeDescriptor) {
-            update((db) => ({
-                ...db,
-                nodes: [...db.nodes, node],
-            }));
-        },
+    addNode(node: NodeDescriptor) {
+      update((db) => ({
+        ...db,
+        nodes: [...db.nodes, node],
+      }));
+    },
 
-        updateNode(index: number, node: NodeDescriptor) {
-            update((db) => {
-                const nodes = [...db.nodes];
-                nodes[index] = node;
-                return { ...db, nodes };
-            });
-        },
+    updateNode(index: number, node: NodeDescriptor) {
+      update((db) => {
+        const nodes = [...db.nodes];
+        nodes[index] = node;
+        return { ...db, nodes };
+      });
+    },
 
-        removeNode(index: number) {
-            update((db) => ({
-                ...db,
-                nodes: db.nodes.filter((_, i) => i !== index),
-            }));
-        },
+    removeNode(index: number) {
+      update((db) => ({
+        ...db,
+        nodes: db.nodes.filter((_, i) => i !== index),
+      }));
+    },
 
-        /* ── Attribute mutations ── */
+    /* ── Attribute mutations ── */
 
-        addAttribute(attr: AttributeDescriptor) {
-            update((db) => ({
-                ...db,
-                attributes: [...db.attributes, attr],
-            }));
-        },
+    addAttribute(attr: AttributeDescriptor) {
+      update((db) => ({
+        ...db,
+        attributes: [...db.attributes, attr],
+      }));
+    },
 
-        updateAttribute(index: number, attr: AttributeDescriptor) {
-            update((db) => {
-                const attributes = [...db.attributes];
-                attributes[index] = attr;
-                return { ...db, attributes };
-            });
-        },
+    updateAttribute(index: number, attr: AttributeDescriptor) {
+      update((db) => {
+        const attributes = [...db.attributes];
+        attributes[index] = attr;
+        return { ...db, attributes };
+      });
+    },
 
-        removeAttribute(index: number) {
-            update((db) => ({
-                ...db,
-                attributes: db.attributes.filter((_, i) => i !== index),
-            }));
-        },
-    };
+    removeAttribute(index: number) {
+      update((db) => ({
+        ...db,
+        attributes: db.attributes.filter((_, i) => i !== index),
+      }));
+    },
+  };
 }
 
 export const databaseStore = createDatabaseStore();

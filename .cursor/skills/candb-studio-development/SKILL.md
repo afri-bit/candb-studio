@@ -11,7 +11,7 @@ description: Builds, layout, and workflows for the candb-studio repo — extensi
 - Extension entry: `package.json` → `main: ./dist/extension.js`.
 
 ## Formatting
-- **Prettier** (root): `npm run format` formats `src/**/*.ts` and `webview-ui/**/*.{ts,svelte,css,js}` (4 spaces, `prettier-plugin-svelte` for `.svelte`).
+- **Prettier** (root): `npm run format` formats `src/**/*.ts` (4 spaces) and `webview-ui/**/*.{ts,svelte,css,js}` (2 spaces; `prettier-plugin-svelte` for `.svelte`).
 - **Svelte check**: `npm run check --prefix webview-ui` before merging large UI changes.
 
 ## Repository map
