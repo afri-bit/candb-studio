@@ -1,0 +1,85 @@
+# Build, lint, unit tests + coverage, integration tests (VS Code + xvfb).
+name: Build and test
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            webview-ui/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix webview-ui
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Compile (webview + extension)
+        run: npm run compile
+
+      - name: Unit tests and coverage (extension sources)
+        run: npm run test:coverage
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'coverage/coverage-summary.json';
+          if (!fs.existsSync(p)) {
+            console.log('No coverage summary found; skipping table.');
+            process.exit(0);
+          }
+          const s = JSON.parse(fs.readFileSync(p, 'utf8'));
+          const t = s.total;
+          const fmt = (x) => (x && typeof x.pct === 'number' ? x.pct.toFixed(2) : '—');
+          const lines = [
+            '## Coverage (`out/src`)',
+            '',
+            '| Metric | Coverage |',
+            '|--------|----------|',
+            `| Lines | ${fmt(t.lines)}% |`,
+            `| Statements | ${fmt(t.statements)}% |`,
+            `| Functions | ${fmt(t.functions)}% |`,
+            `| Branches | ${fmt(t.branches)}% |`,
+            '',
+            'Unit tests run under Node (c8 + mocha) with a minimal `vscode` shim. Integration tests run in the next step.',
+            '',
+          ];
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n'));
+          NODE
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          if-no-files-found: warn
+          path: coverage
+
+      - name: Integration tests (VS Code extension host)
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: VSCODE_TEST_FILES='out/test/integration/**/*.test.js' npx vscode-test
