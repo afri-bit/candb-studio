@@ -1,5 +1,5 @@
 /**
- * Minimal `vscode` shim for running unit tests under Node (e.g. c8 + mocha).
+ * Minimal `vscode` shim for running unit tests under Node + mocha.
  * Only implements APIs used by tests; extension host tests still use real VS Code.
  */
 const Module = require('module');

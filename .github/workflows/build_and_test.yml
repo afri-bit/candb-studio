@@ -1,4 +1,4 @@
-# Build, lint, unit tests + coverage, integration tests (VS Code + xvfb).
+# Build, lint, unit tests, integration tests (VS Code + xvfb).
 name: Build and test
 
 on:
@@ -9,7 +9,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Use Node 24 for JS actions (avoids Node 20 deprecation on runners); see GitHub changelog 2025-09-19.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -23,7 +22,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # Lockfiles must be tracked in git for npm cache + npm ci.
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -44,20 +42,8 @@ jobs:
       - name: Compile (webview + extension)
         run: npm run compile
 
-      - name: Unit tests and coverage (extension sources)
-        run: npm run test:coverage
-
-      - name: Coverage summary
-        if: always()
-        run: node scripts/coverage-summary.cjs
-
-      - name: Upload coverage artifacts
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: coverage
-          if-no-files-found: warn
-          path: coverage
+      - name: Unit tests (Node + mocha)
+        run: npm run test:unit
 
       - name: Integration tests (VS Code extension host)
         uses: coactions/setup-xvfb@v1
