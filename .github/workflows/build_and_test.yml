@@ -24,9 +24,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            webview-ui/package-lock.json
+          # Both lockfiles must be tracked in git (see .gitignore); otherwise cache setup fails.
+          cache-dependency-path:
+            - package-lock.json
+            - webview-ui/package-lock.json
 
       - name: Install dependencies
         run: |
