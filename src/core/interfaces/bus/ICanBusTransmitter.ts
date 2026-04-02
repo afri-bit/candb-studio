@@ -8,18 +8,18 @@ import { TransmitTask } from '../../models/bus/TransmitTask';
  * tasks that repeat at a configured interval.
  */
 export interface ICanBusTransmitter {
-  /** Send a single frame immediately. */
-  sendOnce(frame: CanFrame): Promise<void>;
+    /** Send a single frame immediately. */
+    sendOnce(frame: CanFrame): Promise<void>;
 
-  /** Start a periodic transmit task. */
-  startPeriodic(task: TransmitTask): void;
+    /** Start a periodic transmit task. */
+    startPeriodic(task: TransmitTask): void;
 
-  /** Stop a specific periodic transmit task by ID. */
-  stopPeriodic(taskId: string): void;
+    /** Stop a specific periodic transmit task by ID. */
+    stopPeriodic(taskId: string): void;
 
-  /** Stop all active periodic transmit tasks. */
-  stopAll(): void;
+    /** Stop all active periodic transmit tasks. */
+    stopAll(): void;
 
-  /** Currently active periodic tasks. */
-  readonly activeTasks: ReadonlyArray<TransmitTask>;
+    /** Currently active periodic tasks. */
+    readonly activeTasks: ReadonlyArray<TransmitTask>;
 }

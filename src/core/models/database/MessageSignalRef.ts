@@ -5,8 +5,8 @@ import { ByteOrder } from '../../enums/ByteOrder';
  * Definition (factor, unit, …) lives in the pool; this is only frame layout.
  */
 export interface MessageSignalRef {
-  signalName: string;
-  startBit: number;
-  bitLength: number;
-  byteOrder: ByteOrder;
+    signalName: string;
+    startBit: number;
+    bitLength: number;
+    byteOrder: ByteOrder;
 }

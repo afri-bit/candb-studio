@@ -5,11 +5,11 @@
  * In a DBC file, nodes are listed in the `BU_:` section.
  */
 export class Node {
-  public name: string;
-  public comment?: string;
+    public name: string;
+    public comment?: string;
 
-  constructor(name: string, comment?: string) {
-    this.name = name;
-    this.comment = comment;
-  }
+    constructor(name: string, comment?: string) {
+        this.name = name;
+        this.comment = comment;
+    }
 }

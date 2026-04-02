@@ -2,6 +2,8 @@
 
 High-level view of how the **candb-studio** extension is structured: **persistence**, **domain**, **application services**, **presentation** (custom editor, webview, tree, language features), and **optional hardware** (monitor / transmit).
 
+**Step-by-step extension-host guide (layered, with diagrams):** see [architecture/README.md](architecture/README.md) — start with [architecture/01-overview.md](architecture/01-overview.md).
+
 ## Layered overview
 
 ```mermaid

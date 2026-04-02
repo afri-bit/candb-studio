@@ -3,77 +3,76 @@ import { CanBusState } from '../../core/enums/CanBusState';
 import { Commands, SIGNAL_LAB_SIDEBAR_VIEW_ID } from '../../shared/constants';
 
 export type SignalLabHostSnapshot = {
-  busState: CanBusState;
-  monitorRunning: boolean;
-  periodicIntervals: Record<number, number>;
+    busState: CanBusState;
+    monitorRunning: boolean;
+    periodicIntervals: Record<number, number>;
 };
 
 /**
  * Compact sidebar webview next to CAN Database: connection + activity + open full Signal Lab.
  */
 export class SignalLabSidebarViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = SIGNAL_LAB_SIDEBAR_VIEW_ID;
+    public static readonly viewType = SIGNAL_LAB_SIDEBAR_VIEW_ID;
 
-  private view?: vscode.WebviewView;
+    private view?: vscode.WebviewView;
 
-  constructor(private readonly getSnapshot: () => SignalLabHostSnapshot) {}
+    constructor(private readonly getSnapshot: () => SignalLabHostSnapshot) {}
 
-  resolveWebviewView(webviewView: vscode.WebviewView): void {
-    this.view = webviewView;
-    webviewView.webview.options = {
-      enableScripts: true,
-    };
-    webviewView.webview.html = this.buildHtml(webviewView.webview);
+    resolveWebviewView(webviewView: vscode.WebviewView): void {
+        this.view = webviewView;
+        webviewView.webview.options = {
+            enableScripts: true,
+        };
+        webviewView.webview.html = this.buildHtml(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage((msg: { type?: string }) => {
-      if (msg?.type === 'ready') {
+        webviewView.webview.onDidReceiveMessage((msg: { type?: string }) => {
+            if (msg?.type === 'ready') {
+                this.pushState(webviewView.webview);
+                return;
+            }
+            if (msg?.type === 'open') {
+                void vscode.commands.executeCommand(Commands.OPEN_SIGNAL_LAB);
+            }
+        });
+
+        webviewView.onDidDispose(() => {
+            this.view = undefined;
+        });
+
         this.pushState(webviewView.webview);
-        return;
-      }
-      if (msg?.type === 'open') {
-        void vscode.commands.executeCommand(Commands.OPEN_SIGNAL_LAB);
-      }
-    });
-
-    webviewView.onDidDispose(() => {
-      this.view = undefined;
-    });
-
-    this.pushState(webviewView.webview);
-  }
-
-  /** Push latest snapshot to the sidebar (no-op if not visible). */
-  refresh(): void {
-    const w = this.view?.webview;
-    if (w) {
-      this.pushState(w);
     }
-  }
 
-  private pushState(webview: vscode.Webview): void {
-    const s = this.getSnapshot();
-    const activity =
-      s.monitorRunning || Object.keys(s.periodicIntervals).length > 0;
-    void webview.postMessage({
-      type: 'state',
-      busLabel: busStateLabel(s.busState),
-      monitorLabel: s.monitorRunning ? 'Monitor: running' : 'Monitor: stopped',
-      periodicLabel:
-        Object.keys(s.periodicIntervals).length === 0
-          ? 'Periodic TX: none'
-          : `Periodic TX: ${Object.keys(s.periodicIntervals).length} frame(s)`,
-      activity,
-    });
-  }
+    /** Push latest snapshot to the sidebar (no-op if not visible). */
+    refresh(): void {
+        const w = this.view?.webview;
+        if (w) {
+            this.pushState(w);
+        }
+    }
 
-  private buildHtml(webview: vscode.Webview): string {
-    const csp = [
-      "default-src 'none'",
-      `style-src ${webview.cspSource} 'unsafe-inline'`,
-      `script-src ${webview.cspSource}`,
-    ].join('; ');
+    private pushState(webview: vscode.Webview): void {
+        const s = this.getSnapshot();
+        const activity = s.monitorRunning || Object.keys(s.periodicIntervals).length > 0;
+        void webview.postMessage({
+            type: 'state',
+            busLabel: busStateLabel(s.busState),
+            monitorLabel: s.monitorRunning ? 'Monitor: running' : 'Monitor: stopped',
+            periodicLabel:
+                Object.keys(s.periodicIntervals).length === 0
+                    ? 'Periodic TX: none'
+                    : `Periodic TX: ${Object.keys(s.periodicIntervals).length} frame(s)`,
+            activity,
+        });
+    }
 
-    return /* html */ `<!DOCTYPE html>
+    private buildHtml(webview: vscode.Webview): string {
+        const csp = [
+            "default-src 'none'",
+            `style-src ${webview.cspSource} 'unsafe-inline'`,
+            `script-src ${webview.cspSource}`,
+        ].join('; ');
+
+        return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -165,20 +164,20 @@ export class SignalLabSidebarViewProvider implements vscode.WebviewViewProvider 
   </script>
 </body>
 </html>`;
-  }
+    }
 }
 
 function busStateLabel(state: CanBusState): string {
-  switch (state) {
-    case CanBusState.Connected:
-      return 'Bus: connected';
-    case CanBusState.Connecting:
-      return 'Bus: connecting…';
-    case CanBusState.Error:
-      return 'Bus: error';
-    case CanBusState.BusOff:
-      return 'Bus: bus off';
-    default:
-      return 'Bus: disconnected';
-  }
+    switch (state) {
+        case CanBusState.Connected:
+            return 'Bus: connected';
+        case CanBusState.Connecting:
+            return 'Bus: connecting…';
+        case CanBusState.Error:
+            return 'Bus: error';
+        case CanBusState.BusOff:
+            return 'Bus: bus off';
+        default:
+            return 'Bus: disconnected';
+    }
 }

@@ -9,23 +9,23 @@ export type Bitrate = number;
 
 /** Generic disposable resource handle (mirrors VS Code's Disposable). */
 export interface Disposable {
-  dispose(): void;
+    dispose(): void;
 }
 
 /** Severity level for validation diagnostics. */
 export enum DiagnosticSeverity {
-  Error = 'error',
-  Warning = 'warning',
-  Info = 'info',
+    Error = 'error',
+    Warning = 'warning',
+    Info = 'info',
 }
 
 /** A single diagnostic produced by database validation. */
 export interface DiagnosticItem {
-  severity: DiagnosticSeverity;
-  message: string;
-  /**
-   * Dot-separated path identifying the problematic object,
-   * e.g. `"messages[0].signals[2].startBit"`.
-   */
-  path?: string;
+    severity: DiagnosticSeverity;
+    message: string;
+    /**
+     * Dot-separated path identifying the problematic object,
+     * e.g. `"messages[0].signals[2].startBit"`.
+     */
+    path?: string;
 }

@@ -6,10 +6,44 @@ alwaysApply: false
 
 # TypeScript (extension + tests)
 
+## Formatting
+
+- **Indentation:** **4 spaces** per level in `src/` (Prettier: `.prettierrc.json`). Run `npm run format` before large edits; `npm run format:check` in CI is optional.
+- **Line length:** prefer ≤ 100 columns where Prettier allows (see `.prettierrc.json`).
+
+## Documentation (JSDoc)
+
+- Use **Google-style** JSDoc for **exported** functions, classes, public methods, and non-obvious internal helpers.
+- Include **`@param`** / **`@returns`** where they add clarity; use **`@remarks`** or a short description for side effects (events emitted, disk I/O).
+- Prefer a concise **first sentence** (summary line), then details.
+
+## Types and APIs
+
 - Prefer **explicit types** on public APIs and exported functions; avoid `any`; use `unknown` + narrowing at boundaries (e.g. webview `changes` payloads).
-- **Imports**: match existing style (path depth, named vs default). Do not reorder unrelated imports in drive-by edits.
-- **Errors**: throw `Error` with clear messages for domain violations; log in presentation layer with `Logger` where the codebase already does.
-- **Async**: use `async`/`await`; handle rejections in extension commands and webview handler branches; do not swallow errors silently.
-- **VS Code**: acquire resources via `context.subscriptions`; return `Disposable` or register cleanup for listeners.
+- **Imports:** match existing style (path depth, named vs default). Do not reorder unrelated imports in drive-by edits.
+
+## Errors and logging
+
+- **Catch boundaries:** use `catch (err: unknown)` (not untyped `catch (e)`). Use **`formatUnknownError`** / **`messageForUser`** / **`asError`** from `@shared/utils/errorUtils` when logging or showing toasts.
+- **Logger:** use **`Logger.error(message, err)`** so non-`Error` throws are stringified safely.
+- Prefer **domain-specific errors** where it helps callers (`ParseError`, `ValidationError`, `ConnectionError`, `CanBusError` in `src/shared/errors/`). Do not add heavy exception hierarchies unless a caller needs to branch.
+- **Async:** use `async`/`await`; handle rejections in extension commands and webview handler branches; do not swallow errors silently.
+- **VS Code:** acquire resources via `context.subscriptions`; return `Disposable` or register cleanup for listeners.
+
+## Anti-patterns to avoid
+
+- Empty `catch` blocks or logging without context.
+- Assuming caught values are `Error` without `instanceof` or helpers.
+- Domain or parser code importing **`vscode`**.
+- `console.log` in production extension paths — prefer **`Logger`**.
+
+## Tests
+
 - **Tests** (where Mocha is used): `assert` strict; keep fixtures minimal and local to test files or `test/fixtures/`.
-- **No** `console.log` in production extension paths unless debugging — prefer `Logger` if present.
+
+## Commands
+
+- `npm run format` — Prettier on `src/**/*.ts`
+- `npm run compile` — webview build + webpack
+- `npm run lint` — ESLint on `src/`
+- `npm run test:unit` — unit tests

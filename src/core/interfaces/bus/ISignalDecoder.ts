@@ -8,6 +8,6 @@ import { Signal } from '../../models/database/Signal';
  * (physical = raw × factor + offset).
  */
 export interface ISignalDecoder {
-  /** Decode the physical value of `signal` from the given frame data bytes. */
-  decode(signal: Signal, data: Uint8Array): number;
+    /** Decode the physical value of `signal` from the given frame data bytes. */
+    decode(signal: Signal, data: Uint8Array): number;
 }

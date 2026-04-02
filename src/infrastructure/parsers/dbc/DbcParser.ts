@@ -1,43 +1,43 @@
+import { AttributeValueType } from '../../../core/enums/AttributeValueType';
+import { ByteOrder } from '../../../core/enums/ByteOrder';
+import { ObjectType } from '../../../core/enums/ObjectType';
+import type { ICanDatabaseParser } from '../../../core/interfaces/database/ICanDatabaseParser';
+import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
 import { CanDatabase } from '../../../core/models/database/CanDatabase';
-import { Signal } from '../../../core/models/database/Signal';
 import { Message } from '../../../core/models/database/Message';
 import { Node } from '../../../core/models/database/Node';
-import type { ICanDatabaseParser } from '../../../core/interfaces/database/ICanDatabaseParser';
-import { ByteOrder } from '../../../core/enums/ByteOrder';
+import { Signal } from '../../../core/models/database/Signal';
+import { ValueTable } from '../../../core/models/database/ValueTable';
+import { parseOrphanSignalsFromDbcContent } from '../../../presentation/webview/orphanSignalBlob';
 import { ParseError } from '../../../shared/errors/ParseError';
 import { DbcTokenizer } from './DbcTokenizer';
-import { parseOrphanSignalsFromDbcContent } from '../../../presentation/webview/orphanSignalBlob';
-import { ValueTable } from '../../../core/models/database/ValueTable';
-import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
-import { ObjectType } from '../../../core/enums/ObjectType';
-import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 
 /** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line. */
 export function parseDbcValuePairs(s: string): Map<number, string> {
-  const m = new Map<number, string>();
-  const re = /(\d+)\s+"([^"]*)"/g;
-  let match;
-  while ((match = re.exec(s)) !== null) {
-    m.set(parseInt(match[1], 10), match[2]);
-  }
-  return m;
+    const m = new Map<number, string>();
+    const re = /(\d+)\s+"([^"]*)"/g;
+    let match;
+    while ((match = re.exec(s)) !== null) {
+        m.set(parseInt(match[1], 10), match[2]);
+    }
+    return m;
 }
 
 /** Reverse `escapeDbcString` for `CM_ VAL_TABLE_ ... "..."` quoted text. */
 function unescapeDbcQuotedString(s: string): string {
-  let out = '';
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] === '\\' && i + 1 < s.length) {
-      const n = s[i + 1];
-      if (n === '\\' || n === '"') {
-        out += n;
-        i++;
-        continue;
-      }
+    let out = '';
+    for (let i = 0; i < s.length; i++) {
+        if (s[i] === '\\' && i + 1 < s.length) {
+            const n = s[i + 1];
+            if (n === '\\' || n === '"') {
+                out += n;
+                i++;
+                continue;
+            }
+        }
+        out += s[i];
     }
-    out += s[i];
-  }
-  return out;
+    return out;
 }
 
 /**
@@ -48,320 +48,329 @@ function unescapeDbcQuotedString(s: string): string {
  *       to handle all DBC sections (comments, attributes, value descriptions, etc.)
  */
 export class DbcParser implements ICanDatabaseParser {
-  parse(content: string): CanDatabase {
-    const database = new CanDatabase();
+    parse(content: string): CanDatabase {
+        const database = new CanDatabase();
 
-    try {
-      // Validate that there's content to parse (tokenizer used for future use)
-      const _tokenizer = new DbcTokenizer(content);
-      this.parseLines(content, database);
-    } catch (error) {
-      if (error instanceof ParseError) {
-        throw error;
-      }
-      throw new ParseError(
-        `Failed to parse DBC file: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-
-    for (const s of parseOrphanSignalsFromDbcContent(content)) {
-      if (!database.findPoolSignalByName(s.name)) {
-        database.signalPool.push(s);
-      }
-    }
-
-    return database;
-  }
-
-  readonly supportedExtensions = ['.dbc'];
-
-  private parseLines(content: string, database: CanDatabase): void {
-    const lines = content.split('\n');
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      if (line.startsWith('VERSION')) {
-        this.parseVersion(line, database);
-      } else if (line.startsWith('BU_:')) {
-        this.parseNodes(line, database);
-      } else if (line.startsWith('BO_ ')) {
-        i = this.parseMessage(lines, i, database);
-      } else if (line.startsWith('CM_ VAL_TABLE_')) {
-        this.parseCmValTableLine(line, database);
-      } else if (line.startsWith('VAL_TABLE_')) {
-        this.parseValTableLine(line, database);
-      } else if (line.startsWith('VAL_ ')) {
-        this.parseValLine(line, database);
-      } else if (line.startsWith('BA_DEF_DEF_')) {
-        this.parseBaDefDef(line, database);
-      } else if (line.startsWith('BA_DEF_')) {
-        this.parseBaDef(line, database);
-      }
-      // TODO: Parse CM_, BA_, EV_, SIG_GROUP_
-    }
-  }
-
-  private parseCmValTableLine(line: string, database: CanDatabase): void {
-    const trimmed = line.trim();
-    const rest = trimmed.slice('CM_ VAL_TABLE_'.length).trim();
-    const semi = rest.lastIndexOf(';');
-    const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
-    const m = body.match(/^(\w+)\s+"((?:[^"\\]|\\.)*)"\s*$/);
-    if (!m) {
-      return;
-    }
-    const name = m[1];
-    const comment = unescapeDbcQuotedString(m[2]);
-    const existing = database.findValueTableByName(name);
-    if (existing) {
-      existing.comment = comment || undefined;
-    } else {
-      database.valueTables.push(new ValueTable(name, new Map(), comment || undefined));
-    }
-  }
-
-  private parseValTableLine(line: string, database: CanDatabase): void {
-    const trimmed = line.trim();
-    const rest = trimmed.slice('VAL_TABLE_'.length).trim();
-    const semi = rest.lastIndexOf(';');
-    const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
-    // Allow `VAL_TABLE_ Name ;` with no value pairs (empty enumeration).
-    const nameMatch = body.match(/^(\w+)(?:\s+(.+))?$/);
-    if (!nameMatch) {
-      return;
-    }
-    const name = nameMatch[1];
-    const pairsTail = (nameMatch[2] ?? '').trim();
-    const entries = parseDbcValuePairs(pairsTail);
-    const existing = database.findValueTableByName(name);
-    if (existing) {
-      entries.forEach((v, k) => existing.entries.set(k, v));
-    } else {
-      database.valueTables.push(new ValueTable(name, entries));
-    }
-  }
-
-  private parseValLine(line: string, database: CanDatabase): void {
-    const trimmed = line.trim();
-    const rest = trimmed.slice('VAL_'.length).trim();
-    const semi = rest.lastIndexOf(';');
-    const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
-    const m = body.match(/^(\S+)\s+(\w+)\s+(.+)$/);
-    if (!m) {
-      return;
-    }
-    const msgId = parseInt(m[1], 0);
-    const sigName = m[2];
-    const entries = parseDbcValuePairs(m[3]);
-    database.upsertValueDescription(msgId, sigName, entries);
-  }
-
-  private parseVersion(line: string, database: CanDatabase): void {
-    const match = line.match(/VERSION\s+"([^"]*)"/);
-    if (match) {
-      database.version = match[1];
-    }
-  }
-
-  private parseBaDef(line: string, database: CanDatabase): void {
-    const m = line.match(
-      /^BA_DEF_\s+(BU_|BO_|SG_|EV_)\s+"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
-    );
-    if (!m) {
-      return;
-    }
-    const prefix = m[1];
-    const name = m[2];
-    const vtToken = m[3].toUpperCase();
-    const tail = (m[4] ?? '').trim();
-
-    if (database.findAttributeDefinition(name)) {
-      return;
-    }
-
-    const objectType = this.baDefPrefixToObjectType(prefix);
-    const valueType = this.tokenToAttributeValueType(vtToken);
-    let minimum: number | undefined;
-    let maximum: number | undefined;
-    let enumValues: string[] | undefined;
-
-    if (
-      valueType === AttributeValueType.Integer ||
-      valueType === AttributeValueType.Float ||
-      valueType === AttributeValueType.Hex
-    ) {
-      const nums = tail.split(/\s+/).filter(Boolean).map((x) => parseFloat(x));
-      minimum = nums[0] ?? 0;
-      maximum = nums[1] ?? 0;
-    } else if (valueType === AttributeValueType.Enum) {
-      enumValues = [];
-      const re = /"((?:[^"\\]|\\.)*)"/g;
-      let em;
-      while ((em = re.exec(tail)) !== null) {
-        enumValues.push(unescapeDbcQuotedString(em[1]));
-      }
-    }
-
-    const def = new AttributeDefinition({
-      name,
-      objectType,
-      valueType,
-      minimum,
-      maximum,
-      defaultValue: valueType === AttributeValueType.String || valueType === AttributeValueType.Enum ? '' : 0,
-      enumValues,
-      comment: '',
-    });
-    database.addAttributeDefinition(def);
-  }
-
-  private parseBaDefDef(line: string, database: CanDatabase): void {
-    let m = line.match(/^BA_DEF_DEF_\s+"([^"]+)"\s+(.+?)\s*;$/);
-    if (!m) {
-      m = line.match(/^BA_DEF_DEF_\s+(\S+)\s+(.+?)\s*;$/);
-    }
-    if (!m) {
-      return;
-    }
-    const name = m[1];
-    const raw = m[2].trim();
-    const def = database.findAttributeDefinition(name);
-    if (!def) {
-      return;
-    }
-    def.defaultValue = this.parseAttributeDefaultRaw(raw, def.valueType);
-  }
-
-  private parseAttributeDefaultRaw(raw: string, vt: AttributeValueType): string | number {
-    if (raw.startsWith('"')) {
-      return unescapeDbcQuotedString(raw.slice(1, -1));
-    }
-    if (vt === AttributeValueType.Float) {
-      return parseFloat(raw);
-    }
-    if (vt === AttributeValueType.String || vt === AttributeValueType.Enum) {
-      return raw;
-    }
-    return parseInt(raw, 10);
-  }
-
-  private baDefPrefixToObjectType(prefix: string): ObjectType {
-    switch (prefix) {
-      case 'BU_':
-        return ObjectType.Node;
-      case 'BO_':
-        return ObjectType.Message;
-      case 'SG_':
-        return ObjectType.Signal;
-      case 'EV_':
-        return ObjectType.EnvironmentVariable;
-      default:
-        return ObjectType.Message;
-    }
-  }
-
-  private tokenToAttributeValueType(token: string): AttributeValueType {
-    switch (token) {
-      case 'INT':
-        return AttributeValueType.Integer;
-      case 'FLOAT':
-        return AttributeValueType.Float;
-      case 'STRING':
-        return AttributeValueType.String;
-      case 'ENUM':
-        return AttributeValueType.Enum;
-      case 'HEX':
-        return AttributeValueType.Hex;
-      default:
-        return AttributeValueType.Integer;
-    }
-  }
-
-  private parseNodes(line: string, database: CanDatabase): void {
-    const parts = line.replace('BU_:', '').trim().split(/\s+/);
-    for (const name of parts) {
-      if (name) {
         try {
-          database.addNode(new Node(name));
-        } catch {
-          // Node already exists, skip
+            // Validate that there's content to parse (tokenizer used for future use)
+            const _tokenizer = new DbcTokenizer(content);
+            this.parseLines(content, database);
+        } catch (err: unknown) {
+            if (err instanceof ParseError) {
+                throw err;
+            }
+            throw new ParseError(
+                `Failed to parse DBC file: ${err instanceof Error ? err.message : String(err)}`,
+            );
         }
-      }
+
+        for (const s of parseOrphanSignalsFromDbcContent(content)) {
+            if (!database.findPoolSignalByName(s.name)) {
+                database.signalPool.push(s);
+            }
+        }
+
+        return database;
     }
-  }
 
-  private parseMessage(lines: string[], startIndex: number, database: CanDatabase): number {
-    const line = lines[startIndex].trim();
-    const match = line.match(/BO_\s+(\d+)\s+(\w+)\s*:\s*(\d+)\s+(\w+)/);
-    if (!match) {
-      return startIndex;
+    readonly supportedExtensions = ['.dbc'];
+
+    private parseLines(content: string, database: CanDatabase): void {
+        const lines = content.split('\n');
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            if (line.startsWith('VERSION')) {
+                this.parseVersion(line, database);
+            } else if (line.startsWith('BU_:')) {
+                this.parseNodes(line, database);
+            } else if (line.startsWith('BO_ ')) {
+                i = this.parseMessage(lines, i, database);
+            } else if (line.startsWith('CM_ VAL_TABLE_')) {
+                this.parseCmValTableLine(line, database);
+            } else if (line.startsWith('VAL_TABLE_')) {
+                this.parseValTableLine(line, database);
+            } else if (line.startsWith('VAL_ ')) {
+                this.parseValLine(line, database);
+            } else if (line.startsWith('BA_DEF_DEF_')) {
+                this.parseBaDefDef(line, database);
+            } else if (line.startsWith('BA_DEF_')) {
+                this.parseBaDef(line, database);
+            }
+            // TODO: Parse CM_, BA_, EV_, SIG_GROUP_
+        }
     }
 
-    const message = new Message({
-      id: parseInt(match[1], 10),
-      name: match[2],
-      dlc: parseInt(match[3], 10),
-      transmittingNode: match[4],
-    });
+    private parseCmValTableLine(line: string, database: CanDatabase): void {
+        const trimmed = line.trim();
+        const rest = trimmed.slice('CM_ VAL_TABLE_'.length).trim();
+        const semi = rest.lastIndexOf(';');
+        const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
+        const m = body.match(/^(\w+)\s+"((?:[^"\\]|\\.)*)"\s*$/);
+        if (!m) {
+            return;
+        }
+        const name = m[1];
+        const comment = unescapeDbcQuotedString(m[2]);
+        const existing = database.findValueTableByName(name);
+        if (existing) {
+            existing.comment = comment || undefined;
+        } else {
+            database.valueTables.push(new ValueTable(name, new Map(), comment || undefined));
+        }
+    }
 
-    let j = startIndex + 1;
-    while (j < lines.length) {
-      const sigLine = lines[j].trim();
-      if (!sigLine.startsWith('SG_ ')) {
-        break;
-      }
-      const signal = this.parseSignal(sigLine);
-      if (signal) {
+    private parseValTableLine(line: string, database: CanDatabase): void {
+        const trimmed = line.trim();
+        const rest = trimmed.slice('VAL_TABLE_'.length).trim();
+        const semi = rest.lastIndexOf(';');
+        const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
+        // Allow `VAL_TABLE_ Name ;` with no value pairs (empty enumeration).
+        const nameMatch = body.match(/^(\w+)(?:\s+(.+))?$/);
+        if (!nameMatch) {
+            return;
+        }
+        const name = nameMatch[1];
+        const pairsTail = (nameMatch[2] ?? '').trim();
+        const entries = parseDbcValuePairs(pairsTail);
+        const existing = database.findValueTableByName(name);
+        if (existing) {
+            entries.forEach((v, k) => existing.entries.set(k, v));
+        } else {
+            database.valueTables.push(new ValueTable(name, entries));
+        }
+    }
+
+    private parseValLine(line: string, database: CanDatabase): void {
+        const trimmed = line.trim();
+        const rest = trimmed.slice('VAL_'.length).trim();
+        const semi = rest.lastIndexOf(';');
+        const body = semi >= 0 ? rest.slice(0, semi).trim() : rest;
+        const m = body.match(/^(\S+)\s+(\w+)\s+(.+)$/);
+        if (!m) {
+            return;
+        }
+        const msgId = parseInt(m[1], 0);
+        const sigName = m[2];
+        const entries = parseDbcValuePairs(m[3]);
+        database.upsertValueDescription(msgId, sigName, entries);
+    }
+
+    private parseVersion(line: string, database: CanDatabase): void {
+        const match = line.match(/VERSION\s+"([^"]*)"/);
+        if (match) {
+            database.version = match[1];
+        }
+    }
+
+    private parseBaDef(line: string, database: CanDatabase): void {
+        const m = line.match(
+            /^BA_DEF_\s+(BU_|BO_|SG_|EV_)\s+"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
+        );
+        if (!m) {
+            return;
+        }
+        const prefix = m[1];
+        const name = m[2];
+        const vtToken = m[3].toUpperCase();
+        const tail = (m[4] ?? '').trim();
+
+        if (database.findAttributeDefinition(name)) {
+            return;
+        }
+
+        const objectType = this.baDefPrefixToObjectType(prefix);
+        const valueType = this.tokenToAttributeValueType(vtToken);
+        let minimum: number | undefined;
+        let maximum: number | undefined;
+        let enumValues: string[] | undefined;
+
+        if (
+            valueType === AttributeValueType.Integer ||
+            valueType === AttributeValueType.Float ||
+            valueType === AttributeValueType.Hex
+        ) {
+            const nums = tail
+                .split(/\s+/)
+                .filter(Boolean)
+                .map((x) => parseFloat(x));
+            minimum = nums[0] ?? 0;
+            maximum = nums[1] ?? 0;
+        } else if (valueType === AttributeValueType.Enum) {
+            enumValues = [];
+            const re = /"((?:[^"\\]|\\.)*)"/g;
+            let em;
+            while ((em = re.exec(tail)) !== null) {
+                enumValues.push(unescapeDbcQuotedString(em[1]));
+            }
+        }
+
+        const def = new AttributeDefinition({
+            name,
+            objectType,
+            valueType,
+            minimum,
+            maximum,
+            defaultValue:
+                valueType === AttributeValueType.String || valueType === AttributeValueType.Enum
+                    ? ''
+                    : 0,
+            enumValues,
+            comment: '',
+        });
+        database.addAttributeDefinition(def);
+    }
+
+    private parseBaDefDef(line: string, database: CanDatabase): void {
+        let m = line.match(/^BA_DEF_DEF_\s+"([^"]+)"\s+(.+?)\s*;$/);
+        if (!m) {
+            m = line.match(/^BA_DEF_DEF_\s+(\S+)\s+(.+?)\s*;$/);
+        }
+        if (!m) {
+            return;
+        }
+        const name = m[1];
+        const raw = m[2].trim();
+        const def = database.findAttributeDefinition(name);
+        if (!def) {
+            return;
+        }
+        def.defaultValue = this.parseAttributeDefaultRaw(raw, def.valueType);
+    }
+
+    private parseAttributeDefaultRaw(raw: string, vt: AttributeValueType): string | number {
+        if (raw.startsWith('"')) {
+            return unescapeDbcQuotedString(raw.slice(1, -1));
+        }
+        if (vt === AttributeValueType.Float) {
+            return parseFloat(raw);
+        }
+        if (vt === AttributeValueType.String || vt === AttributeValueType.Enum) {
+            return raw;
+        }
+        return parseInt(raw, 10);
+    }
+
+    private baDefPrefixToObjectType(prefix: string): ObjectType {
+        switch (prefix) {
+            case 'BU_':
+                return ObjectType.Node;
+            case 'BO_':
+                return ObjectType.Message;
+            case 'SG_':
+                return ObjectType.Signal;
+            case 'EV_':
+                return ObjectType.EnvironmentVariable;
+            default:
+                return ObjectType.Message;
+        }
+    }
+
+    private tokenToAttributeValueType(token: string): AttributeValueType {
+        switch (token) {
+            case 'INT':
+                return AttributeValueType.Integer;
+            case 'FLOAT':
+                return AttributeValueType.Float;
+            case 'STRING':
+                return AttributeValueType.String;
+            case 'ENUM':
+                return AttributeValueType.Enum;
+            case 'HEX':
+                return AttributeValueType.Hex;
+            default:
+                return AttributeValueType.Integer;
+        }
+    }
+
+    private parseNodes(line: string, database: CanDatabase): void {
+        const parts = line.replace('BU_:', '').trim().split(/\s+/);
+        for (const name of parts) {
+            if (name) {
+                try {
+                    database.addNode(new Node(name));
+                } catch {
+                    // Node already exists, skip
+                }
+            }
+        }
+    }
+
+    private parseMessage(lines: string[], startIndex: number, database: CanDatabase): number {
+        const line = lines[startIndex].trim();
+        const match = line.match(/BO_\s+(\d+)\s+(\w+)\s*:\s*(\d+)\s+(\w+)/);
+        if (!match) {
+            return startIndex;
+        }
+
+        const message = new Message({
+            id: parseInt(match[1], 10),
+            name: match[2],
+            dlc: parseInt(match[3], 10),
+            transmittingNode: match[4],
+        });
+
+        let j = startIndex + 1;
+        while (j < lines.length) {
+            const sigLine = lines[j].trim();
+            if (!sigLine.startsWith('SG_ ')) {
+                break;
+            }
+            const signal = this.parseSignal(sigLine);
+            if (signal) {
+                try {
+                    if (!database.findPoolSignalByName(signal.name)) {
+                        database.addPoolSignal(signal);
+                    }
+                    message.addSignalRef({
+                        signalName: signal.name,
+                        startBit: signal.startBit,
+                        bitLength: signal.bitLength,
+                        byteOrder: signal.byteOrder,
+                    });
+                } catch {
+                    // Duplicate link in same message or pool conflict, skip
+                }
+            }
+            j++;
+        }
+
         try {
-          if (!database.findPoolSignalByName(signal.name)) {
-            database.addPoolSignal(signal);
-          }
-          message.addSignalRef({
-            signalName: signal.name,
-            startBit: signal.startBit,
-            bitLength: signal.bitLength,
-            byteOrder: signal.byteOrder,
-          });
+            database.addMessage(message);
         } catch {
-          // Duplicate link in same message or pool conflict, skip
+            // Message already exists, skip
         }
-      }
-      j++;
+
+        return j - 1;
     }
 
-    try {
-      database.addMessage(message);
-    } catch {
-      // Message already exists, skip
+    private parseSignal(line: string): Signal | null {
+        // DBC signal format:
+        // SG_ name [mux] : startBit|bitLength@byteOrder(+|-) (factor,offset) [min|max] "unit" receivers
+        const match = line.match(
+            /SG_\s+(\w+)(?:\s+\w*)?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
+        );
+        if (!match) {
+            return null;
+        }
+
+        return new Signal({
+            name: match[1],
+            startBit: parseInt(match[2], 10),
+            bitLength: parseInt(match[3], 10),
+            byteOrder: match[4] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
+            factor: parseFloat(match[6]),
+            offset: parseFloat(match[7]),
+            minimum: parseFloat(match[8]),
+            maximum: parseFloat(match[9]),
+            unit: match[10],
+            receivingNodes: match[11]
+                ? match[11]
+                      .split(',')
+                      .map((s: string) => s.trim())
+                      .filter(Boolean)
+                : [],
+        });
     }
-
-    return j - 1;
-  }
-
-  private parseSignal(line: string): Signal | null {
-    // DBC signal format:
-    // SG_ name [mux] : startBit|bitLength@byteOrder(+|-) (factor,offset) [min|max] "unit" receivers
-    const match = line.match(
-      /SG_\s+(\w+)(?:\s+\w*)?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
-    );
-    if (!match) {
-      return null;
-    }
-
-    return new Signal({
-      name: match[1],
-      startBit: parseInt(match[2], 10),
-      bitLength: parseInt(match[3], 10),
-      byteOrder: match[4] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
-      factor: parseFloat(match[6]),
-      offset: parseFloat(match[7]),
-      minimum: parseFloat(match[8]),
-      maximum: parseFloat(match[9]),
-      unit: match[10],
-      receivingNodes: match[11]
-        ? match[11].split(',').map((s: string) => s.trim()).filter(Boolean)
-        : [],
-    });
-  }
 }

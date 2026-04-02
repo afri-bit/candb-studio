@@ -9,6 +9,6 @@ import type { DiagnosticItem } from '../../types';
  * defined ranges.
  */
 export interface IValidationService {
-  /** Run all validation rules and return any issues found. */
-  validate(database: CanDatabase): DiagnosticItem[];
+    /** Run all validation rules and return any issues found. */
+    validate(database: CanDatabase): DiagnosticItem[];
 }
