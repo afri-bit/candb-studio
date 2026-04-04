@@ -64,6 +64,10 @@ flowchart TB
 - **Custom editor** hosts a **Svelte webview** for structured editing; the same database is shown in the **sidebar tree** and used by **hover / completion / diagnostics** where applicable.
 - **MonitorService** / **TransmitService** are wired only after a **bus adapter** connects; they use **SignalDecoder** and the current database for decode (and future encode paths).
 
+### Virtual CAN simulation (spec 010)
+
+**VirtualBusSimulationService** (application layer) owns virtual session state and DBC-aligned injection. It drives **`VirtualCanAdapter.injectFrameForMonitor`**, which pushes `CanFrame` instances into the same `onFrameReceived` path **MonitorService** already subscribes to—so decode, **EventBus** (`bus:messageDecoded`), and Signal Lab charts match hardware traffic. Signal Lab sends **`virtualBus.start` / `virtualBus.stop` / `virtualBus.inject`** via **`WebviewMessageHandler`**; **`ConnectBusCommand`** may attach a fresh virtual adapter or reuse one from **Connect Bus → Virtual**, and gates switching between hardware and virtual when simulation is running. Periodic virtual traffic reuses **`transmit.startPeriodic`** webview messages but routes ticks to injection instead of **`TransmitService.send`** when `connectionMode` is `virtual_simulation`.
+
 ## Data flow: open and edit a database
 
 ```mermaid

@@ -2,16 +2,24 @@ import * as vscode from 'vscode';
 import type { CanDatabaseService } from '../../application/services/CanDatabaseService';
 import type { MonitorService } from '../../application/services/MonitorService';
 import type { TransmitService } from '../../application/services/TransmitService';
+import { validateCanRawFrame } from '../../application/services/canRawFrameValidation';
+import type { VirtualBusSimulationService } from '../../application/services/VirtualBusSimulationService';
+import { AdapterType } from '../../core/enums/AdapterType';
 import { CanBusState } from '../../core/enums/CanBusState';
 import { CanFrame } from '../../core/models/bus/CanFrame';
+import { CanChannel } from '../../core/models/bus/CanChannel';
 import { DecodedMessage } from '../../core/models/bus/DecodedMessage';
 import { TransmitTask } from '../../core/models/bus/TransmitTask';
 import type { CanDatabase } from '../../core/models/database/CanDatabase';
 import { Message } from '../../core/models/database/Message';
 import { Node } from '../../core/models/database/Node';
-import { Commands } from '../../shared/constants';
+import { SocketCanAdapter } from '../../infrastructure/adapters/SocketCanAdapter';
+import { VirtualCanAdapter } from '../../infrastructure/adapters/VirtualCanAdapter';
+import type { ConnectBusCommand } from '../commands/ConnectBusCommand';
+import { Commands, DEFAULT_BITRATE } from '../../shared/constants';
 import type { EventBus } from '../../shared/events/EventBus';
 import { Logger } from '../../shared/utils/Logger';
+import { messageForUser } from '../../shared/utils/errorUtils';
 import { DocumentTextSync } from '../editors/DocumentTextSync';
 import type {
     ExtensionToWebviewMessage,
@@ -34,6 +42,10 @@ export class WebviewMessageHandler {
     private readonly editorContexts = new Map<string, EditorContext>();
     private monitorService: MonitorService | null;
     private transmitService: TransmitService | null;
+    private connectBusCommand: ConnectBusCommand | null = null;
+    private virtualBusSimulationService: VirtualBusSimulationService | null = null;
+    /** True when Signal Lab started an in-process virtual adapter (stop should disconnect). */
+    private virtualSimAutoConnected = false;
     /** Singleton Signal Lab panel — bus traffic is posted only here. */
     private signalLabPanel: vscode.WebviewPanel | null = null;
     /** Last emitted bus state so Signal Lab can sync if opened after connect. */
@@ -67,31 +79,31 @@ export class WebviewMessageHandler {
         this.notifySignalLabActivityChanged();
     }
 
-    /** Bus + activity snapshot for host UI (status bar, sidebar webview). */
-    getSignalLabHostSnapshot(): {
-        busState: CanBusState;
+    /** Whether monitor is running and periodic task intervals (CAN id → ms). */
+    getSignalLabBusState(): {
         monitorRunning: boolean;
         periodicIntervals: Record<number, number>;
+        connectionMode: 'disconnected' | 'virtual_simulation' | 'hardware';
+        virtualSimulationRunning: boolean;
     } {
-        const bus = this.getSignalLabBusState();
-        return {
-            busState: this.lastBusState,
-            monitorRunning: bus.monitorRunning,
-            periodicIntervals: bus.periodicIntervals,
-        };
-    }
-
-    /** Whether monitor is running and periodic task intervals (CAN id → ms). */
-    getSignalLabBusState(): { monitorRunning: boolean; periodicIntervals: Record<number, number> } {
+        const connectionMode = this.getConnectionMode();
         const monitorRunning = this.monitorService?.isRunning ?? false;
+        const virtualSimulationRunning = this.virtualBusSimulationService?.isRunning() ?? false;
         const periodicIntervals: Record<number, number> = {};
-        for (const t of this.transmitService?.activeTasks ?? []) {
-            const m = /^periodic-(\d+)$/.exec(t.id);
-            if (m) {
-                periodicIntervals[Number(m[1])] = t.intervalMs;
+        if (connectionMode === 'virtual_simulation' && this.virtualBusSimulationService) {
+            Object.assign(
+                periodicIntervals,
+                this.virtualBusSimulationService.getPeriodicIntervals(),
+            );
+        } else {
+            for (const t of this.transmitService?.activeTasks ?? []) {
+                const m = /^periodic-(\d+)$/.exec(t.id);
+                if (m) {
+                    periodicIntervals[Number(m[1])] = t.intervalMs;
+                }
             }
         }
-        return { monitorRunning, periodicIntervals };
+        return { monitorRunning, periodicIntervals, connectionMode, virtualSimulationRunning };
     }
 
     /** Stop monitor and all periodic transmit (used when closing Signal Lab with “stop”). */
@@ -109,6 +121,86 @@ export class WebviewMessageHandler {
     /** Update the transmit service after a hardware connection is established. */
     setTransmitService(service: TransmitService | null): void {
         this.transmitService = service;
+    }
+
+    setConnectBusCommand(cmd: ConnectBusCommand | null): void {
+        this.connectBusCommand = cmd;
+    }
+
+    setVirtualBusSimulationService(service: VirtualBusSimulationService | null): void {
+        this.virtualBusSimulationService = service;
+    }
+
+    private getConnectionMode(): 'disconnected' | 'virtual_simulation' | 'hardware' {
+        const a = this.connectBusCommand?.getAdapter() ?? null;
+        if (!a) {
+            return 'disconnected';
+        }
+        if (a instanceof VirtualCanAdapter) {
+            return 'virtual_simulation';
+        }
+        return 'hardware';
+    }
+
+    private resolveAdapterTypeLabel(): string | undefined {
+        const a = this.connectBusCommand?.getAdapter();
+        if (!a) {
+            return undefined;
+        }
+        if (a instanceof VirtualCanAdapter) {
+            return AdapterType.Virtual;
+        }
+        if (a instanceof SocketCanAdapter) {
+            return AdapterType.SocketCAN;
+        }
+        return undefined;
+    }
+
+    private postSignalLabError(message: string, code?: string): void {
+        this.postToSignalLab({ type: 'signalLab.error', message, code });
+    }
+
+    private async handleTransmitRaw(
+        id: number,
+        data: Uint8Array,
+        dlc: number,
+        isExtended: boolean,
+    ): Promise<void> {
+        const v = validateCanRawFrame(id, data, dlc, isExtended);
+        if (!v.ok) {
+            this.postSignalLabError(v.message, v.code);
+            return;
+        }
+        const adapter = this.connectBusCommand?.getAdapter();
+        if (!adapter) {
+            this.postSignalLabError(
+                'Connect hardware or start virtual simulation first.',
+                'NOT_CONNECTED',
+            );
+            return;
+        }
+        const frame = new CanFrame({
+            id,
+            data: new Uint8Array(data),
+            dlc,
+            isExtended,
+            timestamp: Date.now(),
+        });
+        try {
+            if (adapter instanceof VirtualCanAdapter) {
+                /** Same fingerprint path as {@link TransmitService} loopback → monitor Tx column. */
+                this.eventBus.emit('bus:frameTransmitted', frame);
+                adapter.injectFrameForMonitor(frame);
+            } else {
+                if (!this.transmitService) {
+                    this.postSignalLabError('Transmit service is not ready.', 'NO_TRANSMIT');
+                    return;
+                }
+                await this.transmitService.sendOnce(frame);
+            }
+        } catch (e: unknown) {
+            this.postSignalLabError(messageForUser(e));
+        }
     }
 
     /**
@@ -203,9 +295,13 @@ export class WebviewMessageHandler {
                 decoded.signalPool,
                 decoded.database,
             );
+            const rawValue =
+                signal && signal.factor !== 0
+                    ? Math.round(signal.physicalToRaw(physicalValue))
+                    : Math.round(physicalValue);
             signals.push({
                 signalName,
-                rawValue: physicalValue,
+                rawValue,
                 physicalValue,
                 unit: signal?.unit ?? '',
             });
@@ -260,6 +356,7 @@ export class WebviewMessageHandler {
         void w.postMessage({
             type: 'connection.stateChanged',
             state: String(this.lastBusState),
+            adapterType: this.resolveAdapterTypeLabel(),
         } satisfies ExtensionToWebviewMessage);
 
         const sessions = this.databaseService.getSessionUris();
@@ -271,6 +368,8 @@ export class WebviewMessageHandler {
             activeUri,
             monitorRunning: bus.monitorRunning,
             periodicIntervals: bus.periodicIntervals,
+            connectionMode: bus.connectionMode,
+            virtualSimulationRunning: bus.virtualSimulationRunning,
         } satisfies ExtensionToWebviewMessage);
 
         const empty = {
@@ -337,40 +436,95 @@ export class WebviewMessageHandler {
                 break;
             }
 
+            case 'transmit.sendRaw': {
+                const m = message;
+                await this.handleTransmitRaw(
+                    m.id,
+                    new Uint8Array(m.data),
+                    m.dlc,
+                    m.isExtended ?? false,
+                );
+                break;
+            }
+
             case 'transmit.startPeriodic': {
                 const p = message;
-                const taskId = `periodic-${p.messageId}`;
-                const frame = new CanFrame({
-                    id: p.messageId,
-                    data: new Uint8Array(p.data),
-                    dlc: p.data.length,
-                    timestamp: Date.now(),
-                });
-                const task = new TransmitTask({
-                    id: taskId,
-                    frame,
-                    isPeriodic: true,
-                    intervalMs: p.intervalMs,
-                });
-                this.transmitService?.startPeriodic(task);
+                if (
+                    this.getConnectionMode() === 'virtual_simulation' &&
+                    this.virtualBusSimulationService
+                ) {
+                    const r = this.virtualBusSimulationService.startPeriodic(
+                        p.messageId,
+                        new Uint8Array(p.data),
+                        p.intervalMs,
+                    );
+                    if (!r.ok) {
+                        this.postSignalLabError(r.message, r.code);
+                    }
+                } else {
+                    const taskId = `periodic-${p.messageId}`;
+                    const frame = new CanFrame({
+                        id: p.messageId,
+                        data: new Uint8Array(p.data),
+                        dlc: p.data.length,
+                        timestamp: Date.now(),
+                    });
+                    const task = new TransmitTask({
+                        id: taskId,
+                        frame,
+                        isPeriodic: true,
+                        intervalMs: p.intervalMs,
+                    });
+                    this.transmitService?.startPeriodic(task);
+                }
                 this.afterSignalLabBusMutation();
                 break;
             }
 
             case 'transmit.stopPeriodic': {
                 const taskId = `periodic-${message.messageId}`;
-                this.transmitService?.stopPeriodic(taskId);
+                if (
+                    this.getConnectionMode() === 'virtual_simulation' &&
+                    this.virtualBusSimulationService
+                ) {
+                    this.virtualBusSimulationService.stopPeriodic(message.messageId);
+                } else {
+                    this.transmitService?.stopPeriodic(taskId);
+                }
                 this.afterSignalLabBusMutation();
                 break;
             }
 
             case 'transmit.updatePeriodicPayload': {
-                this.transmitService?.updatePeriodicPayload(message.messageId, message.data);
+                if (
+                    this.getConnectionMode() === 'virtual_simulation' &&
+                    this.virtualBusSimulationService
+                ) {
+                    this.virtualBusSimulationService.updatePeriodicPayload(
+                        message.messageId,
+                        message.data,
+                    );
+                } else {
+                    this.transmitService?.updatePeriodicPayload(message.messageId, message.data);
+                }
                 break;
             }
 
             case 'transmit.updatePeriodicInterval': {
-                this.transmitService?.updatePeriodicInterval(message.messageId, message.intervalMs);
+                if (
+                    this.getConnectionMode() === 'virtual_simulation' &&
+                    this.virtualBusSimulationService
+                ) {
+                    this.virtualBusSimulationService.updatePeriodicInterval(
+                        message.messageId,
+                        message.intervalMs,
+                    );
+                } else {
+                    this.transmitService?.updatePeriodicInterval(
+                        message.messageId,
+                        message.intervalMs,
+                    );
+                }
                 this.afterSignalLabBusMutation();
                 break;
             }
@@ -386,13 +540,8 @@ export class WebviewMessageHandler {
                 break;
 
             case 'sendFrame': {
-                const frame = new CanFrame({
-                    id: message.payload.id,
-                    data: new Uint8Array(message.payload.data),
-                    dlc: message.payload.dlc,
-                    timestamp: Date.now(),
-                });
-                await this.transmitService?.sendOnce(frame);
+                const p = message.payload;
+                await this.handleTransmitRaw(p.id, new Uint8Array(p.data), p.dlc, false);
                 break;
             }
 
@@ -419,6 +568,82 @@ export class WebviewMessageHandler {
                 this.transmitService?.stopPeriodic(message.payload.taskId);
                 this.afterSignalLabBusMutation();
                 break;
+
+            case 'virtualBus.start': {
+                const cur = this.connectBusCommand?.getAdapter();
+                if (cur instanceof SocketCanAdapter) {
+                    this.postSignalLabError(
+                        'Disconnect hardware (status bar → Disconnect) before starting virtual simulation.',
+                        'HARDWARE_ACTIVE',
+                    );
+                    break;
+                }
+                const hadAdapter = cur !== null;
+                try {
+                    if (!hadAdapter) {
+                        const adapter = new VirtualCanAdapter();
+                        const channel = new CanChannel({
+                            name: 'signal-lab-virtual',
+                            adapterType: AdapterType.Virtual,
+                            bitrate: DEFAULT_BITRATE,
+                        });
+                        await this.connectBusCommand!.connectAdapter(adapter, channel, {
+                            silentToast: true,
+                        });
+                        this.virtualSimAutoConnected = true;
+                    } else {
+                        this.virtualSimAutoConnected = false;
+                    }
+                    const startResult = this.virtualBusSimulationService?.start();
+                    if (startResult && !startResult.ok) {
+                        this.postSignalLabError(startResult.message, startResult.code);
+                        if (this.virtualSimAutoConnected) {
+                            await this.connectBusCommand?.disconnectSilently();
+                            this.virtualSimAutoConnected = false;
+                        }
+                        break;
+                    }
+                    this.monitorService?.start();
+                } catch (e: unknown) {
+                    if (e instanceof Error && e.message === 'CONNECT_CANCELLED') {
+                        this.virtualSimAutoConnected = false;
+                        break;
+                    }
+                    this.postSignalLabError(messageForUser(e));
+                    if (this.virtualSimAutoConnected) {
+                        await this.connectBusCommand?.disconnectSilently().catch(() => undefined);
+                        this.virtualSimAutoConnected = false;
+                    }
+                }
+                this.afterSignalLabBusMutation();
+                break;
+            }
+
+            case 'virtualBus.stop': {
+                this.virtualBusSimulationService?.stop();
+                this.monitorService?.stop();
+                if (this.virtualSimAutoConnected) {
+                    await this.connectBusCommand?.disconnectSilently();
+                    this.virtualSimAutoConnected = false;
+                }
+                this.afterSignalLabBusMutation();
+                break;
+            }
+
+            case 'virtualBus.inject': {
+                if (!this.virtualBusSimulationService?.isRunning()) {
+                    this.postSignalLabError('Start virtual simulation first.', 'NOT_RUNNING');
+                    break;
+                }
+                const inj = this.virtualBusSimulationService.injectDbcAligned(
+                    message.messageId,
+                    new Uint8Array(message.data),
+                );
+                if (!inj.ok) {
+                    this.postSignalLabError(inj.message, inj.code);
+                }
+                break;
+            }
 
             default:
                 Logger.warn(`Unhandled Signal Lab message: ${(message as { type: string }).type}`);
@@ -735,6 +960,7 @@ export class WebviewMessageHandler {
             this.postToSignalLab({
                 type: 'connection.stateChanged',
                 state: String(state),
+                adapterType: this.resolveAdapterTypeLabel(),
             });
         });
 

@@ -11,7 +11,7 @@ export const DBC_EDITOR_VIEW_TYPE = `${EXTENSION_ID}.canDatabaseEditor`;
 /** Must match `contributes.views` in package.json. */
 export const CAN_DATABASE_TREE_VIEW_ID = `${EXTENSION_ID}.canDatabaseExplorer`;
 
-/** Webview view ID for the compact Signal Lab strip in the CANdb Studio sidebar. */
+/** Tree view ID for the Signal Lab database outline in the CANdb Studio sidebar. */
 export const SIGNAL_LAB_SIDEBAR_VIEW_ID = `${EXTENSION_ID}.signalLabSidebar`;
 
 /** Maximum standard CAN ID (11-bit). */

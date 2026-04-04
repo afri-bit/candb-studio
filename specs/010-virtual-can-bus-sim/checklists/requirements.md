@@ -32,3 +32,5 @@
 ## Notes
 
 **Validation iteration 1 (2026-04-04)**: All items pass. Scripted injection framed as SHOULD / milestone; v1 single-bus and HIL exclusions in Assumptions.
+
+**Post-v1 (2026-04-04)**: `spec.md` adds an **Implementation status** appendix (FR/traceability table) after v1 delivery. That section is for engineering regression planning; the mandatory requirement blocks above still describe product intent without code-level detail.

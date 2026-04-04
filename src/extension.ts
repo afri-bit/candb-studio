@@ -12,6 +12,7 @@ import { CanDatabaseService } from './application/services/CanDatabaseService';
 import { MonitorService } from './application/services/MonitorService';
 import { TransmitService } from './application/services/TransmitService';
 import { ValidationService } from './application/services/ValidationService';
+import { VirtualBusSimulationService } from './application/services/VirtualBusSimulationService';
 
 // Presentation
 import { CommandRegistrar } from './presentation/commands/CommandRegistrar';
@@ -20,12 +21,16 @@ import { CompletionProvider } from './presentation/providers/CompletionProvider'
 import { DiagnosticProvider } from './presentation/providers/DiagnosticProvider';
 import { HoverProvider } from './presentation/providers/HoverProvider';
 import { SignalLabPanel } from './presentation/signalLab/SignalLabPanel';
-import { SignalLabSidebarViewProvider } from './presentation/signalLab/SignalLabSidebarViewProvider';
 import { ConnectionStatusBar } from './presentation/statusbar/ConnectionStatusBar';
 import { SignalLabStatusBar } from './presentation/statusbar/SignalLabStatusBar';
 import { CanDatabaseTreeProvider } from './presentation/views/treeview/CanDatabaseTreeProvider';
+// Signal Lab sidebar tree off. Re-enable: package.json → activationEvents add
+// "onView:candb-studio.signalLabSidebar"; contributes.views.canbus-explorer add the Signal Lab view object;
+// then uncomment import, register block, and signalLabTreeProvider.refresh() below.
+// import { SignalLabSidebarTreeProvider } from './presentation/views/treeview/SignalLabSidebarTreeProvider';
 import { WebviewMessageHandler } from './presentation/webview/WebviewMessageHandler';
-import { Commands, SIGNAL_LAB_SIDEBAR_VIEW_ID } from './shared/constants';
+import { VirtualCanAdapter } from './infrastructure/adapters/VirtualCanAdapter';
+import { Commands } from './shared/constants';
 
 /**
  * VS Code extension activation: wires the event bus, repository, application services,
@@ -54,27 +59,31 @@ export function activate(context: vscode.ExtensionContext): void {
     const commandRegistrar = new CommandRegistrar(databaseService, eventBus);
     context.subscriptions.push(...commandRegistrar.registerAll());
 
+    const virtualBusSimulationService = new VirtualBusSimulationService(
+        () => databaseService.getDatabaseForBus(),
+        eventBus,
+    );
+    commandRegistrar.connectCommand.setVirtualBusSimulationService(virtualBusSimulationService);
+
     // ── Presentation: webview message handler ──────────────────────────────
     // MonitorService and TransmitService are created lazily after a hardware
     // adapter is connected.  The handler starts with null services and they
     // are injected once the bus connection is established.
     const messageHandler = new WebviewMessageHandler(databaseService, null, null, eventBus);
+    messageHandler.setConnectBusCommand(commandRegistrar.connectCommand);
+    messageHandler.setVirtualBusSimulationService(virtualBusSimulationService);
 
     const signalLabBar = new SignalLabStatusBar(() => {
         const { monitorRunning, periodicIntervals } = messageHandler.getSignalLabBusState();
         return monitorRunning || Object.keys(periodicIntervals).length > 0;
     }, context);
 
-    const signalLabSidebar = new SignalLabSidebarViewProvider(() =>
-        messageHandler.getSignalLabHostSnapshot(),
-    );
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(SIGNAL_LAB_SIDEBAR_VIEW_ID, signalLabSidebar),
-    );
+    // const { treeView: signalLabTreeView, provider: signalLabTreeProvider } =
+    //     SignalLabSidebarTreeProvider.register(databaseService);
+    // context.subscriptions.push(signalLabTreeView);
 
     const refreshSignalLabHostUi = (): void => {
         signalLabBar.refresh();
-        signalLabSidebar.refresh();
     };
     messageHandler.setSignalLabActivityRefresh(refreshSignalLabHostUi);
     context.subscriptions.push({
@@ -89,6 +98,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
     connectCommand.onAdapterConnected((adapter) => {
         Logger.info('Bus adapter connected — creating MonitorService and TransmitService');
+
+        if (adapter instanceof VirtualCanAdapter) {
+            virtualBusSimulationService.setSimulationAdapter(adapter);
+        } else {
+            virtualBusSimulationService.setSimulationAdapter(null);
+        }
 
         const monitorService = new MonitorService(
             adapter,
@@ -126,6 +141,8 @@ export function activate(context: vscode.ExtensionContext): void {
         commandRegistrar.setMonitorService(monitorService);
         messageHandler.setMonitorService(monitorService);
         messageHandler.setTransmitService(transmitService);
+        /** Decode and forward frames to Signal Lab whenever the bus is connected (transmit echo / inject need this). */
+        monitorService.start();
         refreshSignalLabHostUi();
 
         context.subscriptions.push({
@@ -138,6 +155,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
     connectCommand.onAdapterDisconnected(() => {
         Logger.info('Bus adapter disconnected — tearing down bus services');
+        virtualBusSimulationService.setSimulationAdapter(null);
+        virtualBusSimulationService.resetSession();
         commandRegistrar.setMonitorService(null);
         messageHandler.setMonitorService(null);
         messageHandler.setTransmitService(null);
@@ -152,11 +171,18 @@ export function activate(context: vscode.ExtensionContext): void {
     // ── Presentation: sidebar tree view ────────────────────────────────────
     const { treeView, provider: treeProvider } = CanDatabaseTreeProvider.register(databaseService);
     context.subscriptions.push(treeView);
+    const refreshSidebarTrees = (): void => {
+        treeProvider.refresh();
+        // signalLabTreeProvider.refresh();
+    };
     context.subscriptions.push({
-        dispose: eventBus.on('database:loaded', () => treeProvider.refresh()),
+        dispose: eventBus.on('database:loaded', refreshSidebarTrees),
     });
     context.subscriptions.push({
-        dispose: eventBus.on('database:changed', () => treeProvider.refresh()),
+        dispose: eventBus.on('database:changed', refreshSidebarTrees),
+    });
+    context.subscriptions.push({
+        dispose: eventBus.on('bus:activeDatabaseUriChanged', refreshSidebarTrees),
     });
 
     // ── Presentation: language feature providers ────────────────────────────

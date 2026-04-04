@@ -2,7 +2,7 @@
 
 **Feature Branch**: `010-virtual-can-bus-sim`  
 **Created**: 2026-04-04  
-**Status**: Draft  
+**Status**: Implemented (v1)  
 **Input**: User description: "Virtual CAN bus and simulation for offline development and testing—synthetic frames from the loaded DBC, Signal Lab behaves like live traffic, start/stop and clear virtual-vs-real state, single-bus lab scope; prefer Signal Lab workflow integration."
 
 **Sequence**: **Specification 010** — extends [Specification 005: CAN bus connection and Signal Lab](../005-can-bus-signal-lab/spec.md) with a **software-only bus** so monitoring, decode, and visualization work **without physical hardware**. Complements [Specification 007: Multi-vendor CAN adapters](../007-multi-can-adapters/spec.md) (real devices) and [Specification 008: Recording and playback](../008-can-record-playback/spec.md) (persisted logs); the virtual bus is a **live-style synthetic source**, not a file replay unless explicitly combined later.
@@ -27,6 +27,8 @@ An engineer loads a DBC, switches to a **virtual CAN bus**, and **injects** fram
 ### User Story 2 - Manual, periodic, and scripted injection (Priority: P2)
 
 The user sends **one-off** frames, schedules **periodic** transmission of defined messages, and (where supported) runs a **scripted** sequence of frames for repeatable tests.
+
+**v1 scope**: Manual and periodic virtual injection are in scope for v1. **Scripted** sequences are **deferred** to a later milestone (see [research.md](./research.md) §3); acceptance scenario 2 below applies only when scripted injection is in scope for a given release.
 
 **Why this priority**: Lab validation needs repetition and automation beyond single clicks.
 
@@ -74,6 +76,19 @@ The user always knows whether they are on a **virtual** bus or a **physical** ad
 - **Virtual bus session**: Active software simulation producing a frame stream for decode and visualization.
 - **Injection request**: A single or recurring synthetic frame specification tied to database-defined messages where applicable.
 - **Connection mode**: Virtual vs physical (real adapter), mutually exclusive or combined per documented product rules.
+
+## Implementation status (v1)
+
+This section records how the shipped extension aligns with the requirements above (for reviewers and regression planning).
+
+| Area | Status |
+|------|--------|
+| FR-001 – FR-004 | Virtual CAN session, DBC-aligned inject, same decode/visualization path as live traffic, start/stop | Delivered via Signal Lab and shared monitor pipeline |
+| FR-005 – FR-006 | Distinct virtual vs hardware state; explicit errors for unknown ID / invalid payload | Delivered (`connectionMode` + validation); see [contracts/README.md](./contracts/README.md) |
+| FR-007 | Manual + periodic virtual injection | Delivered; **scripted** deferred per [research.md](./research.md) §3 |
+| Raw frames without a DBC message row | Classic CAN ID + DLC + payload, validated; decode when ID matches database | Delivered as product extension per [research.md](./research.md) §4 (companion to FR-002, not a replacement) |
+| SC-002 | Decoded values match expectations in automated tests | Covered by unit benchmark (see tasks T021) |
+| SC-001, SC-003 | Human UX / onboarding metrics | Validated by manual quickstart and guided checks, not automated in-repo |
 
 ## Success Criteria *(mandatory)*
 

@@ -133,7 +133,7 @@ Opening a `.dbc` with **CAN Database Editor** loads the **Svelte**-based UI. It 
 
 ### CAN Database Explorer
 
-In the **activity bar**, open **CANdb Studio** → **CAN Database**. This is a **tree view** (not the webview explorer inside the custom editor). It reflects the **active database context** and lets you navigate **nodes**, **messages**, and **signals** for the session tied to your workspace.
+In the **activity bar**, open **CANdb Studio** → **CAN Database**. This **tree view** shows the **active database for bus decode** — the same session you pick in CAN Signal Lab. If you unlink decode there, the sidebar tree empties until you select another loaded `.dbc`. Top level: **nodes**, **messages** (expand a message for per-frame layout), **signals** (full global pool, A–Z), then **unlinked signals** (pool entries not on any frame).
 
 Use it when you want a compact sidebar overview without opening the full custom editor, or alongside other editors.
 
@@ -143,7 +143,7 @@ Use it when you want a compact sidebar overview without opening the full custom 
 
 **Signal Lab** combines monitoring, transmit, and charts in one place.
 
-- **Open**: Command **CANdb Studio: Open CAN Signal Lab**, status bar shortcuts where provided, or the **Signal Lab** entry next to **CAN Database** under **CANdb Studio** (sidebar webview strip + full panel).
+- **Open**: Command **CANdb Studio: Open CAN Signal Lab**, status bar shortcuts where provided, or the full editor-area **CAN Signal Lab** panel.
 - **Panels**:
   - **Monitor** — Live frame list when a bus connection and monitor are active; decoding uses the loaded database when a session is attached.
   - **Transmit** — Build and send frames from **message definitions** in the loaded `.dbc` (ID, DLC, signal layout). Requires a loaded database and a working connection path.
