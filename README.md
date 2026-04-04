@@ -1,7 +1,7 @@
 # CANdb Studio
 
 <div align="center">
-  <img src="resources/candb-studio.svg" alt="CANdb Studio logo" width="350" />
+  <img src="resources/candb-studio-logo.svg" alt="CANdb Studio logo" width="350" />
 </div>
 
 ## Introduction
