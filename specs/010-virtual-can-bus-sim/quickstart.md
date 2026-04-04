@@ -18,6 +18,7 @@ npm run compile
 3. In Signal Lab, click **Start virtual simulation** (or connect **Virtual** from the status bar **Connect** command).
    - Confirm the ribbon shows **Virtual simulation** (not **Hardware adapter**).
    - On the **Transmit** tab, **Send once** with a loaded DBC injects via the virtual path; verify **Monitor** / **Charts** update.
+   - Optional: use **Raw frame (no database)** on the Transmit tab for ID/DLC/payload-only sends (virtual path uses the same inject pipeline; decode applies when the ID matches the loaded DBC).
    - **Stop virtual simulation**; if you started from the ribbon (no prior Connect), the adapter disconnects—confirm idle / no spurious frames.
 
 ## Automated tests
