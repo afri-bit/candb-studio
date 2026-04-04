@@ -1,6 +1,8 @@
 # CANdb Studio
 
-<!-- TODO(media): Extension icon or logo (marketplace / README hero). -->
+<div align="center">
+  <img src="resources/candb-studio.svg" alt="CANdb Studio logo" width="560" />
+</div>
 
 ## Introduction
 
