@@ -10,6 +10,7 @@
     "Programming Languages",
     "Other"
   ],
+  "icon": "resources/vsconan-extension-logo.png",
   "activationEvents": [
     "onLanguage:dbc",
     "onCustomEditor:candb-studio.canDatabaseEditor",
@@ -42,7 +43,7 @@
       {
         "viewType": "candb-studio.canDatabaseEditor",
         "displayName": "CAN Database Editor",
-        "icon": "resources/canbus.svg",
+        "icon": "resources/candb-studio-icon.svg",
         "selector": [
           {
             "filenamePattern": "*.dbc"
@@ -56,7 +57,7 @@
         {
           "id": "canbus-explorer",
           "title": "CANdb Studio",
-          "icon": "resources/canbus.svg"
+          "icon": "resources/candb-studio-icon.svg"
         }
       ]
     },
