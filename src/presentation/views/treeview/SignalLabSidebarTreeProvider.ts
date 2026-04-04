@@ -1,7 +1,6 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
 import type { CanDatabaseService } from '../../../application/services/CanDatabaseService';
-import { CAN_DATABASE_TREE_VIEW_ID } from '../../../shared/constants';
+import { SIGNAL_LAB_SIDEBAR_VIEW_ID } from '../../../shared/constants';
 import { BaseTreeItem } from './items/BaseTreeItem';
 import { MessageTreeItem } from './items/MessageTreeItem';
 import { NodeTreeItem } from './items/NodeTreeItem';
@@ -10,62 +9,29 @@ import { PoolSignalTreeItem } from './items/PoolSignalTreeItem';
 import { SignalTreeItem } from './items/SignalTreeItem';
 
 /**
- * Sidebar tree for the **active bus decode database** (`getDatabaseForBus`), aligned with CAN Signal Lab
- * session selection. Unlinking decode clears the tree until another session is active.
+ * Signal Lab sidebar: database outline for decode/transmit context —
+ * nodes, messages → signals, full pool list, and unlinked pool signals.
  */
-export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTreeItem> {
+export class SignalLabSidebarTreeProvider implements vscode.TreeDataProvider<BaseTreeItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<BaseTreeItem | undefined | void>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-    private treeView: vscode.TreeView<BaseTreeItem> | undefined;
 
     constructor(private readonly databaseService: CanDatabaseService) {}
 
     static register(databaseService: CanDatabaseService): {
-        provider: CanDatabaseTreeProvider;
+        provider: SignalLabSidebarTreeProvider;
         treeView: vscode.TreeView<BaseTreeItem>;
     } {
-        const provider = new CanDatabaseTreeProvider(databaseService);
-        const treeView = vscode.window.createTreeView(CAN_DATABASE_TREE_VIEW_ID, {
+        const provider = new SignalLabSidebarTreeProvider(databaseService);
+        const treeView = vscode.window.createTreeView(SIGNAL_LAB_SIDEBAR_VIEW_ID, {
             treeDataProvider: provider,
             showCollapseAll: true,
         });
-        provider.treeView = treeView;
-        provider.refresh();
         return { provider, treeView };
     }
 
     refresh(): void {
-        this.updateTreeChrome();
         this._onDidChangeTreeData.fire();
-    }
-
-    /** Title-area hint + empty-state message (VS Code renders `message` when the tree is empty). */
-    private updateTreeChrome(): void {
-        const tv = this.treeView;
-        if (!tv) {
-            return;
-        }
-        const activeUri = this.databaseService.getActiveBusDatabaseUri();
-        const busDb = this.databaseService.getDatabaseForBus();
-        const sessionCount = this.databaseService.getSessionUris().length;
-
-        if (!busDb || !activeUri) {
-            tv.description = undefined;
-            tv.message =
-                sessionCount > 0
-                    ? 'No active database for bus decode. Pick a loaded .dbc in CAN Signal Lab (session list), or open one first.'
-                    : 'No database loaded. Open a .dbc file — it becomes the active decode database until you unlink it in Signal Lab.';
-            return;
-        }
-
-        try {
-            const label = path.basename(vscode.Uri.parse(activeUri).fsPath);
-            tv.description = label || 'active session';
-        } catch {
-            tv.description = 'active session';
-        }
-        tv.message = undefined;
     }
 
     getTreeItem(element: BaseTreeItem): vscode.TreeItem {
@@ -103,9 +69,9 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
         }
 
         if (element.contextType === 'unlinkedSignalsCategory') {
-            const database = this.databaseService.getDatabaseForBus()!;
-            return database.signalPool
-                .filter((s) => !database.isSignalReferencedByMessage(s.name))
+            const db = this.databaseService.getDatabaseForBus()!;
+            return db.signalPool
+                .filter((s) => !db.isSignalReferencedByMessage(s.name))
                 .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
                 .map((sig) => new PoolSignalTreeItem(sig));
         }
@@ -148,7 +114,7 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
                 [
                     '**Global signal pool**',
                     '',
-                    'All signals in this database (A–Z). “Linked” means at least one message references this pool signal; expand **Messages** to see per-frame layout.',
+                    'All signals defined in the database (sorted by name). “Linked” means at least one message references this pool signal.',
                 ].join('\n'),
             );
             md.isTrusted = true;
@@ -176,7 +142,7 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
                     '',
                     unlinked.length === 0
                         ? 'Every pool signal is assigned to at least one message.'
-                        : `${unlinked.length} signal(s) are not linked to any message frame. Expand to review them — they serialize in the DBC extension block until linked.`,
+                        : `${unlinked.length} signal(s) are not linked to any message frame.`,
                 ].join('\n'),
             );
             md.isTrusted = true;

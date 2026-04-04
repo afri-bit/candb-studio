@@ -14,6 +14,8 @@ export type WebviewToExtensionMessage =
     | { type: 'monitor.start' }
     | { type: 'monitor.stop' }
     | { type: 'transmit.send'; messageId: number; data: number[] }
+    /** Signal Lab: raw frame (no DBC). Virtual adapter uses inject path; hardware uses send. */
+    | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean }
     | { type: 'transmit.startPeriodic'; messageId: number; data: number[]; intervalMs: number }
     | { type: 'transmit.stopPeriodic'; messageId: number }
     /** Signal Lab: update payload of a running periodic task without restarting the timer. */
@@ -95,7 +97,12 @@ export type WebviewToExtensionMessage =
     /** Signal Lab: set which loaded session decodes the bus. */
     | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
     /** Signal Lab: open a DBC via the extension command (Quick Open / file dialog). */
-    | { type: 'signalLab.openDatabase' };
+    | { type: 'signalLab.openDatabase' }
+    /** Spec 010: start software virtual bus session (DBC-aligned injection). */
+    | { type: 'virtualBus.start' }
+    | { type: 'virtualBus.stop' }
+    /** DBC-aligned inject: `messageId` is the CAN arbitration id (same as transmit). */
+    | { type: 'virtualBus.inject'; messageId: number; data: number[] };
 
 /** Messages sent FROM the extension host TO the webview. */
 export type ExtensionToWebviewMessage =
@@ -140,6 +147,8 @@ export type ExtensionToWebviewMessage =
       }
     /** VS Code–style connection update (Signal Lab). */
     | { type: 'connection.stateChanged'; state: string; adapterType?: string }
+    /** User-visible errors from Signal Lab host (virtual bus, transmit, validation). */
+    | { type: 'signalLab.error'; message: string; code?: string }
     /** Loaded DBC sessions and which one is active for decode. */
     | {
           type: 'signalLab.context';
@@ -149,4 +158,8 @@ export type ExtensionToWebviewMessage =
           monitorRunning: boolean;
           /** CAN id → interval ms for active periodic transmit tasks. */
           periodicIntervals: Record<number, number>;
+          /** Spec 010: distinguish SocketCAN vs in-process virtual vs idle. */
+          connectionMode: 'disconnected' | 'virtual_simulation' | 'hardware';
+          /** True when Signal Lab virtual session is active (inject / virtual periodic). */
+          virtualSimulationRunning: boolean;
       };

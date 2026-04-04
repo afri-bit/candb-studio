@@ -68,6 +68,8 @@ export class SignalLabPanel {
 
         SignalLabPanel.panel = panel;
 
+        panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'resources', 'signal-lab.svg');
+
         panel.webview.options = {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'webview-ui', 'dist')],
@@ -109,11 +111,6 @@ export class SignalLabPanel {
                 );
                 html = Buffer.from(bytes).toString('utf8');
             }
-
-            html = html.replace(
-                /<div id="app"><\/div>/i,
-                '<div id="app"><p style="padding:12px;margin:0;font-family:system-ui,sans-serif;opacity:0.9">Loading Signal Lab…</p></div>',
-            );
 
             html = html.replace(/(src|href)="([^"]+)"/g, (_match, attr: string, uri: string) => {
                 if (uri.startsWith('http') || uri.startsWith('data:')) {

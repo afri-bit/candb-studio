@@ -124,7 +124,10 @@ export type WebviewInboundMessage =
       activeUri: string | null;
       monitorRunning: boolean;
       periodicIntervals: Record<number, number>;
-    };
+      connectionMode: 'disconnected' | 'virtual_simulation' | 'hardware';
+      virtualSimulationRunning: boolean;
+    }
+  | { type: 'signalLab.error'; message: string; code?: string };
 
 export type WebviewOutboundMessage =
   | { type: 'database.ready' }
@@ -141,4 +144,8 @@ export type WebviewOutboundMessage =
   | { type: 'transmit.updatePeriodicInterval'; messageId: number; intervalMs: number }
   | { type: 'signalLab.setActiveDatabaseUri'; uri: string | null }
   | { type: 'signalLab.openDatabase' }
+  | { type: 'virtualBus.start' }
+  | { type: 'virtualBus.stop' }
+  | { type: 'virtualBus.inject'; messageId: number; data: number[] }
+  | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean }
   | { type: 'removeAttributeDefinition'; payload: { documentUri: string; index: number } };

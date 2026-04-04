@@ -8,6 +8,7 @@
   import { get } from 'svelte/store';
   import type { MessageDescriptor, SignalDescriptor } from '../../types';
   import { isConnected } from '../../stores/connectionStore';
+  import { signalLabContextStore } from '../../stores/signalLabContextStore';
   import { transmitFormStore } from '../../stores/transmitFormStore';
   import { transmitPeriodicStore } from '../../stores/transmitPeriodicStore';
   import { vscode } from '../../vscode';
@@ -144,6 +145,15 @@
 
   function handleSendOnce() {
     if (!selectedMessage) return;
+    const ctx = get(signalLabContextStore);
+    if (ctx.connectionMode === 'virtual_simulation' && ctx.virtualSimulationRunning) {
+      vscode.postMessage({
+        type: 'virtualBus.inject',
+        messageId: selectedMessage.id,
+        data: parseDataHex(),
+      });
+      return;
+    }
     vscode.postMessage({
       type: 'transmit.send',
       messageId: selectedMessage.id,
@@ -399,7 +409,8 @@
   .transmit-panel {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     gap: 8px;
   }
 

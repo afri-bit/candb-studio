@@ -15,8 +15,7 @@
     "onLanguage:dbc",
     "onCustomEditor:candb-studio.canDatabaseEditor",
     "onCommand:candb-studio.openSignalLab",
-    "onCommand:candb-studio.closeSignalLab",
-    "onView:candb-studio.signalLabSidebar"
+    "onCommand:candb-studio.closeSignalLab"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -66,13 +65,6 @@
         {
           "id": "candb-studio.canDatabaseExplorer",
           "name": "CAN Database"
-        },
-        {
-          "id": "candb-studio.signalLabSidebar",
-          "name": "Signal Lab",
-          "type": "webview",
-          "contextualTitle": "Signal Lab",
-          "icon": "resources/signal-lab.svg"
         }
       ]
     },
