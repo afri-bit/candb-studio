@@ -132,8 +132,8 @@ export class ConnectBusCommand {
         const isVirtual = selected.adapterType === AdapterType.Virtual;
         const channelName = await vscode.window.showInputBox({
             prompt: isVirtual
-                ? 'Channel label (optional). Virtual mode is in-process loopback only — no macOS CAN driver or vcan device.'
-                : 'Enter SocketCAN interface name (Linux), e.g. can0 or vcan0',
+                ? 'Channel label (optional). Virtual mode is in-process software loopback only — no physical adapter or system CAN device.'
+                : 'Enter SocketCAN interface name (e.g. can0 or vcan0).',
             value: isVirtual ? 'virtual-loopback' : 'can0',
         });
 
