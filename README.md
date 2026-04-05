@@ -17,9 +17,9 @@
 > [!IMPORTANT]  
 > *Independent project; not affiliated with Vector Informatik or CANdb++.*
 
+![](./resources/vid/overview_editor.gif)
 
-
-<!-- TODO(media): Short GIF or screen recording — open a `.dbc`, switch editor tabs, optional bus strip (e.g. recorded with [Chronicler](https://marketplace.visualstudio.com/items?itemName=arcsine.chronicler)). -->
+![](./resources/vid/overview_signal_lab.gif)
 
 ### What this project is
 
