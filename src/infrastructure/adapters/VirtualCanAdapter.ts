@@ -50,6 +50,26 @@ export class VirtualCanAdapter implements ICanBusAdapter {
         }
     }
 
+    /**
+     * Push a frame into the same receive path as incoming bus traffic without going through
+     * {@link send} (no transmit echo / tx classification). Used for virtual simulation injection.
+     */
+    injectFrameForMonitor(frame: CanFrame): void {
+        if (this._state !== CanBusState.Connected) {
+            throw new ConnectionError('Cannot inject: not connected', 'virtual');
+        }
+        const copy = new CanFrame({
+            id: frame.id,
+            data: new Uint8Array(frame.data),
+            dlc: frame.dlc,
+            isExtended: frame.isExtended,
+            timestamp: Date.now(),
+        });
+        for (const cb of this.frameCallbacks) {
+            cb(copy);
+        }
+    }
+
     onFrameReceived(callback: (frame: CanFrame) => void): Disposable {
         this.frameCallbacks.add(callback);
         return { dispose: () => this.frameCallbacks.delete(callback) };

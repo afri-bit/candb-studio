@@ -21,6 +21,29 @@ export interface LiveMessageSnapshot {
   isExtended: boolean;
 }
 
+/** Newer of Rx vs Tx snapshot for the same ID (for a single “current values” table). */
+export type LiveMessageSnapshotWithDirection = LiveMessageSnapshot & {
+  lastDirection: 'rx' | 'tx';
+};
+
+export function mergeLiveSnapshots(
+  rx: LiveMessageSnapshot | undefined,
+  tx: LiveMessageSnapshot | undefined,
+): LiveMessageSnapshotWithDirection | undefined {
+  if (!rx && !tx) {
+    return undefined;
+  }
+  if (!tx) {
+    return { ...rx!, lastDirection: 'rx' };
+  }
+  if (!rx) {
+    return { ...tx, lastDirection: 'tx' };
+  }
+  return rx.timestamp >= tx.timestamp
+    ? { ...rx, lastDirection: 'rx' }
+    : { ...tx, lastDirection: 'tx' };
+}
+
 interface MonitorState {
   frames: DecodedFrameDescriptor[];
   isRunning: boolean;
@@ -140,4 +163,26 @@ export const filteredTxFrames = derived(monitorStore, ($store) => {
     $store.frames.filter((f) => f.direction === 'tx'),
     lower,
   );
+});
+
+/** Per CAN ID: latest snapshot whether traffic was classified Rx or Tx (transmit echo). */
+export const liveLatestByMessageId = derived(monitorStore, ($store) => {
+  const out: Record<number, LiveMessageSnapshotWithDirection> = {};
+  const ids = new Set<number>();
+  for (const k of Object.keys($store.liveRxByMessageId)) {
+    ids.add(Number(k));
+  }
+  for (const k of Object.keys($store.liveTxByMessageId)) {
+    ids.add(Number(k));
+  }
+  for (const id of ids) {
+    const merged = mergeLiveSnapshots(
+      $store.liveRxByMessageId[id],
+      $store.liveTxByMessageId[id],
+    );
+    if (merged) {
+      out[id] = merged;
+    }
+  }
+  return out;
 });

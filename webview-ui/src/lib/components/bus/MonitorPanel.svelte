@@ -49,8 +49,10 @@
   let uniqueTxCount = $derived(Object.keys($monitorStore.liveTxByMessageId).length);
   let totalFrameCount = $derived($filteredRxFrames.length + $filteredTxFrames.length);
 
-  let autoScroll = $state(true);
-  let tableContainer: HTMLDivElement | undefined = $state();
+  let autoScrollRx = $state(true);
+  let autoScrollTx = $state(true);
+  let rxLogScrollEl: HTMLDivElement | undefined = $state();
+  let txLogScrollEl: HTMLDivElement | undefined = $state();
 
   function handleClear() {
     monitorStore.clear();
@@ -58,10 +60,17 @@
 
   $effect(() => {
     void $filteredRxFrames;
-    void $filteredTxFrames;
-    if (viewMode !== 'log' || !autoScroll || !tableContainer) return;
+    if (viewMode !== 'log' || !autoScrollRx || !rxLogScrollEl) return;
     requestAnimationFrame(() => {
-      tableContainer!.scrollTop = tableContainer!.scrollHeight;
+      rxLogScrollEl!.scrollTop = rxLogScrollEl!.scrollHeight;
+    });
+  });
+
+  $effect(() => {
+    void $filteredTxFrames;
+    if (viewMode !== 'log' || !autoScrollTx || !txLogScrollEl) return;
+    requestAnimationFrame(() => {
+      txLogScrollEl!.scrollTop = txLogScrollEl!.scrollHeight;
     });
   });
 </script>
@@ -129,13 +138,6 @@
         </button>
       </div>
 
-      {#if viewMode === 'log'}
-        <label class="auto-scroll">
-          <input type="checkbox" bind:checked={autoScroll} />
-          Auto-scroll
-        </label>
-      {/if}
-
       <span class="spacer"></span>
       <SearchFilter
         placeholder={viewMode === 'log'
@@ -163,9 +165,16 @@
         <p class="status-meta">State: {$connectionStore.state}</p>
       </div>
     {:else if viewMode === 'log'}
-      <div class="table-body" bind:this={tableContainer}>
-        <div class="log-section">
-          <h4 class="log-section-heading">Received (Rx)</h4>
+      <div class="log-split" role="presentation">
+        <section class="log-pane log-pane--rx" aria-label="Received CAN frames">
+          <div class="log-pane-toolbar">
+            <h4 class="log-pane-title">Received (Rx)</h4>
+            <label class="auto-scroll">
+              <input type="checkbox" bind:checked={autoScrollRx} />
+              Auto-scroll
+            </label>
+            <span class="log-pane-count">{$filteredRxFrames.length}</span>
+          </div>
           <div class="table-header">
             <span class="col-time">Time</span>
             <span class="col-dir">Dir</span>
@@ -175,12 +184,30 @@
             <span class="col-data">Data</span>
             <span class="col-signals">Decoded signals</span>
           </div>
-          {#each $filteredRxFrames as decoded, i (i)}
-            <FrameRow {decoded} />
-          {/each}
-        </div>
-        <div class="log-section">
-          <h4 class="log-section-heading">Transmitted (Tx)</h4>
+          <div class="log-pane-scroll" bind:this={rxLogScrollEl}>
+            {#if $filteredRxFrames.length === 0}
+              <div class="log-pane-empty">
+                {$monitorStore.isRunning
+                  ? 'No received frames match the filter.'
+                  : 'Start monitoring from the ribbon.'}
+              </div>
+            {:else}
+              {#each $filteredRxFrames as decoded, i (i)}
+                <FrameRow {decoded} />
+              {/each}
+            {/if}
+          </div>
+        </section>
+
+        <section class="log-pane log-pane--tx" aria-label="Transmitted CAN frames">
+          <div class="log-pane-toolbar">
+            <h4 class="log-pane-title">Transmitted (Tx)</h4>
+            <label class="auto-scroll">
+              <input type="checkbox" bind:checked={autoScrollTx} />
+              Auto-scroll
+            </label>
+            <span class="log-pane-count">{$filteredTxFrames.length}</span>
+          </div>
           <div class="table-header">
             <span class="col-time">Time</span>
             <span class="col-dir">Dir</span>
@@ -190,15 +217,20 @@
             <span class="col-data">Data</span>
             <span class="col-signals">Decoded signals</span>
           </div>
-          {#each $filteredTxFrames as decoded, i (i)}
-            <FrameRow {decoded} />
-          {/each}
-        </div>
-        {#if $filteredRxFrames.length === 0 && $filteredTxFrames.length === 0}
-          <div class="empty">
-            {$monitorStore.isRunning ? 'Waiting for frames…' : 'Start monitoring from the ribbon.'}
+          <div class="log-pane-scroll" bind:this={txLogScrollEl}>
+            {#if $filteredTxFrames.length === 0}
+              <div class="log-pane-empty">
+                {$monitorStore.isRunning
+                  ? 'No transmit echo frames match the filter.'
+                  : 'Start monitoring from the ribbon.'}
+              </div>
+            {:else}
+              {#each $filteredTxFrames as decoded, i (i)}
+                <FrameRow {decoded} />
+              {/each}
+            {/if}
           </div>
-        {/if}
+        </section>
       </div>
     {:else if viewMode === 'raw'}
       <div class="static-wrap split-raw">
@@ -310,19 +342,74 @@
     flex-shrink: 0;
   }
 
-  .log-section {
-    margin-bottom: 12px;
+  /** Frame log: Rx / Tx stacked, equal height, independent scroll + auto-scroll. */
+  .log-split {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
-  .log-section:last-child {
-    margin-bottom: 0;
+  .log-pane {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
-  .log-section-heading {
-    margin: 0 0 6px 0;
-    font-size: 0.8rem;
+  .log-pane--rx {
+    border-bottom: 1px solid var(--vscode-widget-border, #444);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .log-pane-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 0 0 6px 0;
+    flex-wrap: wrap;
+  }
+
+  .log-pane-title {
+    margin: 0;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--vscode-foreground);
+  }
+
+  .log-pane-toolbar .auto-scroll {
+    margin-left: auto;
+  }
+
+  .log-pane-count {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--vscode-descriptionForeground);
+    min-width: 2.5rem;
+    text-align: right;
+  }
+
+  .log-pane .table-header {
+    flex-shrink: 0;
+  }
+
+  .log-pane-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 0.85em;
+  }
+
+  .log-pane-empty {
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--vscode-descriptionForeground);
+    font-size: 0.9em;
+    line-height: 1.45;
   }
 
   .status-message {
@@ -380,16 +467,4 @@
     font-size: 0.78em;
   }
 
-  .table-body {
-    flex: 1;
-    overflow: auto;
-    font-family: var(--vscode-editor-font-family, monospace);
-    font-size: 0.85em;
-  }
-
-  .empty {
-    padding: 24px;
-    text-align: center;
-    color: var(--vscode-descriptionForeground);
-  }
 </style>

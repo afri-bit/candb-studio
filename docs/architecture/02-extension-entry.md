@@ -28,11 +28,11 @@ sequenceDiagram
 3. **FileSystemRepository** + **ValidationService** + **CanDatabaseService** — database lifecycle.
 4. **CommandRegistrar** — registers open DB, connect/disconnect bus, monitor/transmit commands; holds a reference to **ConnectBusCommand** for adapter access.
 5. **WebviewMessageHandler** — starts without monitor/transmit; **setMonitorService** / **setTransmitService** run after connect.
-6. **Signal Lab** — status bar + sidebar webview provider read snapshots from the message handler.
+6. **Signal Lab** — status bar reads bus activity from the message handler (sidebar Signal Lab tree is optional / currently off in `extension.ts`).
 7. **ConnectBusCommand callbacks** — on adapter connected: create **MonitorService** (with **SignalDecoder**), **TransmitService**, wire **database:loaded** / **database:changed** / **bus:activeDatabaseUriChanged** so the monitor always uses the DB that matches the active URI for the bus.
 8. **onAdapterDisconnected** — clears monitor/transmit on handler and registrar.
 9. **CanDatabaseEditorProvider.register** — custom editor for `*.dbc`.
-10. **CanDatabaseTreeProvider** — explorer tree; refreshes on database events.
+10. **CanDatabaseTreeProvider** — CAN Database sidebar tree mirrors **`getDatabaseForBus`** (same active session as Signal Lab); refreshes on `database:loaded`, `database:changed`, and **`bus:activeDatabaseUriChanged`**. (**SignalLabSidebarTreeProvider** can be re-enabled with `package.json` + `extension.ts`; see comment in `extension.ts`.)
 11. **Language providers** — completion, hover, diagnostics; diagnostics use **ValidationService** via **CanDatabaseService**.
 
 ## Deferred reference: SignalEncoder

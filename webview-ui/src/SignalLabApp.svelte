@@ -8,8 +8,10 @@
   import { connectionStore, isConnected } from './lib/stores/connectionStore';
   import { monitorStore } from './lib/stores/monitorStore';
   import { transmitPeriodicStore } from './lib/stores/transmitPeriodicStore';
+  import { signalLabContextStore } from './lib/stores/signalLabContextStore';
   import { signalChartStore } from './lib/stores/signalChartStore';
   import MonitorPanel from './lib/components/bus/MonitorPanel.svelte';
+  import RawTransmitPanel from './lib/components/bus/RawTransmitPanel.svelte';
   import TransmitPanel from './lib/components/bus/TransmitPanel.svelte';
   import SignalChartPanel from './lib/components/bus/SignalChartPanel.svelte';
   import type { WebviewInboundMessage } from './lib/types';
@@ -22,6 +24,7 @@
   let sessionUris = $state<string[]>([]);
   let activeBusUri = $state<string | null>(null);
   let showIntro = $state(false);
+  let signalLabError = $state<string | null>(null);
 
   function readIntroDismissed(): boolean {
     try {
@@ -79,19 +82,13 @@
     if (!$isConnected) return;
     if ($monitorStore.isRunning) {
       vscode.postMessage({ type: 'monitor.stop' });
-      monitorStore.setRunning(false);
     } else {
       vscode.postMessage({ type: 'monitor.start' });
-      monitorStore.setRunning(true);
     }
   }
 
   $effect(() => {
     showIntro = !readIntroDismissed();
-  });
-
-  $effect(() => {
-    signalChartStore.setIngestPaused(activeTab !== 'charts');
   });
 
   $effect(() => {
@@ -107,6 +104,13 @@
           activeBusUri = message.activeUri;
           monitorStore.setRunning(message.monitorRunning);
           transmitPeriodicStore.syncFromExtension(message.periodicIntervals);
+          signalLabContextStore.set({
+            connectionMode: message.connectionMode,
+            virtualSimulationRunning: message.virtualSimulationRunning,
+          });
+          break;
+        case 'signalLab.error':
+          signalLabError = message.message;
           break;
         case 'monitor.frame':
           monitorStore.addFrame(message.frame);
@@ -122,6 +126,10 @@
           connectionStore.setState(message.state, message.adapterType);
           if (message.state === 'disconnected') {
             transmitPeriodicStore.stopAll();
+            signalLabContextStore.set({
+              connectionMode: 'disconnected',
+              virtualSimulationRunning: false,
+            });
           }
           break;
       }
@@ -135,12 +143,23 @@
 </script>
 
 <div class="signal-lab">
+  {#if signalLabError}
+    <div class="signal-lab-error" role="alert">
+      <span>{signalLabError}</span>
+      <button
+        type="button"
+        class="ribbon-btn ribbon-btn--ghost"
+        onclick={() => (signalLabError = null)}>Dismiss</button
+      >
+    </div>
+  {/if}
+
   {#if showIntro}
     <div class="intro-banner" role="status">
       <div class="intro-copy">
-        <strong>Signal Lab</strong> — connect hardware from the status bar, start the monitor, and
-        watch raw traffic without a database. Load a <code>.dbc</code> when you want decoded names and
-        signals.
+        <strong>Signal Lab</strong> — connect hardware from the status bar or use
+        <strong>Start virtual simulation</strong>. Use <strong>Transmit → Raw frame</strong> without
+        a database, or load a <code>.dbc</code> for named messages and decode.
       </div>
       <button type="button" class="intro-dismiss" onclick={dismissIntro}>Got it</button>
     </div>
@@ -150,18 +169,52 @@
     <h1 class="lab-title">CAN Signal Lab</h1>
 
     <div class="lab-ribbon" role="toolbar" aria-label="Signal Lab actions">
+      <div class="ribbon-cluster ribbon-cluster--virtual" aria-label="Virtual bus simulation">
+        {#if $signalLabContextStore.connectionMode === 'hardware'}
+          <span
+            class="ribbon-hint"
+            title="Disconnect hardware (status bar) before virtual simulation"
+            >Hardware connected — disconnect to use virtual</span
+          >
+        {:else if $signalLabContextStore.virtualSimulationRunning}
+          <button
+            type="button"
+            class="ribbon-btn"
+            title="Stop synthetic session; monitor stops; auto-connected bus disconnects"
+            onclick={() => {
+              signalLabError = null;
+              vscode.postMessage({ type: 'virtualBus.stop' });
+            }}>Stop virtual simulation</button
+          >
+        {:else}
+          <button
+            type="button"
+            class="ribbon-btn ribbon-btn--accent"
+            title="Creates a software CAN adapter if needed, then starts the session and monitor"
+            onclick={() => {
+              signalLabError = null;
+              vscode.postMessage({ type: 'virtualBus.start' });
+            }}>Start virtual simulation</button
+          >
+        {/if}
+      </div>
+
       <div class="ribbon-cluster ribbon-cluster--primary">
         <button
           type="button"
           class="ribbon-btn ribbon-btn--accent"
           disabled={!$isConnected}
-          title={$monitorStore.isRunning ? 'Stop bus monitor' : 'Start bus monitor'}
+          title={$isConnected
+            ? $monitorStore.isRunning
+              ? 'Stop decoding bus traffic into the monitor'
+              : 'Start decoding bus traffic into the monitor'
+            : 'Connect hardware (status bar) or start virtual simulation first'}
           onclick={toggleMonitor}
         >
           {#if $monitorStore.isRunning}
-            <span class="ribbon-icon" aria-hidden="true">■</span> Stop
+            <span class="ribbon-icon" aria-hidden="true">■</span> Stop monitor
           {:else}
-            <span class="ribbon-icon" aria-hidden="true">▶</span> Start
+            <span class="ribbon-icon" aria-hidden="true">▶</span> Start monitor
           {/if}
         </button>
         <button
@@ -209,10 +262,22 @@
       </div>
 
       <div class="ribbon-cluster ribbon-cluster--meta">
-        {#if !$isConnected}
-          <span class="ribbon-hint">Adapter disconnected</span>
-        {:else if $monitorStore.isRunning}
-          <span class="ribbon-live" title="Monitor active">● Monitoring</span>
+        {#if $signalLabContextStore.connectionMode === 'virtual_simulation'}
+          <span class="ribbon-hint" title="Software-only CAN — not a vehicle bus"
+            >Bus: virtual (software)</span
+          >
+        {:else if $signalLabContextStore.connectionMode === 'hardware'}
+          <span class="ribbon-hint" title="Real CAN adapter">Bus: hardware</span>
+        {:else if !$isConnected}
+          <span class="ribbon-hint">Bus: disconnected</span>
+        {/if}
+        {#if $isConnected}
+          {#if $monitorStore.isRunning}
+            <span class="ribbon-live" title="Frames are decoded into the monitor">● Monitor on</span
+            >
+          {:else}
+            <span class="ribbon-hint" title="Start monitor to capture frames">Monitor off</span>
+          {/if}
         {/if}
       </div>
     </div>
@@ -249,21 +314,18 @@
         <MonitorPanel messages={$databaseStore.messages} />
       </div>
     {:else if activeTab === 'transmit'}
-      <div class="lab-panel">
-        {#if $databaseStore.messages.length === 0}
-          <div class="tab-placeholder" role="region" aria-label="Transmit requires a database">
-            <p class="tab-placeholder-title">Load a CAN database to transmit</p>
-            <p class="tab-placeholder-body">
-              Transmit uses message definitions from your <code>.dbc</code> (ID, DLC, signal
-              layout). Use
-              <strong>Load CAN database…</strong> in the ribbon, then pick a frame here.
-            </p>
-            <button type="button" class="ribbon-btn ribbon-btn--accent" onclick={openDatabase}
-              >Load CAN database…</button
-            >
+      <div class="lab-panel lab-panel--transmit">
+        <RawTransmitPanel />
+        {#if $databaseStore.messages.length > 0}
+          <div class="transmit-dbc-wrap">
+            <h2 class="transmit-section-title">DBC-defined messages</h2>
+            <TransmitPanel messages={$databaseStore.messages} />
           </div>
         {:else}
-          <TransmitPanel messages={$databaseStore.messages} />
+          <p class="transmit-dbc-hint" role="status">
+            Load a <code>.dbc</code> with <strong>Load CAN database…</strong> to pick named frames, edit
+            signals, and use periodic transmit tied to message definitions.
+          </p>
         {/if}
       </div>
     {:else}
@@ -500,6 +562,70 @@
 
   .intro-dismiss:hover {
     background: var(--vscode-button-hoverBackground);
+  }
+
+  /**
+   * Transmit tab: keep overflow here (not only on .lab-panel) — later .lab-panel { overflow: hidden }
+   * would otherwise clip a long message list with no scroll.
+   */
+  .lab-panel.lab-panel--transmit {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .transmit-section-title {
+    margin: 0 0 8px;
+    flex-shrink: 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--vscode-descriptionForeground);
+  }
+
+  .transmit-dbc-wrap {
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .transmit-dbc-hint {
+    margin: 0 4px 16px;
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--vscode-descriptionForeground);
+    border: 1px dashed color-mix(in srgb, var(--vscode-widget-border) 75%, transparent);
+    border-radius: 6px;
+  }
+
+  .transmit-dbc-hint code {
+    font-size: 0.95em;
+  }
+
+  .signal-lab-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    flex-shrink: 0;
+    font-size: 0.88rem;
+    background: color-mix(
+      in srgb,
+      var(--vscode-inputValidation-errorBackground, #5a1d1d) 35%,
+      var(--vscode-editor-background)
+    );
+    color: var(--vscode-errorForeground, var(--vscode-foreground));
+    border-bottom: 1px solid var(--vscode-inputValidation-errorBorder, var(--vscode-widget-border));
+  }
+
+  .ribbon-cluster--virtual {
+    padding-right: 10px;
+    border-right: 1px solid color-mix(in srgb, var(--vscode-widget-border) 70%, transparent);
   }
 
   .lab-tabs {

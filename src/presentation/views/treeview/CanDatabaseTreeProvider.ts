@@ -1,19 +1,23 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 import type { CanDatabaseService } from '../../../application/services/CanDatabaseService';
 import { CAN_DATABASE_TREE_VIEW_ID } from '../../../shared/constants';
 import { BaseTreeItem } from './items/BaseTreeItem';
 import { MessageTreeItem } from './items/MessageTreeItem';
 import { NodeTreeItem } from './items/NodeTreeItem';
+import { PoolSignalListTreeItem } from './items/PoolSignalListTreeItem';
 import { PoolSignalTreeItem } from './items/PoolSignalTreeItem';
 import { SignalTreeItem } from './items/SignalTreeItem';
 
 /**
- * Tree data provider for the CAN database browser sidebar.
- * Displays nodes, messages, and signals in a hierarchical tree.
+ * Sidebar tree for the **active bus decode database** (`getDatabaseForBus`), aligned with CAN Signal Lab
+ * session selection. Unlinking decode clears the tree until another session is active.
  */
 export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTreeItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<BaseTreeItem | undefined | void>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
+
+    private treeView: vscode.TreeView<BaseTreeItem> | undefined;
 
     constructor(private readonly databaseService: CanDatabaseService) {}
 
@@ -26,11 +30,42 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
             treeDataProvider: provider,
             showCollapseAll: true,
         });
+        provider.treeView = treeView;
+        provider.refresh();
         return { provider, treeView };
     }
 
     refresh(): void {
+        this.updateTreeChrome();
         this._onDidChangeTreeData.fire();
+    }
+
+    /** Title-area hint + empty-state message (VS Code renders `message` when the tree is empty). */
+    private updateTreeChrome(): void {
+        const tv = this.treeView;
+        if (!tv) {
+            return;
+        }
+        const activeUri = this.databaseService.getActiveBusDatabaseUri();
+        const busDb = this.databaseService.getDatabaseForBus();
+        const sessionCount = this.databaseService.getSessionUris().length;
+
+        if (!busDb || !activeUri) {
+            tv.description = undefined;
+            tv.message =
+                sessionCount > 0
+                    ? 'No active database for bus decode. Pick a loaded .dbc in CAN Signal Lab (session list), or open one first.'
+                    : 'No database loaded. Open a .dbc file — it becomes the active decode database until you unlink it in Signal Lab.';
+            return;
+        }
+
+        try {
+            const label = path.basename(vscode.Uri.parse(activeUri).fsPath);
+            tv.description = label || 'active session';
+        } catch {
+            tv.description = 'active session';
+        }
+        tv.message = undefined;
     }
 
     getTreeItem(element: BaseTreeItem): vscode.TreeItem {
@@ -38,9 +73,9 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
     }
 
     getChildren(element?: BaseTreeItem): BaseTreeItem[] {
-        const database = this.databaseService.getDatabase();
+        const database = this.databaseService.getDatabaseForBus();
         if (!database) {
-            return [new BaseTreeItem('No database loaded')];
+            return [];
         }
 
         if (!element) {
@@ -61,8 +96,14 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
                 .map((sig) => new SignalTreeItem(sig));
         }
 
+        if (element.contextType === 'signalListCategory') {
+            return [...database.signalPool]
+                .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+                .map((sig) => new PoolSignalListTreeItem(sig, database));
+        }
+
         if (element.contextType === 'unlinkedSignalsCategory') {
-            const database = this.databaseService.getDatabase()!;
+            const database = this.databaseService.getDatabaseForBus()!;
             return database.signalPool
                 .filter((s) => !database.isSignalReferencedByMessage(s.name))
                 .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
@@ -73,7 +114,7 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
     }
 
     private getRootItems(
-        database: ReturnType<CanDatabaseService['getDatabase']> & {},
+        database: NonNullable<ReturnType<CanDatabaseService['getDatabaseForBus']>>,
     ): BaseTreeItem[] {
         const nodesItem = new BaseTreeItem(
             `Nodes (${database.nodes.length})`,
@@ -92,6 +133,27 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
             'messagesCategory',
         );
         messagesItem.iconPath = new vscode.ThemeIcon('list-tree');
+
+        const pool = database.signalPool;
+        const signalListItem = new BaseTreeItem(
+            `Signals (${pool.length})`,
+            pool.length > 0
+                ? vscode.TreeItemCollapsibleState.Collapsed
+                : vscode.TreeItemCollapsibleState.None,
+            'signalListCategory',
+        );
+        signalListItem.iconPath = new vscode.ThemeIcon('pulse');
+        {
+            const md = new vscode.MarkdownString(
+                [
+                    '**Global signal pool**',
+                    '',
+                    'All signals in this database (A–Z). “Linked” means at least one message references this pool signal; expand **Messages** to see per-frame layout.',
+                ].join('\n'),
+            );
+            md.isTrusted = true;
+            signalListItem.tooltip = md;
+        }
 
         const unlinked = database.signalPool.filter(
             (s) => !database.isSignalReferencedByMessage(s.name),
@@ -121,7 +183,7 @@ export class CanDatabaseTreeProvider implements vscode.TreeDataProvider<BaseTree
             unlinkedItem.tooltip = md;
         }
 
-        return [nodesItem, messagesItem, unlinkedItem];
+        return [nodesItem, messagesItem, signalListItem, unlinkedItem];
     }
 
     dispose(): void {

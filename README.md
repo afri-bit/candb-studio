@@ -1,6 +1,8 @@
 # CANdb Studio
 
-<!-- TODO(media): Extension icon or logo (marketplace / README hero). -->
+<div align="center">
+  <img src="resources/candb-studio-logo.svg" alt="CANdb Studio logo" width="350" />
+</div>
 
 ## Introduction
 
@@ -15,9 +17,9 @@
 > [!IMPORTANT]  
 > *Independent project; not affiliated with Vector Informatik or CANdb++.*
 
+![](./resources/vid/overview_editor.gif)
 
-
-<!-- TODO(media): Short GIF or screen recording — open a `.dbc`, switch editor tabs, optional bus strip (e.g. recorded with [Chronicler](https://marketplace.visualstudio.com/items?itemName=arcsine.chronicler)). -->
+![](./resources/vid/overview_signal_lab.gif)
 
 ### What this project is
 
@@ -106,7 +108,7 @@ The extension registers the **`dbc`** language for `*.dbc` files and ships a **T
 - **Activation**: Opening or focusing a `.dbc` file loads the language support.
 - **Custom editor**: For the full structured experience, use **CAN Database Editor** (see below); use **Text view** from that editor if you prefer the raw file in the default editor.
 
-<!-- TODO(media): Screenshot — same `.dbc` split: text editor with highlighting vs. custom editor (optional). -->
+![](./resources/img/doc_editor_text_00.png)
 
 ### CAN Database Visual Editor
 
@@ -125,23 +127,27 @@ Opening a `.dbc` with **CAN Database Editor** loads the **Svelte**-based UI. It 
 - **Text view** — Opens the same file in the **default text editor** for hand-editing raw DBC.
 - **Save** — Writes the serialized database back to the `.dbc` file.
 
-<!-- TODO(media): Screenshot — custom editor with Messages tab and sidebar explorer visible. -->
+![](./resources/img/doc_editor_message_01.png)
 
-<!-- TODO(media): Screenshot — Architecture tab (optional second image). -->
+![](./resources/img/doc_editor_message_02.png)
+
+![](./resources/img/doc_editor_signal_01.png)
+
+![](./resources/img/doc_editor_architecture_01.png)
 
 ### CAN Database Explorer
 
-In the **activity bar**, open **CANdb Studio** → **CAN Database**. This is a **tree view** (not the webview explorer inside the custom editor). It reflects the **active database context** and lets you navigate **nodes**, **messages**, and **signals** for the session tied to your workspace.
+In the **activity bar**, open **CANdb Studio** → **CAN Database**. This **tree view** shows the **active database for bus decode** — the same session you pick in CAN Signal Lab. If you unlink decode there, the sidebar tree empties until you select another loaded `.dbc`. Top level: **nodes**, **messages** (expand a message for per-frame layout), **signals** (full global pool, A–Z), then **unlinked signals** (pool entries not on any frame).
 
 Use it when you want a compact sidebar overview without opening the full custom editor, or alongside other editors.
 
-<!-- TODO(media): Screenshot — activity bar + CAN Database tree expanded. -->
+![](./resources/img/doc_signal_lab_01.png)
 
 ### CAN Signal Lab
 
 **Signal Lab** combines monitoring, transmit, and charts in one place.
 
-- **Open**: Command **CANdb Studio: Open CAN Signal Lab**, status bar shortcuts where provided, or the **Signal Lab** entry next to **CAN Database** under **CANdb Studio** (sidebar webview strip + full panel).
+- **Open**: Command **CANdb Studio: Open CAN Signal Lab**, status bar shortcuts where provided, or the full editor-area **CAN Signal Lab** panel.
 - **Panels**:
   - **Monitor** — Live frame list when a bus connection and monitor are active; decoding uses the loaded database when a session is attached.
   - **Transmit** — Build and send frames from **message definitions** in the loaded `.dbc` (ID, DLC, signal layout). Requires a loaded database and a working connection path.
@@ -149,9 +155,17 @@ Use it when you want a compact sidebar overview without opening the full custom 
 
 If no database is attached for decoding, traffic may appear as **raw IDs and payloads** until you load a session / database—see in-UI hints.
 
-<!-- TODO(media): Screenshot — Signal Lab with Monitor tab, connected state (if possible). -->
+The screenshots below follow the **Monitor → Transmit → Charts** layout described above: first the **Monitor** tab (frame log, live signals, then raw IDs), then **Transmit**, then **Charts** (virtual bus).
 
-<!-- TODO(media): Screenshot — Transmit tab with a message selected (optional). -->
+![](./resources/img/doc_signal_lab_04.png)
+
+![](./resources/img/doc_signal_lab_05.png)
+
+![](./resources/img/doc_signal_lab_06.png)
+
+![](./resources/img/doc_signal_lab_03.png)
+
+![](./resources/img/doc_signal_lab_02.png)
 
 ### Bus Connection
 
@@ -163,7 +177,16 @@ If no database is attached for decoding, traffic may appear as **raw IDs and pay
 
 Adapter support is **pluggable in code** but **hardware-specific** in practice: install vendor drivers, use a supported channel name, and verify on your machine before relying on it in production.
 
-<!-- TODO(media): Screenshot — status bar connection indicator + Signal Lab hint area (optional). -->
+> [!NOTE]  
+> Today the connect flow only lists **SocketCAN** and **virtual**. **SocketCAN** is implemented in the extension but **not tested** on real Linux interfaces yet; the screenshots use **virtual (software)** loopback. **Other adapter families** (PCAN, Vector, SLCAN, USB‑CAN, and similar) are **not available yet**—broader hardware support is tracked under **Upcoming features** (*Multi CAN adapter support*).
+
+![](./resources/img/doc_signal_lab_07.png)
+
+## Upcoming Features
+
+- Multi CAN adapter support (hardware backends beyond the current SocketCAN / virtual options)
+- Data recording
+- `.blf` data support
 
 ## Release Notes
 
