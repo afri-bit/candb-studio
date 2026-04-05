@@ -178,7 +178,9 @@ The screenshots below follow the **Monitor → Transmit → Charts** layout desc
 Adapter support is **pluggable in code** but **hardware-specific** in practice: install vendor drivers, use a supported channel name, and verify on your machine before relying on it in production.
 
 > [!NOTE]  
-> Today the connect flow only lists **SocketCAN** and **virtual**. **SocketCAN** is implemented in the extension but **not tested** on real Linux interfaces yet; the screenshots use **virtual (software)** loopback. **Other adapter families** (PCAN, Vector, SLCAN, USB‑CAN, and similar) are **not available yet**—broader hardware support is tracked under **Upcoming features** (*Multi CAN adapter support*).
+> **Bus (0.1.0):** The connect flow lists **SocketCAN** and **virtual**. **Virtual (software) loopback** works end-to-end (monitor / transmit / charts). **SocketCAN** appears in the UI but the **backend is not implemented yet**—real interfaces such as `can0` will not connect until that ships. **Other adapter families** (PCAN, Vector, SLCAN, USB‑CAN, …) are **not available yet**—see **Upcoming features** (*Multi CAN adapter support*).
+>
+> **DBC decode/encode:** Intel (little-endian) layout is covered by tests. **Motorola (big-endian)** is still a **stub**—do not rely on correct physical values for Motorola signals in this release.
 
 ![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_07.png)
 

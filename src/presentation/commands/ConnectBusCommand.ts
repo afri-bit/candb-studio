@@ -97,8 +97,11 @@ export class ConnectBusCommand {
             }
 
             this.bridgeAdapterLifecycle(adapter);
-            await adapter.connect(channel);
+            /** Set before `connect` so Disconnect / status bar can cancel a stuck "connecting" attempt. */
             this.adapter = adapter;
+
+            await adapter.connect(channel);
+
             Logger.info(`Connected adapter (${channel.name})`);
             if (!options?.silentToast) {
                 vscode.window.showInformationMessage(`Connected to CAN bus: ${channel.name}`);
@@ -112,7 +115,13 @@ export class ConnectBusCommand {
             }
             Logger.error('connectAdapter failed', err);
             vscode.window.showErrorMessage(`Failed to connect: ${messageForUser(err)}`);
+            try {
+                await adapter.disconnect();
+            } catch {
+                /* ignore — still reset UI below */
+            }
             this.adapter = null;
+            this.eventBus.emit('bus:stateChanged', CanBusState.Disconnected);
             throw err;
         }
     }
