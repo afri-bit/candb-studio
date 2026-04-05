@@ -68,7 +68,7 @@ export class SignalLabPanel {
 
         SignalLabPanel.panel = panel;
 
-        panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'resources', 'signal-lab.svg');
+        panel.iconPath = vscode.Uri.joinPath(context.extensionUri, 'resources', 'signal-lab.png');
 
         panel.webview.options = {
             enableScripts: true,
