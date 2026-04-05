@@ -2,11 +2,12 @@
   "name": "candb-studio",
   "displayName": "CANdb Studio",
   "description": "CAN database editor and bus connectivity tools for VS Code",
+  "version": "0.1.0",
+  "publisher": "afri-bit",
   "repository": {
     "type": "git",
     "url": "https://github.com/afri-bit/candb-studio.git"
   },
-  "version": "0.1.0",
   "engines": {
     "vscode": "^1.110.0"
   },
