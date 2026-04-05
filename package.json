@@ -2,6 +2,10 @@
   "name": "candb-studio",
   "displayName": "CANdb Studio",
   "description": "CAN database editor and bus connectivity tools for VS Code",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/afri-bit/candb-studio.git"
+  },
   "version": "0.1.0",
   "engines": {
     "vscode": "^1.110.0"
@@ -10,7 +14,7 @@
     "Programming Languages",
     "Other"
   ],
-  "icon": "resources/vsconan-extension-logo.png",
+  "icon": "resources/candb-studio-logo.png",
   "activationEvents": [
     "onLanguage:dbc",
     "onCustomEditor:candb-studio.canDatabaseEditor",
@@ -42,7 +46,7 @@
       {
         "viewType": "candb-studio.canDatabaseEditor",
         "displayName": "CAN Database Editor",
-        "icon": "resources/candb-studio-icon.svg",
+        "icon": "resources/candb-studio-icon.png",
         "selector": [
           {
             "filenamePattern": "*.dbc"
@@ -56,7 +60,7 @@
         {
           "id": "canbus-explorer",
           "title": "CANdb Studio",
-          "icon": "resources/candb-studio-icon.svg"
+          "icon": "resources/candb-studio-icon.png"
         }
       ]
     },

@@ -6,6 +6,9 @@ src/**
 .yarnrc
 vsc-extension-quickstart.md
 resources/**/*.gif
+resources/img/**
+resources/vid/**
+resources/**/*.svg
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
@@ -27,3 +30,15 @@ doc-requirements.txt
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 .vscode-test.mjs
+
+.cursor/**
+.specify/**
+coverage/**
+out/**
+.github/**
+specs/**
+AGENTS.md
+eslint.config.mjs
+tsconfig.test.json
+webview-ui/**
+!webview-ui/dist/**

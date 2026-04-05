@@ -1,7 +1,7 @@
 # CANdb Studio
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/candb-studio-logo.svg" alt="CANdb Studio logo" width="350" />
+  <img src="https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/candb-studio-logo.png" alt="CANdb Studio logo" width="350" />
 </div>
 
 ## Introduction
