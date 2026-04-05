@@ -10,6 +10,28 @@
   "engines": {
     "vscode": "^1.110.0"
   },
+  "bugs": {
+    "url": "https://github.com/afri-bit/candb-studio/issues"
+  },
+  "homepage": "https://github.com/afri-bit/candb-studio",
+  "keywords": [
+    "dbc",
+    "can",
+    "can-bus",
+    "can-communication",
+    "can-network",
+    "candb",
+    "can-database",
+    "automotive",
+    "embedded",
+    "socketcan",
+    "bus-monitor",
+    "signals",
+    "frames",
+    "ecu",
+    "vehicle",
+    "diagnostics"
+  ],
   "categories": [
     "Programming Languages",
     "Other"
