@@ -147,4 +147,4 @@
 ## Notes
 
 - **Raw frame injection** (research §4) shipped alongside virtual bus; `spec.md` **Implementation status** and `quickstart.md` describe it. Formal **FR-008** wording can be folded into Requirements on the next spec revision if product wants it in the normative section.
-- **tasks.md** path: `/Users/eqir1ib/workspace/private/vscode-canbus/specs/010-virtual-can-bus-sim/tasks.md`
+- **tasks.md** path: `<project_root>/specs/010-virtual-can-bus-sim/tasks.md`

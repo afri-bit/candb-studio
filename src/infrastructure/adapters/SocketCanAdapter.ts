@@ -25,13 +25,17 @@ export class SocketCanAdapter implements ICanBusAdapter {
     async connect(channel: CanChannel): Promise<void> {
         Logger.info(`SocketCAN: connecting to ${channel.name} at ${channel.bitrate} bps`);
         this.setState(CanBusState.Connecting);
-
-        // TODO: Open SocketCAN socket via native bindings
-        // e.g., socket(PF_CAN, SOCK_RAW, CAN_RAW) + bind to channel.name
-        throw new ConnectionError(
-            `SocketCAN adapter not yet implemented. Cannot connect to ${channel.name}.`,
-            'socketcan',
-        );
+        try {
+            // TODO: Open SocketCAN socket via native bindings
+            // e.g., socket(PF_CAN, SOCK_RAW, CAN_RAW) + bind to channel.name
+            throw new ConnectionError(
+                `SocketCAN adapter not yet implemented. Cannot connect to ${channel.name}.`,
+                'socketcan',
+            );
+        } catch (err) {
+            this.setState(CanBusState.Disconnected);
+            throw err;
+        }
     }
 
     async disconnect(): Promise<void> {

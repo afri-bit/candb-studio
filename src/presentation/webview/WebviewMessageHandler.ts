@@ -571,14 +571,15 @@ export class WebviewMessageHandler {
 
             case 'virtualBus.start': {
                 const cur = this.connectBusCommand?.getAdapter();
-                if (cur instanceof SocketCanAdapter) {
+                if (cur instanceof SocketCanAdapter && cur.state === CanBusState.Connected) {
                     this.postSignalLabError(
                         'Disconnect hardware (status bar → Disconnect) before starting virtual simulation.',
                         'HARDWARE_ACTIVE',
                     );
                     break;
                 }
-                const hadAdapter = cur !== null;
+                const hadAdapter =
+                    cur instanceof VirtualCanAdapter && cur.state === CanBusState.Connected;
                 try {
                     if (!hadAdapter) {
                         const adapter = new VirtualCanAdapter();

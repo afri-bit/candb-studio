@@ -1,7 +1,7 @@
 # CANdb Studio
 
 <div align="center">
-  <img src="resources/candb-studio-logo.svg" alt="CANdb Studio logo" width="350" />
+  <img src="https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/candb-studio-logo.png" alt="CANdb Studio logo" width="350" />
 </div>
 
 ## Introduction
@@ -17,9 +17,9 @@
 > [!IMPORTANT]  
 > *Independent project; not affiliated with Vector Informatik or CANdb++.*
 
-![](./resources/vid/overview_editor.gif)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/vid/overview_editor.gif)
 
-![](./resources/vid/overview_signal_lab.gif)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/vid/overview_signal_lab.gif)
 
 ### What this project is
 
@@ -108,7 +108,7 @@ The extension registers the **`dbc`** language for `*.dbc` files and ships a **T
 - **Activation**: Opening or focusing a `.dbc` file loads the language support.
 - **Custom editor**: For the full structured experience, use **CAN Database Editor** (see below); use **Text view** from that editor if you prefer the raw file in the default editor.
 
-![](./resources/img/doc_editor_text_00.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_editor_text_00.png)
 
 ### CAN Database Visual Editor
 
@@ -127,13 +127,13 @@ Opening a `.dbc` with **CAN Database Editor** loads the **Svelte**-based UI. It 
 - **Text view** — Opens the same file in the **default text editor** for hand-editing raw DBC.
 - **Save** — Writes the serialized database back to the `.dbc` file.
 
-![](./resources/img/doc_editor_message_01.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_editor_message_01.png)
 
-![](./resources/img/doc_editor_message_02.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_editor_message_02.png)
 
-![](./resources/img/doc_editor_signal_01.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_editor_signal_01.png)
 
-![](./resources/img/doc_editor_architecture_01.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_editor_architecture_01.png)
 
 ### CAN Database Explorer
 
@@ -141,7 +141,7 @@ In the **activity bar**, open **CANdb Studio** → **CAN Database**. This **tree
 
 Use it when you want a compact sidebar overview without opening the full custom editor, or alongside other editors.
 
-![](./resources/img/doc_signal_lab_01.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_01.png)
 
 ### CAN Signal Lab
 
@@ -157,15 +157,15 @@ If no database is attached for decoding, traffic may appear as **raw IDs and pay
 
 The screenshots below follow the **Monitor → Transmit → Charts** layout described above: first the **Monitor** tab (frame log, live signals, then raw IDs), then **Transmit**, then **Charts** (virtual bus).
 
-![](./resources/img/doc_signal_lab_04.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_04.png)
 
-![](./resources/img/doc_signal_lab_05.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_05.png)
 
-![](./resources/img/doc_signal_lab_06.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_06.png)
 
-![](./resources/img/doc_signal_lab_03.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_03.png)
 
-![](./resources/img/doc_signal_lab_02.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_02.png)
 
 ### Bus Connection
 
@@ -178,9 +178,11 @@ The screenshots below follow the **Monitor → Transmit → Charts** layout desc
 Adapter support is **pluggable in code** but **hardware-specific** in practice: install vendor drivers, use a supported channel name, and verify on your machine before relying on it in production.
 
 > [!NOTE]  
-> Today the connect flow only lists **SocketCAN** and **virtual**. **SocketCAN** is implemented in the extension but **not tested** on real Linux interfaces yet; the screenshots use **virtual (software)** loopback. **Other adapter families** (PCAN, Vector, SLCAN, USB‑CAN, and similar) are **not available yet**—broader hardware support is tracked under **Upcoming features** (*Multi CAN adapter support*).
+> **Bus (0.1.0):** The connect flow lists **SocketCAN** and **virtual**. **Virtual (software) loopback** works end-to-end (monitor / transmit / charts). **SocketCAN** appears in the UI but the **backend is not implemented yet**—real interfaces such as `can0` will not connect until that ships. **Other adapter families** (PCAN, Vector, SLCAN, USB‑CAN, …) are **not available yet**—see **Upcoming features** (*Multi CAN adapter support*).
+>
+> **DBC decode/encode:** Intel (little-endian) layout is covered by tests. **Motorola (big-endian)** is still a **stub**—do not rely on correct physical values for Motorola signals in this release.
 
-![](./resources/img/doc_signal_lab_07.png)
+![](https://raw.githubusercontent.com/afri-bit/candb-studio/main/resources/img/doc_signal_lab_07.png)
 
 ## Upcoming Features
 

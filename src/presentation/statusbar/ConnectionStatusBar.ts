@@ -32,8 +32,8 @@ export class ConnectionStatusBar {
 
             case CanBusState.Connecting:
                 this.item.text = '$(sync~spin) CAN: Connecting…';
-                this.item.tooltip = 'Connecting to CAN bus…';
-                this.item.command = undefined;
+                this.item.tooltip = 'Connecting… Click to cancel (disconnect).';
+                this.item.command = Commands.DISCONNECT_BUS;
                 this.item.backgroundColor = undefined;
                 break;
 
