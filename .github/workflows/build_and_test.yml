@@ -1,4 +1,4 @@
-# Build, lint, and unit tests (Node + mocha).
+# Build, lint, unit tests (Node + mocha), integration tests (VS Code + xvfb).
 name: Build and test
 
 on:
@@ -15,6 +15,7 @@ env:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
 
@@ -44,3 +45,10 @@ jobs:
 
       - name: Unit tests (Node + mocha)
         run: npm run test:unit
+      
+      - name: Integration tests (VS Code extension host)
+        uses: coactions/setup-xvfb@v1
+        env:
+          VSCODE_TEST_FILES: out/test/integration/**/*.test.js
+        with:
+          run: npx vscode-test

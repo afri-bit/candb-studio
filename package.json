@@ -151,7 +151,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
     "test": "vscode-test",
-    "test:unit": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\" && npm run compile-tests && mocha --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/**/*.test.js\"",
+    "test:unit": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\" && npm run compile-tests && mocha --exit --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/**/*.test.js\"",
     "test:integration": "npm run compile && npm run compile-tests && cross-env VSCODE_TEST_FILES=out/test/integration/**/*.test.js vscode-test"
   },
   "devDependencies": {
