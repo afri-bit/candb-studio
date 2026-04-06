@@ -456,11 +456,6 @@
     linkPickId = '';
   });
 
-  $effect(() => {
-    selectedIndex;
-    signalTab = 'definition';
-  });
-
   function defaultNewPoolSignal(): Record<string, unknown> {
     let name = 'NewSignal';
     let n = 1;
@@ -525,7 +520,6 @@
       await tick();
       const idx = untrack(() => filteredPool.findIndex((s) => s.name === f.signalName));
       selectedIndex = f.signalName && idx >= 0 ? idx : null;
-      signalTab = 'definition';
       onFocusConsumed?.();
     })();
   });
