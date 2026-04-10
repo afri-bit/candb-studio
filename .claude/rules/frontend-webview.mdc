@@ -1,0 +1,14 @@
+---
+description: Svelte and webview UI conventions for candb-studio webview-ui
+globs: "webview-ui/src/**"
+alwaysApply: false
+---
+
+# Frontend (webview-ui)
+
+- **Svelte 5**: use runes (`$state`, `$derived`, `$props`, `$effect`) as in existing components; do not mix legacy `export let` patterns unless matching a file that still uses them.
+- **Styling**: use VS Code CSS variables (`var(--vscode-*)`), shared tokens in `app-shell.css` (`--dbc-*`, `.dbc-card`). Keep spacing and typography consistent with neighboring components.
+- **Layout**: respect `min-height: 0`, `flex: 1`, and overflow for panels inside the custom editor shell; avoid breaking the resizable sidebar pattern in `App.svelte`.
+- **Data**: treat props as projections of the host database; mutations go through `vscode.postMessage` with typed message shapes.
+- **A11y**: prefer native elements and labels; if using custom interactive divs, ensure keyboard focus where required by Svelte a11y warnings.
+- **Bundle**: avoid large runtime dependencies; no Node or `fs` in webview code.
