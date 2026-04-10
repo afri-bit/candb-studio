@@ -144,6 +144,7 @@
     "compile": "npm run build:webview && webpack",
     "watch": "webpack --watch",
     "package": "npm run build:webview && webpack --mode production --devtool hidden-source-map",
+    "vsix": "vsce package",
     "compile-tests": "tsc -p ./tsconfig.test.json --outDir out",
     "watch-tests": "tsc -p ./tsconfig.test.json -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -155,6 +156,7 @@
     "test:integration": "npm run compile && npm run compile-tests && cross-env VSCODE_TEST_FILES=out/test/integration/**/*.test.js vscode-test"
   },
   "devDependencies": {
+    "@vscode/vsce": "^3.7.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/vscode": "^1.110.0",
