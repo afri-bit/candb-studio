@@ -4,7 +4,7 @@ All notable changes to the **candb-studio** extension are documented in this fil
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.1.1] - 2026-04-06
+## [0.1.1] - 2026-04-10
 
 ### Fixed
 
