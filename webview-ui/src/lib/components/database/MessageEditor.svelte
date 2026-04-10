@@ -160,7 +160,6 @@
     selectedSignalName = null;
     linkPick = '';
     linkStartBit = 0;
-    messageDetailTab = 'definition';
   });
 
   function onPropertyChange(key: string, value: string | number | boolean) {

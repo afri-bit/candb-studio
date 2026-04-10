@@ -151,11 +151,6 @@
   });
 
   $effect(() => {
-    selectedIndex;
-    attrTab = 'definition';
-  });
-
-  $effect(() => {
     const len = attributes.length;
     if (pendingSelectNew && len > lastAttributeCount) {
       selectedIndex = len - 1;

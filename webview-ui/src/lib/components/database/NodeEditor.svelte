@@ -198,11 +198,6 @@
     commentDraft = n?.comment ?? '';
   });
 
-  $effect(() => {
-    selectedIndex;
-    nodeTab = 'definition';
-  });
-
   function onPropertyChange(key: string, value: string | number | boolean) {
     if (!selectedNode) return;
     const uri = get(documentUri);
