@@ -4,6 +4,12 @@ All notable changes to the **candb-studio** extension are documented in this fil
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.1] - 2026-04-06
+
+### Fixed
+
+- **Database editor detail tabs** — switching the selected message, signal, node, or attribute in the list no longer resets the right-hand pane to the Definition tab; the active tab stays selected while you browse items in the same editor.
+
 ## [0.1.0] - 2026-04-05
 
 ### Added

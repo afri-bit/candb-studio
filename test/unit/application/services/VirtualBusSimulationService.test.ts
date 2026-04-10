@@ -90,17 +90,21 @@ suite('VirtualBusSimulationService', () => {
         const svc = new VirtualBusSimulationService(() => db, new EventBus());
         svc.setSimulationAdapter(adapter);
         svc.start();
-        const r = svc.startPeriodic(0x303, new Uint8Array([1]), 15);
-        assert.strictEqual(r.ok, true);
-        await new Promise<void>((resolve) => setTimeout(resolve, 45));
-        assert.ok(payloads.some((p) => p[0] === 1), 'initial periodic payload should be 0x01');
-        const updated = svc.updatePeriodicPayload(0x303, [0xab]);
-        assert.strictEqual(updated, true);
-        await new Promise<void>((resolve) => setTimeout(resolve, 45));
-        assert.ok(
-            payloads.some((p) => p[0] === 0xab),
-            `after updatePeriodicPayload, injects should include 0xab; got ${JSON.stringify(payloads)}`,
-        );
+        try {
+            const r = svc.startPeriodic(0x303, new Uint8Array([1]), 15);
+            assert.strictEqual(r.ok, true);
+            await new Promise<void>((resolve) => setTimeout(resolve, 45));
+            assert.ok(payloads.some((p) => p[0] === 1), 'initial periodic payload should be 0x01');
+            const updated = svc.updatePeriodicPayload(0x303, [0xab]);
+            assert.strictEqual(updated, true);
+            await new Promise<void>((resolve) => setTimeout(resolve, 45));
+            assert.ok(
+                payloads.some((p) => p[0] === 0xab),
+                `after updatePeriodicPayload, injects should include 0xab; got ${JSON.stringify(payloads)}`,
+            );
+        } finally {
+            svc.stop();
+        }
     });
 
     test('inject correlates as Tx for MonitorService (not orphan Rx)', async () => {
