@@ -19,15 +19,25 @@ function extractBitsIntel(startBit: number, bitLength: number, data: Uint8Array)
   return value;
 }
 
-/** Motorola: MSB at startBit; value bit i from physical bit startBit + bitLength - 1 - i */
+/**
+ * Motorola (big-endian): startBit is the MSB in DBC bit numbering
+ * (byte k = bits 8k+7..8k).  Navigate MSB→LSB: decrement within a byte,
+ * jump to the MSB of the next byte (+15) when crossing a byte boundary.
+ * This matches the Vector CANdb++ convention used by SignalDecoder.ts.
+ */
 function extractBitsMotorola(startBit: number, bitLength: number, data: Uint8Array): number {
   let value = 0;
+  let bitPos = startBit;
   for (let i = 0; i < bitLength; i++) {
-    const bitPos = startBit + bitLength - 1 - i;
     const byteIndex = bitPos >> 3;
     const bitIndex = bitPos & 7;
     if (byteIndex < data.length && data[byteIndex] & (1 << bitIndex)) {
-      value |= 1 << i;
+      value |= 1 << (bitLength - 1 - i); // MSB first
+    }
+    if (bitPos % 8 === 0) {
+      bitPos += 15; // jump to MSB of next byte
+    } else {
+      bitPos -= 1;
     }
   }
   return value;
@@ -95,22 +105,23 @@ function writeBitsMotorola(
   rawUnsigned: number,
   data: Uint8Array,
 ): void {
-  let value = rawUnsigned >>> 0;
-  if (bitLength < 32) {
-    value &= (1 << bitLength) - 1;
-  }
+  const value = rawUnsigned >>> 0;
+  let bitPos = startBit;
   for (let i = 0; i < bitLength; i++) {
-    const bitPos = startBit + bitLength - 1 - i;
     const byteIndex = bitPos >> 3;
     const bitIndex = bitPos & 7;
     if (byteIndex < data.length) {
-      if (value & 1) {
+      if ((value >> (bitLength - 1 - i)) & 1) {
         data[byteIndex] |= 1 << bitIndex;
       } else {
         data[byteIndex] &= ~(1 << bitIndex);
       }
     }
-    value >>>= 1;
+    if (bitPos % 8 === 0) {
+      bitPos += 15;
+    } else {
+      bitPos -= 1;
+    }
   }
 }
 

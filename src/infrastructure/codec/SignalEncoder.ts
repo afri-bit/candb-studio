@@ -42,9 +42,28 @@ export class SignalEncoder implements ISignalEncoder {
         }
     }
 
-    private encodeBigEndian(signal: Signal, _rawValue: number, _data: Uint8Array): void {
-        // TODO: Implement Motorola (big-endian) bit packing
-        // Big-endian bit numbering follows the Motorola scheme used in DBC files
-        void signal;
+    private encodeBigEndian(signal: Signal, rawValue: number, data: Uint8Array): void {
+        // Motorola (big-endian) bit packing — startBit is the MSB in DBC bit numbering.
+        // Within a byte go right (decrement); at a byte boundary jump to MSB of next byte.
+        let bitPos = signal.startBit;
+
+        for (let i = 0; i < signal.bitLength; i++) {
+            const byteIndex = Math.floor(bitPos / 8);
+            const bitIndex = bitPos % 8;
+
+            if (byteIndex < data.length) {
+                if ((rawValue >> (signal.bitLength - 1 - i)) & 1) {
+                    data[byteIndex] |= 1 << bitIndex;
+                } else {
+                    data[byteIndex] &= ~(1 << bitIndex);
+                }
+            }
+
+            if (bitPos % 8 === 0) {
+                bitPos += 15;
+            } else {
+                bitPos -= 1;
+            }
+        }
     }
 }

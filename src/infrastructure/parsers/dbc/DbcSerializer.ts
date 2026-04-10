@@ -19,7 +19,8 @@ function escapeDbcString(s: string): string {
  * Serializer for the DBC (Vector CANdb++) file format.
  * Converts a CanDatabase model back into DBC text.
  *
- * TODO: Serialize comments (CM_), attribute values (BA_), environment variables (EV_).
+ * Serializes: VERSION, BU_, BA_DEF_, BO_/SG_, VAL_TABLE_, VAL_, CM_, BA_.
+ * Not yet serialized: EV_, SIG_GROUP_.
  */
 export class DbcSerializer implements ICanDatabaseSerializer {
     serialize(database: CanDatabase): string {
@@ -55,6 +56,18 @@ export class DbcSerializer implements ICanDatabaseSerializer {
         if (valBlock) {
             sections.push('');
             sections.push(valBlock);
+        }
+
+        const cmBlock = this.serializeComments(database);
+        if (cmBlock) {
+            sections.push('');
+            sections.push(cmBlock);
+        }
+
+        const baBlock = this.serializeAttributeValues(database);
+        if (baBlock) {
+            sections.push('');
+            sections.push(baBlock);
         }
 
         const poolOnlyUnreferenced = database.signalPool.filter(
@@ -192,6 +205,70 @@ export class DbcSerializer implements ICanDatabaseSerializer {
                     parts.push(`${raw} "${escapeDbcString(label)}"`);
                 }
                 lines.push(`${parts.join(' ')} ;`);
+            }
+        }
+        return lines.join('\n');
+    }
+
+    /** Serializes CM_ lines for the network, nodes, messages, and signals. */
+    private serializeComments(database: CanDatabase): string {
+        const lines: string[] = [];
+
+        if (database.comment?.trim()) {
+            lines.push(`CM_ "${escapeDbcString(database.comment)}";`);
+        }
+
+        for (const node of database.nodes) {
+            if (node.comment?.trim()) {
+                lines.push(`CM_ BU_ ${node.name} "${escapeDbcString(node.comment)}";`);
+            }
+        }
+
+        for (const msg of database.messages) {
+            if (msg.comment?.trim()) {
+                lines.push(`CM_ BO_ ${msg.id} "${escapeDbcString(msg.comment)}";`);
+            }
+            const resolved = msg.getResolvedSignals(database.signalPool, database);
+            for (const sig of resolved) {
+                if (sig.comment?.trim()) {
+                    lines.push(
+                        `CM_ SG_ ${msg.id} ${sig.name} "${escapeDbcString(sig.comment)}";`,
+                    );
+                }
+            }
+        }
+
+        return lines.join('\n');
+    }
+
+    /** Serializes BA_ attribute value lines. */
+    private serializeAttributeValues(database: CanDatabase): string {
+        if (database.attributes.length === 0) {
+            return '';
+        }
+        const lines: string[] = [];
+        for (const attr of database.attributes) {
+            const name = `"${escapeDbcString(attr.definitionName)}"`;
+            const valStr =
+                typeof attr.value === 'string'
+                    ? `"${escapeDbcString(attr.value)}"`
+                    : String(attr.value);
+
+            switch (attr.objectType) {
+                case ObjectType.Network:
+                    lines.push(`BA_ ${name} ${valStr};`);
+                    break;
+                case ObjectType.Node:
+                    lines.push(`BA_ ${name} BU_ ${attr.objectName} ${valStr};`);
+                    break;
+                case ObjectType.Message:
+                    lines.push(`BA_ ${name} BO_ ${attr.messageId} ${valStr};`);
+                    break;
+                case ObjectType.Signal:
+                    lines.push(
+                        `BA_ ${name} SG_ ${attr.messageId} ${attr.signalName} ${valStr};`,
+                    );
+                    break;
             }
         }
         return lines.join('\n');

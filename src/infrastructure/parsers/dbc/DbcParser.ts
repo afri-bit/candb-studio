@@ -2,6 +2,7 @@ import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 import { ByteOrder } from '../../../core/enums/ByteOrder';
 import { ObjectType } from '../../../core/enums/ObjectType';
 import type { ICanDatabaseParser } from '../../../core/interfaces/database/ICanDatabaseParser';
+import { Attribute } from '../../../core/models/database/Attribute';
 import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
 import { CanDatabase } from '../../../core/models/database/CanDatabase';
 import { Message } from '../../../core/models/database/Message';
@@ -44,8 +45,8 @@ function unescapeDbcQuotedString(s: string): string {
  * Parser for the DBC (Vector CANdb++) file format.
  * Converts raw DBC text into a CanDatabase domain model.
  *
- * TODO: Replace the line-based approach with full token-stream parsing
- *       to handle all DBC sections (comments, attributes, value descriptions, etc.)
+ * Parses: VERSION, BU_, BO_/SG_, VAL_TABLE_, VAL_, CM_, BA_DEF_, BA_DEF_DEF_, BA_.
+ * Not yet parsed: EV_, SIG_GROUP_, SG_MUL_VAL_, BO_TX_BU_.
  */
 export class DbcParser implements ICanDatabaseParser {
     parse(content: string): CanDatabase {
@@ -97,9 +98,205 @@ export class DbcParser implements ICanDatabaseParser {
                 this.parseBaDefDef(line, database);
             } else if (line.startsWith('BA_DEF_')) {
                 this.parseBaDef(line, database);
+            } else if (line.startsWith('CM_') && !line.startsWith('CM_ VAL_TABLE_')) {
+                i = this.parseCmLines(lines, i, database);
+            } else if (line.startsWith('BA_ ')) {
+                this.parseBaLine(line, database);
             }
-            // TODO: Parse CM_, BA_, EV_, SIG_GROUP_
         }
+    }
+
+    /** DBC structural keywords that delimit sections — used to guard CM_ line accumulation. */
+    private static readonly DBC_SECTION_KEYWORDS = [
+        'BO_ ',
+        'BU_:',
+        'VAL_TABLE_',
+        'VAL_ ',
+        'BA_DEF_DEF_',
+        'BA_DEF_',
+        'BA_ ',
+        'EV_ ',
+        'SIG_GROUP_',
+        'BO_TX_BU_',
+        'SG_MUL_VAL_',
+        'NS_ ',
+        'BS_:',
+    ];
+
+    /**
+     * Accumulates lines until a CM_ entry is complete (closing `";`), then applies it.
+     * Stops before consuming any structural DBC section keyword to prevent
+     * swallowing BO_/BA_/VAL_ blocks when a CM_ entry has no terminating `";`.
+     * Returns the index of the last consumed line.
+     */
+    private parseCmLines(lines: string[], startIndex: number, database: CanDatabase): number {
+        let text = lines[startIndex];
+        let i = startIndex;
+        while (!this.cmEntryComplete(text) && i + 1 < lines.length) {
+            const nextLine = lines[i + 1].trimStart();
+            if (DbcParser.DBC_SECTION_KEYWORDS.some((kw) => nextLine.startsWith(kw))) {
+                break;
+            }
+            i++;
+            text += '\n' + lines[i];
+        }
+        this.applyCmEntry(text.trim(), database);
+        return i;
+    }
+
+    /** Returns true once the accumulated CM_ text contains a closed quoted string followed by `;`. */
+    private cmEntryComplete(text: string): boolean {
+        let inStr = false;
+        for (let i = 0; i < text.length; i++) {
+            if (!inStr) {
+                if (text[i] === '"') {
+                    inStr = true;
+                }
+            } else {
+                if (text[i] === '\\') {
+                    i++; // skip escaped char
+                } else if (text[i] === '"') {
+                    const after = text.slice(i + 1).trimStart();
+                    if (after.startsWith(';')) {
+                        return true;
+                    }
+                    inStr = false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Parses one CM_ entry (possibly multi-line) and stores the comment on the target object. */
+    private applyCmEntry(text: string, database: CanDatabase): void {
+        const rest = text.slice('CM_'.length).trimStart();
+
+        let keyword: string | null = null;
+        let args: string[] = [];
+        let body = rest;
+
+        if (rest.startsWith('BU_ ')) {
+            keyword = 'BU_';
+            body = rest.slice('BU_'.length).trimStart();
+            const m = body.match(/^(\w+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1]];
+            body = body.slice(m[0].length);
+        } else if (rest.startsWith('BO_ ')) {
+            keyword = 'BO_';
+            body = rest.slice('BO_'.length).trimStart();
+            const m = body.match(/^(\d+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1]];
+            body = body.slice(m[0].length);
+        } else if (rest.startsWith('SG_ ')) {
+            keyword = 'SG_';
+            body = rest.slice('SG_'.length).trimStart();
+            const m = body.match(/^(\d+)\s+(\w+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1], m[2]];
+            body = body.slice(m[0].length);
+        }
+
+        // Extract quoted comment — the `s` flag lets `.` match embedded newlines
+        const qm = body.match(/^"((?:[^"\\]|\\[\s\S])*?)"\s*;/s);
+        if (!qm) {
+            return;
+        }
+        const comment = unescapeDbcQuotedString(qm[1]);
+
+        if (!keyword) {
+            database.comment = comment;
+        } else if (keyword === 'BU_') {
+            const node = database.findNodeByName(args[0]);
+            if (node) {
+                node.comment = comment;
+            }
+        } else if (keyword === 'BO_') {
+            const msg = database.findMessageById(parseInt(args[0], 10));
+            if (msg) {
+                msg.comment = comment;
+            }
+        } else if (keyword === 'SG_') {
+            const sig = database.findPoolSignalByName(args[1]);
+            if (sig) {
+                sig.comment = comment;
+            }
+        }
+    }
+
+    /**
+     * Parses a single-line `BA_` entry and appends it to `database.attributes`.
+     * Format: BA_ "<name>" [BU_ <node> | BO_ <id> | SG_ <id> <sig>] <value>;
+     */
+    private parseBaLine(line: string, database: CanDatabase): void {
+        const nameMatch = line.match(/^BA_\s+"([^"]+)"\s+(.+?)\s*;?\s*$/);
+        if (!nameMatch) {
+            return;
+        }
+
+        const defName = nameMatch[1];
+        let rest = nameMatch[2].trim();
+
+        let objectType = ObjectType.Network;
+        let objectName: string | undefined;
+        let messageId: number | undefined;
+        let signalName: string | undefined;
+
+        if (rest.startsWith('BU_ ')) {
+            objectType = ObjectType.Node;
+            const m = rest.match(/^BU_\s+(\w+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            objectName = m[1];
+            rest = m[2].trim();
+        } else if (rest.startsWith('BO_ ')) {
+            objectType = ObjectType.Message;
+            const m = rest.match(/^BO_\s+(\d+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            messageId = parseInt(m[1], 10);
+            rest = m[2].trim();
+        } else if (rest.startsWith('SG_ ')) {
+            objectType = ObjectType.Signal;
+            const m = rest.match(/^SG_\s+(\d+)\s+(\w+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            messageId = parseInt(m[1], 10);
+            signalName = m[2];
+            rest = m[3].trim();
+        }
+
+        rest = rest.replace(/\s*;\s*$/, '');
+
+        database.attributes.push(
+            new Attribute({
+                definitionName: defName,
+                objectType,
+                value: this.parseAttributeValue(rest),
+                objectName,
+                messageId,
+                signalName,
+            }),
+        );
+    }
+
+    private parseAttributeValue(raw: string): string | number {
+        if (raw.startsWith('"')) {
+            const m = raw.match(/^"((?:[^"\\]|\\[\s\S])*)"$/s);
+            return m ? unescapeDbcQuotedString(m[1]) : raw;
+        }
+        const n = Number(raw);
+        return isNaN(n) ? raw : n;
     }
 
     private parseCmValTableLine(line: string, database: CanDatabase): void {

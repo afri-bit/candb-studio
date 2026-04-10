@@ -106,11 +106,40 @@ suite('SignalDecoder', () => {
     });
   });
 
-  suite('big-endian (Motorola byte order) — stub', () => {
-    test('decode does not throw for Motorola signals', () => {
+  suite('big-endian (Motorola byte order)', () => {
+    test('decodes a 1-bit Motorola signal', () => {
+      // startBit=7 (bit7 of byte0, the MSB) — reads the most significant bit of byte 0
+      const sig = makeSignal({ startBit: 7, bitLength: 1, byteOrder: ByteOrder.BigEndian });
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0x80, 0x00])), 1);
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0x7F, 0x00])), 0);
+    });
+
+    test('decodes an 8-bit Motorola signal spanning one byte (startBit=7)', () => {
+      // MSB at bit7(byte0), traverses 6,5,4,3,2,1,0 → entire byte 0
       const sig = makeSignal({ startBit: 7, bitLength: 8, byteOrder: ByteOrder.BigEndian });
-      // TODO: assert correct decoded value once Motorola decoding is implemented
-      assert.doesNotThrow(() => decoder.decode(sig, new Uint8Array(8)));
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0xAB, 0x00])), 0xAB);
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0x00, 0x00])), 0);
+    });
+
+    test('decodes a 16-bit Motorola signal (known vector: [0x01,0x02] → 0x0102)', () => {
+      // startBit=7, bitLength=16: MSB at bit7(byte0), then bits 6..0, then bit15..8(byte1)
+      const sig = makeSignal({ startBit: 7, bitLength: 16, byteOrder: ByteOrder.BigEndian });
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0x01, 0x02])), 0x0102);
+    });
+
+    test('decodes a 16-bit Motorola signal (all ones → 65535)', () => {
+      const sig = makeSignal({ startBit: 7, bitLength: 16, byteOrder: ByteOrder.BigEndian });
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0xFF, 0xFF])), 65535);
+    });
+
+    test('decodes signed Motorola signal (0xFF → -1)', () => {
+      const sig = makeSignal({
+        startBit: 7,
+        bitLength: 8,
+        byteOrder: ByteOrder.BigEndian,
+        valueType: SignalValueType.Signed,
+      });
+      assert.strictEqual(decoder.decode(sig, new Uint8Array([0xFF, 0x00])), -1);
     });
   });
 });

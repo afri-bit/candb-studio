@@ -204,6 +204,182 @@ suite('DbcParser', () => {
     });
   });
 
+  suite('parse — CM_ comments', () => {
+    const dbc = [
+      'VERSION ""',
+      '',
+      'BU_: ECU1 ECU2',
+      '',
+      'BO_ 100 EngineStatus: 8 ECU1',
+      ' SG_ RPM : 0|16@1+ (0.25,0) [0|16383.75] "rpm" ECU2',
+      '',
+      'CM_ "Network-level comment";',
+      'CM_ BU_ ECU1 "Engine control unit";',
+      'CM_ BO_ 100 "Engine status message";',
+      'CM_ SG_ 100 RPM "Engine speed in RPM";',
+      '',
+    ].join('\n');
+
+    test('parses network comment', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.comment, 'Network-level comment');
+    });
+
+    test('parses node comment', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findNodeByName('ECU1')!.comment, 'Engine control unit');
+    });
+
+    test('parses message comment', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findMessageById(100)!.comment, 'Engine status message');
+    });
+
+    test('parses signal comment', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findPoolSignalByName('RPM')!.comment, 'Engine speed in RPM');
+    });
+
+    test('parses multi-line signal comment', () => {
+      const multiLineDbc = [
+        'VERSION ""',
+        '',
+        'BU_: ECU1',
+        '',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "kph" ECU1',
+        '',
+        'CM_ SG_ 100 Speed "This is a',
+        'multi-line comment";',
+        '',
+      ].join('\n');
+      const db = parser.parse(multiLineDbc);
+      assert.strictEqual(db.findPoolSignalByName('Speed')!.comment, 'This is a\nmulti-line comment');
+    });
+
+    test('round-trips comments through serializer', () => {
+      const serializer = new DbcSerializer();
+      const db = parser.parse(dbc);
+      const text = serializer.serialize(db);
+      const db2 = parser.parse(text);
+      assert.strictEqual(db2.comment, 'Network-level comment');
+      assert.strictEqual(db2.findNodeByName('ECU1')!.comment, 'Engine control unit');
+      assert.strictEqual(db2.findMessageById(100)!.comment, 'Engine status message');
+      assert.strictEqual(db2.findPoolSignalByName('RPM')!.comment, 'Engine speed in RPM');
+    });
+
+    test('parses CM_ comments from sample.dbc fixture', () => {
+      const fs = require('fs');
+      const path = require('path');
+      const content = fs.readFileSync(path.join(FIXTURES_DIR, 'sample.dbc'), 'utf-8');
+      const db = parser.parse(content);
+      assert.strictEqual(db.findPoolSignalByName('RPM')!.comment, 'Engine rotational speed in RPM');
+      assert.strictEqual(db.findMessageById(100)!.comment, 'Engine status message broadcast by ECU1 at 10ms cycle');
+    });
+  });
+
+  suite('parse — BA_ attribute values', () => {
+    const dbc = [
+      'VERSION ""',
+      '',
+      'BU_: ECU1',
+      '',
+      'BA_DEF_ BO_ "GenMsgCycleTime" INT 0 65535;',
+      'BA_DEF_DEF_ "GenMsgCycleTime" 0;',
+      'BA_DEF_ SG_ "GenSigStartValue" FLOAT 0 0;',
+      'BA_DEF_DEF_ "GenSigStartValue" 0;',
+      '',
+      'BO_ 100 EngineStatus: 8 ECU1',
+      ' SG_ RPM : 0|16@1+ (0.25,0) [0|16383.75] "rpm" ECU1',
+      '',
+      'BA_ "GenMsgCycleTime" BO_ 100 10;',
+      'BA_ "GenSigStartValue" SG_ 100 RPM 0.5;',
+      'BA_ "GenMsgCycleTime" BU_ ECU1 50;',
+      '',
+    ].join('\n');
+
+    test('parses BA_ for message (integer value)', () => {
+      const db = parser.parse(dbc);
+      const attr = db.attributes.find(
+        (a) => a.definitionName === 'GenMsgCycleTime' && a.objectType === ObjectType.Message,
+      );
+      assert.ok(attr, 'message attribute should exist');
+      assert.strictEqual(attr!.messageId, 100);
+      assert.strictEqual(attr!.value, 10);
+    });
+
+    test('parses BA_ for signal (float value)', () => {
+      const db = parser.parse(dbc);
+      const attr = db.attributes.find(
+        (a) => a.definitionName === 'GenSigStartValue' && a.objectType === ObjectType.Signal,
+      );
+      assert.ok(attr, 'signal attribute should exist');
+      assert.strictEqual(attr!.messageId, 100);
+      assert.strictEqual(attr!.signalName, 'RPM');
+      assert.strictEqual(attr!.value, 0.5);
+    });
+
+    test('parses BA_ for node', () => {
+      const db = parser.parse(dbc);
+      const attr = db.attributes.find(
+        (a) => a.definitionName === 'GenMsgCycleTime' && a.objectType === ObjectType.Node,
+      );
+      assert.ok(attr, 'node attribute should exist');
+      assert.strictEqual(attr!.objectName, 'ECU1');
+      assert.strictEqual(attr!.value, 50);
+    });
+
+    test('round-trips BA_ attribute values through serializer', () => {
+      const serializer = new DbcSerializer();
+      const db = parser.parse(dbc);
+      const text = serializer.serialize(db);
+      const db2 = parser.parse(text);
+      const msgAttr = db2.attributes.find(
+        (a) => a.definitionName === 'GenMsgCycleTime' && a.objectType === ObjectType.Message,
+      );
+      assert.ok(msgAttr);
+      assert.strictEqual(msgAttr!.value, 10);
+      assert.strictEqual(msgAttr!.messageId, 100);
+    });
+
+    test('parses BA_ with string value', () => {
+      const strDbc = [
+        'VERSION ""',
+        'BU_: N1',
+        'BA_DEF_ BO_ "SystemMessageLongSymbol" STRING ;',
+        'BA_DEF_DEF_ "SystemMessageLongSymbol" "";',
+        'BO_ 1 M: 8 N1',
+        'BA_ "SystemMessageLongSymbol" BO_ 1 "MyLongMessageName";',
+      ].join('\n');
+      const db = parser.parse(strDbc);
+      const attr = db.attributes.find((a) => a.definitionName === 'SystemMessageLongSymbol');
+      assert.ok(attr);
+      assert.strictEqual(attr!.value, 'MyLongMessageName');
+    });
+  });
+
+  suite('parse — malformed CM_ does not swallow BO_ blocks', () => {
+    test('messages after an unterminated CM_ are still parsed', () => {
+      // CM_ with no closing `";` — the boundary guard must stop before BO_ 200
+      const dbc = [
+        'VERSION ""',
+        '',
+        'BO_ 100 Msg1: 8 Vector__XXX',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "kph" Vector__XXX',
+        '',
+        'CM_ SG_ 100 Speed "This comment has no terminator',
+        '',
+        'BO_ 200 Msg2: 8 Vector__XXX',
+        ' SG_ Temp : 0|8@1+ (1,0) [0|255] "degC" Vector__XXX',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.ok(db.findMessageById(100), 'Msg1 should be parsed');
+      assert.ok(db.findMessageById(200), 'Msg2 after malformed CM_ should be parsed');
+      assert.strictEqual(db.messages.length, 2);
+    });
+  });
+
   suite('parse — duplicate IDs are skipped silently', () => {
     const dupDbc = [
       'VERSION ""',
