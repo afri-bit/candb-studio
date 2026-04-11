@@ -399,4 +399,67 @@ suite('DbcParser', () => {
       assert.strictEqual(db.findMessageById(100)!.name, 'Msg1');
     });
   });
+
+  suite('CAN FD — VFrameFormat BA_ attribute', () => {
+    const fdDbc = [
+      'VERSION ""',
+      '',
+      'BU_: ECU1',
+      '',
+      'BO_ 100 ClassicMsg: 8 ECU1',
+      ' SG_ Speed : 0|16@1+ (1,0) [0|0] "kph" ECU1',
+      '',
+      'BO_ 200 FdMsg: 64 ECU1',
+      ' SG_ Counter : 0|32@1+ (1,0) [0|0] "" ECU1',
+      '',
+      'BA_DEF_ BO_ "VFrameFormat" ENUM "StandardCAN","ExtendedCAN","StandardCAN_FD","ExtendedCAN_FD";',
+      'BA_DEF_DEF_ "VFrameFormat" "StandardCAN";',
+      'BA_ "VFrameFormat" BO_ 200 2;',
+      '',
+    ].join('\n');
+
+    test('sets isFd = true on FD message', () => {
+      const db = parser.parse(fdDbc);
+      const fdMsg = db.findMessageById(200);
+      assert.ok(fdMsg, 'FD message should be found');
+      assert.strictEqual(fdMsg!.isFd, true);
+    });
+
+    test('leaves isFd = false on classic message', () => {
+      const db = parser.parse(fdDbc);
+      const classicMsg = db.findMessageById(100);
+      assert.ok(classicMsg, 'classic message should be found');
+      assert.strictEqual(classicMsg!.isFd, false);
+    });
+
+    test('round-trips isFd through serializer and re-parse', () => {
+      const serializer = new DbcSerializer();
+      const db = parser.parse(fdDbc);
+      const serialized = serializer.serialize(db);
+      const db2 = parser.parse(serialized);
+      assert.strictEqual(db2.findMessageById(200)!.isFd, true, 'FD flag must survive round-trip');
+      assert.strictEqual(db2.findMessageById(100)!.isFd, false, 'classic flag must survive round-trip');
+    });
+
+    test('serializer does not double-emit VFrameFormat BA_ lines', () => {
+      const serializer = new DbcSerializer();
+      const db = parser.parse(fdDbc);
+      const serialized = serializer.serialize(db);
+      const count = (serialized.match(/BA_ "VFrameFormat"/g) ?? []).length;
+      assert.strictEqual(count, 1, 'exactly one VFrameFormat BA_ line should be emitted');
+    });
+
+    test('accepts VFrameFormat index ≥ 2 (tolerant of tool variations)', () => {
+      const altFdDbc = [
+        'VERSION ""',
+        'BU_:',
+        'BO_ 300 AnotherFd: 32 Vector__XXX',
+        'BA_DEF_ BO_ "VFrameFormat" ENUM "A","B","C","D";',
+        'BA_DEF_DEF_ "VFrameFormat" "A";',
+        'BA_ "VFrameFormat" BO_ 300 3;',
+      ].join('\n');
+      const db = parser.parse(altFdDbc);
+      assert.strictEqual(db.findMessageById(300)!.isFd, true);
+    });
+  });
 });
