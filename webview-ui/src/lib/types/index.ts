@@ -117,7 +117,7 @@ export interface DecodedFrameDescriptor {
 /* ── Webview message protocol ── */
 
 export type WebviewInboundMessage =
-  | { type: 'database.update'; database: CanDatabaseDescriptor; documentUri: string }
+  | { type: 'database.update'; database: CanDatabaseDescriptor; documentUri: string; settings?: { showOverallView: boolean } }
   | { type: 'monitor.frame'; frame: DecodedFrameDescriptor }
   | { type: 'monitor.clear' }
   | { type: 'connection.stateChanged'; state: CanBusState; adapterType?: string }

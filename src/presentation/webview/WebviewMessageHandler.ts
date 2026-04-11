@@ -277,6 +277,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: empty,
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
     }
 
@@ -402,6 +403,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: db ? serializeDatabaseForWebview(db) : empty,
             documentUri: key,
+            settings: this.getWebviewSettings(),
         } satisfies ExtensionToWebviewMessage);
     }
 
@@ -950,7 +952,13 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: serialized,
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
+    }
+
+    private getWebviewSettings(): { showOverallView: boolean } {
+        const cfg = vscode.workspace.getConfiguration('candb-studio');
+        return { showOverallView: cfg.get<boolean>('explorer.showOverallView', true) };
     }
 
     private postDatabaseUpdate(uri: string, database: CanDatabase): void {
@@ -962,6 +970,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: serializeDatabaseForWebview(database),
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
     }
 

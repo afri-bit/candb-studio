@@ -136,7 +136,17 @@
         "title": "Transmit CAN Message",
         "category": "CANdb Studio"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "CANdb Studio",
+      "properties": {
+        "candb-studio.explorer.showOverallView": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the Overall View sidebar in the DBC editor by default."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

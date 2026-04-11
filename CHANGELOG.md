@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- [#3](https://github.com/afri-bit/candb-studio/issues/3) **Collapsible Overall View sidebar** — the "Overall View" tree panel in the DBC editor can now be collapsed to a short vertical tab on the left edge. Clicking the tab expands it back to its previous width; the `‹` button in the tab bar collapses it again. Collapsed state is persisted per-session in `localStorage`.
+  - **`candb-studio.explorer.showOverallView` setting** — VS Code workspace/user setting (default: `false`) that controls the initial sidebar visibility for users who have not yet toggled it manually. Set to `true` to open the sidebar by default.
+
 - **CM_ comment parsing** — `CM_` entries for the network, nodes (`BU_`), messages (`BO_`), and signals (`SG_`) are now parsed from DBC files and stored on their respective domain objects. Multi-line comments (comment text spanning multiple lines before the closing `";`) are fully supported.
 - **CM_ comment serialization** — comments are written back to DBC text by the serializer, enabling lossless save/re-open round-trips for all comment types.
 - **BA_ attribute value parsing** — `BA_` lines are parsed for all four scopes: network, node (`BU_`), message (`BO_`), and signal (`SG_`). Both numeric (integer / float) and quoted string values are handled.

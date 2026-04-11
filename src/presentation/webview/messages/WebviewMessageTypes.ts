@@ -106,7 +106,7 @@ export type WebviewToExtensionMessage =
 
 /** Messages sent FROM the extension host TO the webview. */
 export type ExtensionToWebviewMessage =
-    | { type: 'database.update'; database: unknown; documentUri: string }
+    | { type: 'database.update'; database: unknown; documentUri: string; settings?: { showOverallView: boolean } }
     | { type: 'databaseLoaded'; payload: { database: unknown } }
     | { type: 'databaseChanged'; payload: { database: unknown } }
     | { type: 'update'; payload: { content: string } }

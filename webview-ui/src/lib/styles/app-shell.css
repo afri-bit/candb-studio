@@ -37,6 +37,12 @@
   color: var(--vscode-sideBar-foreground, var(--vscode-foreground));
 }
 
+.dbc-sidebar--collapsed {
+  width: 32px !important;
+  overflow: hidden;
+  align-items: flex-start;
+}
+
 .dbc-sidebar-header {
   padding: 12px 14px 8px;
   font-size: 11px;

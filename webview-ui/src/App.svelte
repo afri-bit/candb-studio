@@ -16,6 +16,7 @@
 
   const SIDEBAR_MIN = 180;
   const SIDEBAR_DEFAULT = 264;
+  const SIDEBAR_COLLAPSED_KEY = 'candb-studio.sidebarCollapsed';
 
   function clampSidebarWidth(w: number): number {
     if (typeof window === 'undefined') return Math.max(SIDEBAR_MIN, w);
@@ -37,6 +38,27 @@
   }
 
   let sidebarWidthPx = $state(readStoredSidebarWidth());
+
+  function readStoredCollapsed(fallback: boolean): boolean {
+    try {
+      const v = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+      if (v !== null) return v === 'true';
+    } catch {
+      /* ignore */
+    }
+    return fallback;
+  }
+
+  let sidebarCollapsed = $state(readStoredCollapsed(false));
+
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    try {
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed));
+    } catch {
+      /* ignore */
+    }
+  }
 
   function persistSidebarWidth() {
     try {
@@ -153,6 +175,9 @@
         case 'database.update':
           documentUri.set(message.documentUri);
           databaseStore.setDatabase(message.database);
+          if (localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === null && message.settings) {
+            sidebarCollapsed = !message.settings.showOverallView;
+          }
           break;
       }
     };
@@ -165,43 +190,60 @@
 </script>
 
 <div class="dbc-shell">
-  <aside class="dbc-sidebar" style:width="{sidebarWidthPx}px">
-    <DatabaseExplorer
-      version={$databaseStore.version}
-      messages={$databaseStore.messages}
-      signalPool={$databaseStore.signalPool}
-      nodes={$databaseStore.nodes}
-      attributes={$databaseStore.attributes}
-      environmentVariables={$databaseStore.environmentVariables}
-      {selectedMessageId}
-      onSelectMessage={handleExplorerSelectMessage}
-      onSelectSignal={handleExplorerSelectSignal}
-      onSelectNode={handleExplorerSelectNode}
-      onSelectAttribute={handleExplorerSelectAttribute}
-    />
+  <aside class="dbc-sidebar" class:dbc-sidebar--collapsed={sidebarCollapsed} style:width="{sidebarCollapsed ? '32px' : `${sidebarWidthPx}px`}">
+    {#if sidebarCollapsed}
+      <button
+        type="button"
+        class="sidebar-vertical-tab"
+        title="Show Overall View"
+        onclick={toggleSidebar}
+      >Overall View</button>
+    {:else}
+      <DatabaseExplorer
+        version={$databaseStore.version}
+        messages={$databaseStore.messages}
+        signalPool={$databaseStore.signalPool}
+        nodes={$databaseStore.nodes}
+        attributes={$databaseStore.attributes}
+        environmentVariables={$databaseStore.environmentVariables}
+        {selectedMessageId}
+        onSelectMessage={handleExplorerSelectMessage}
+        onSelectSignal={handleExplorerSelectSignal}
+        onSelectNode={handleExplorerSelectNode}
+        onSelectAttribute={handleExplorerSelectAttribute}
+      />
+    {/if}
   </aside>
 
-  <button
-    type="button"
-    class="sidebar-resizer"
-    aria-label="Resize sidebar"
-    title="Drag to resize sidebar"
-    onpointerdown={onSidebarResizePointerDown}
-    onkeydown={(e) => {
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        sidebarWidthPx = clampSidebarWidth(sidebarWidthPx - 12);
-        persistSidebarWidth();
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        sidebarWidthPx = clampSidebarWidth(sidebarWidthPx + 12);
-        persistSidebarWidth();
-      }
-    }}
-  ></button>
+  {#if !sidebarCollapsed}
+    <button
+      type="button"
+      class="sidebar-resizer"
+      aria-label="Resize sidebar"
+      title="Drag to resize sidebar"
+      onpointerdown={onSidebarResizePointerDown}
+      onkeydown={(e) => {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          sidebarWidthPx = clampSidebarWidth(sidebarWidthPx - 12);
+          persistSidebarWidth();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          sidebarWidthPx = clampSidebarWidth(sidebarWidthPx + 12);
+          persistSidebarWidth();
+        }
+      }}
+    ></button>
+  {/if}
 
   <div class="dbc-main">
     <nav class="tab-bar">
+      <button
+        type="button"
+        class="sidebar-toggle-btn"
+        title={sidebarCollapsed ? 'Show Overall View' : 'Hide Overall View'}
+        onclick={toggleSidebar}
+      >{sidebarCollapsed ? '›' : '‹'}</button>
       <button class:active={activeTab === 'messages'} onclick={() => (activeTab = 'messages')}
         >Messages</button
       >
@@ -482,6 +524,45 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+  }
+
+  .sidebar-vertical-tab {
+    margin-top: 8px;
+    border: none;
+    border-left: 2px solid var(--vscode-focusBorder);
+    border-radius: 0 3px 3px 0;
+    background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 40%, transparent);
+    color: var(--vscode-sideBar-foreground, var(--vscode-foreground));
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: 10px 5px;
+  }
+
+  .sidebar-vertical-tab:hover {
+    color: var(--vscode-tab-activeForeground);
+    background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 80%, transparent);
+  }
+
+  .sidebar-toggle-btn {
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: var(--vscode-tab-inactiveForeground);
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-toggle-btn:hover {
+    color: var(--vscode-tab-activeForeground);
+    background: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 80%, transparent);
   }
 
   .sidebar-resizer {
