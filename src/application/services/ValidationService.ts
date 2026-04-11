@@ -2,7 +2,13 @@ import type { IValidationService } from '../../core/interfaces/database/IValidat
 import type { CanDatabase } from '../../core/models/database/CanDatabase';
 import type { DiagnosticItem } from '../../core/types';
 import { DiagnosticSeverity } from '../../core/types';
-import { MAX_CAN_DLC, MAX_EXTENDED_CAN_ID, MAX_STANDARD_CAN_ID } from '../../shared/constants';
+import {
+    CAN_FD_VALID_LENGTHS,
+    MAX_CAN_DLC,
+    MAX_CAN_FD_DLC,
+    MAX_EXTENDED_CAN_ID,
+    MAX_STANDARD_CAN_ID,
+} from '../../shared/constants';
 
 /**
  * Validates a CAN database for correctness and consistency.
@@ -55,7 +61,21 @@ export class ValidationService implements IValidationService {
             }
 
             // DLC
-            if (message.dlc < 0 || message.dlc > MAX_CAN_DLC) {
+            if (message.isFd) {
+                if (message.dlc < 0 || message.dlc > MAX_CAN_FD_DLC) {
+                    diagnostics.push({
+                        severity: DiagnosticSeverity.Error,
+                        message: `CAN FD message DLC ${message.dlc} is out of range [0, ${MAX_CAN_FD_DLC}]`,
+                        path: `${prefix}.dlc`,
+                    });
+                } else if (!(CAN_FD_VALID_LENGTHS as readonly number[]).includes(message.dlc)) {
+                    diagnostics.push({
+                        severity: DiagnosticSeverity.Warning,
+                        message: `CAN FD message DLC ${message.dlc} is not a canonical FD payload size (valid: ${CAN_FD_VALID_LENGTHS.join(', ')})`,
+                        path: `${prefix}.dlc`,
+                    });
+                }
+            } else if (message.dlc < 0 || message.dlc > MAX_CAN_DLC) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
                     message: `DLC ${message.dlc} is out of range [0, ${MAX_CAN_DLC}]`,

@@ -1,0 +1,18 @@
+VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: ECU1 TCU
+
+BO_ 500 GearboxStatus: 8 ECU1
+ SG_ GearSelector M : 0|4@1+ (1,0) [0|15] "" ECU1,TCU
+ SG_ DriveData m0 : 4|8@1+ (1,0) [0|255] "" TCU
+ SG_ ReverseData m1 : 4|8@1+ (1,0) [0|255] "" TCU
+ SG_ NeutralFlag m2 : 12|1@1+ (1,0) [0|1] "" TCU
+
+CM_ SG_ 500 GearSelector "Multiplexor: selects active gear data signal group";
+CM_ SG_ 500 DriveData "Drive mode payload active when GearSelector=0";
+CM_ SG_ 500 ReverseData "Reverse mode payload active when GearSelector=1";
+CM_ SG_ 500 NeutralFlag "Neutral flag active when GearSelector=2";

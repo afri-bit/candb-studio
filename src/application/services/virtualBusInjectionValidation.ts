@@ -1,4 +1,5 @@
 import type { CanDatabase } from '../../core/models/database/CanDatabase';
+import { MAX_CAN_FD_DLC } from '../../shared/constants';
 
 export type VirtualInjectionValidation =
     | { ok: true }
@@ -27,7 +28,8 @@ export function validateDbcAlignedInjection(
             code: 'UNKNOWN_MESSAGE',
         };
     }
-    if (data.length !== msg.dlc) {
+    const maxDlc = msg.isFd ? MAX_CAN_FD_DLC : msg.dlc;
+    if (data.length !== msg.dlc || data.length > maxDlc) {
         return {
             ok: false,
             message: `Payload length ${data.length} does not match DLC ${msg.dlc} for message "${msg.name}".`,

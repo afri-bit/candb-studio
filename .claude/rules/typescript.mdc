@@ -1,0 +1,50 @@
+---
+description: TypeScript and Svelte webview conventions for candb-studio
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# TypeScript (extension host, tests, and webview-ui)
+
+## Formatting
+
+- **Indentation:** **4 spaces** in **`src/`** (extension host); **2 spaces** in **`webview-ui/`** (Svelte/TS/CSS — typical for front-end). **Prettier** applies to both (see `.prettierrc.json` overrides + `prettier-plugin-svelte`). Run `npm run format` before large edits; `npm run format:check` in CI is optional.
+- **Line length:** prefer ≤ 100 columns where Prettier allows (see `.prettierrc.json`).
+
+## Documentation (JSDoc)
+
+- Use **Google-style** JSDoc for **exported** functions, classes, public methods, and non-obvious internal helpers.
+- Include **`@param`** / **`@returns`** where they add clarity; use **`@remarks`** or a short description for side effects (events emitted, disk I/O).
+- Prefer a concise **first sentence** (summary line), then details.
+
+## Types and APIs
+
+- Prefer **explicit types** on public APIs and exported functions; avoid `any`; use `unknown` + narrowing at boundaries (e.g. webview `changes` payloads).
+- **Imports:** match existing style (path depth, named vs default). Do not reorder unrelated imports in drive-by edits.
+
+## Errors and logging
+
+- **Extension host catch boundaries:** use `catch (err: unknown)` (not untyped `catch (e)`). Use **`formatUnknownError`** / **`messageForUser`** / **`asError`** from `src/shared/utils/errorUtils.ts` when logging or showing VS Code toasts.
+- **Webview:** use **`webview-ui/src/lib/errorUtils.ts`** for the same helpers when you need to log or display a caught value. Intentionally empty `catch {}` is acceptable only for **localStorage** / **URL parse** fallbacks where failure is expected and silent; prefer a one-line comment (`/* ignore */` or `/* fall through */`).
+- **Logger:** use **`Logger.error(message, err)`** (extension) so non-`Error` throws are stringified safely.
+- Prefer **domain-specific errors** where it helps callers (`ParseError`, `ValidationError`, `ConnectionError`, `CanBusError` in `src/shared/errors/`). Do not add heavy exception hierarchies unless a caller needs to branch.
+- **Async:** use `async`/`await`; handle rejections in extension commands and webview handler branches; do not swallow errors silently.
+- **VS Code:** acquire resources via `context.subscriptions`; return `Disposable` or register cleanup for listeners.
+
+## Anti-patterns to avoid
+
+- Empty `catch` blocks **without** an intentional comment (extension host and non-storage webview code).
+- Assuming caught values are `Error` without `instanceof` or helpers.
+- Domain or parser code importing **`vscode`**.
+- `console.log` in production extension paths — prefer **`Logger`**.
+
+## Tests
+
+- **Tests** (where Mocha is used): `assert` strict; keep fixtures minimal and local to test files or `test/fixtures/`.
+
+## Commands
+
+- `npm run format` — Prettier on extension `src/**/*.ts` and `webview-ui/**/*.{ts,svelte,css,js}`
+- `npm run compile` — webview build + webpack
+- `npm run lint` — ESLint on `src/`
+- `npm run test:unit` — unit tests

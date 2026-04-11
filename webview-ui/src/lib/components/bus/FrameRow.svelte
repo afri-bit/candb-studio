@@ -43,7 +43,18 @@
   >
   <span class="col-id">{idHex}</span>
   <span class="col-name">{decoded.messageName}</span>
-  <span class="col-dlc">{decoded.frame.dlc}</span>
+  <span class="col-dlc">
+    {decoded.frame.dlc}
+    {#if decoded.frame.isFd}
+      <span class="badge badge--fd" title="CAN FD frame">FD</span>
+    {/if}
+    {#if decoded.frame.isFd && decoded.frame.brs}
+      <span class="badge badge--brs" title="Bit Rate Switch">BRS</span>
+    {/if}
+    {#if decoded.frame.esi}
+      <span class="badge badge--esi" title="Error State Indicator: transmitter is error-passive">ESI</span>
+    {/if}
+  </span>
   <span class="col-data"
     >{decoded.frame.data.map((b) => b.toString(16).toUpperCase().padStart(2, '0')).join(' ')}</span
   >
@@ -109,6 +120,35 @@
   .col-dlc {
     text-align: end;
     font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 0.65em;
+    font-weight: 700;
+    padding: 1px 3px;
+    border-radius: 2px;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+  }
+
+  .badge--fd {
+    background: var(--vscode-charts-blue, #569cd6);
+    color: #fff;
+  }
+
+  .badge--brs {
+    background: var(--vscode-charts-green, #4ec9b0);
+    color: #000;
+  }
+
+  .badge--esi {
+    background: var(--vscode-charts-red, #f44747);
+    color: #fff;
   }
 
   .col-data {

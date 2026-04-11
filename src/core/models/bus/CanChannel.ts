@@ -12,17 +12,25 @@ export class CanChannel {
     public bitrate: number;
     public adapterType: AdapterType;
     public state: CanBusState;
+    /**
+     * Data-phase bitrate for CAN FD channels. When set and different from
+     * `bitrate`, the channel operates with bit-rate switching (BRS).
+     * Undefined for classic CAN channels.
+     */
+    public dataBitrate?: number;
 
     constructor(params: {
         name: string;
         bitrate?: number;
         adapterType: AdapterType;
         state?: CanBusState;
+        dataBitrate?: number;
     }) {
         this.name = params.name;
         this.bitrate = params.bitrate ?? 500_000;
         this.adapterType = params.adapterType;
         this.state = params.state ?? CanBusState.Disconnected;
+        this.dataBitrate = params.dataBitrate;
     }
 
     get isConnected(): boolean {

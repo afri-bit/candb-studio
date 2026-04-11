@@ -1,0 +1,472 @@
+{
+  "nodes": [
+    "ECU1",
+    "ECU2",
+    "GATEWAY",
+    "BCM",
+    "TCU"
+  ],
+  "messages": [
+    {
+      "id": 100,
+      "name": "EngineStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ECU1",
+      "comment": "Engine status broadcast at 10ms",
+      "signals": [
+        {
+          "name": "RPM",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.25,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 16383.75,
+          "unit": "rpm",
+          "receivers": [
+            "ECU2",
+            "GATEWAY"
+          ],
+          "comment": "Engine rotational speed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EngineTemp",
+          "start_bit": 16,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -40.0,
+          "minimum": -40.0,
+          "maximum": 215.0,
+          "unit": "degC",
+          "receivers": [
+            "ECU2"
+          ],
+          "comment": "Coolant temperature",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ThrottlePos",
+          "start_bit": 24,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.39216,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "unit": "%",
+          "receivers": [
+            "ECU2"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EngineLoad",
+          "start_bit": 32,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.39216,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "unit": "%",
+          "receivers": [
+            "GATEWAY"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "name": "GearboxStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "TCU",
+      "comment": "Gearbox status with multiplexed signals",
+      "signals": [
+        {
+          "name": "GearSelector",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "ECU1",
+            "BCM"
+          ],
+          "comment": "Multiplexor for gear data groups",
+          "is_multiplexer": true,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DriveData",
+          "start_bit": 4,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {}
+        },
+        {
+          "name": "ReverseData",
+          "start_bit": 4,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {}
+        },
+        {
+          "name": "CurrentGear",
+          "start_bit": 12,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "ECU1",
+            "GATEWAY"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Park",
+            "1": "Reverse",
+            "2": "Neutral",
+            "3": "Drive",
+            "4": "Sport"
+          }
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "name": "BrakeSystem",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "ECU2",
+      "comment": "Brake system status",
+      "signals": [
+        {
+          "name": "BrakePressure",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 6553.5,
+          "unit": "kPa",
+          "receivers": [
+            "GATEWAY"
+          ],
+          "comment": "Hydraulic brake line pressure",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ABSActive",
+          "start_bit": 16,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "GATEWAY"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Inactive",
+            "1": "Active"
+          }
+        },
+        {
+          "name": "BrakeTemp",
+          "start_bit": 17,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 2.0,
+          "offset": -100.0,
+          "minimum": -100.0,
+          "maximum": 410.0,
+          "unit": "degC",
+          "receivers": [
+            "GATEWAY"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 400,
+      "name": "BodyControl",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "BCM",
+      "comment": "Body control state",
+      "signals": [
+        {
+          "name": "HeadlightOn",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Off",
+            "1": "On"
+          }
+        },
+        {
+          "name": "FogLightOn",
+          "start_bit": 1,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Off",
+            "1": "On"
+          }
+        },
+        {
+          "name": "WiperSpeed",
+          "start_bit": 2,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Off",
+            "1": "Low",
+            "2": "Medium",
+            "3": "High",
+            "4": "Intermittent1",
+            "5": "Intermittent2"
+          }
+        },
+        {
+          "name": "DoorLocked",
+          "start_bit": 5,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Unlocked",
+            "1": "Locked"
+          }
+        },
+        {
+          "name": "WindowPos",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.39216,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "unit": "%",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": "Window position (big-endian Motorola)",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 419420222,
+      "name": "J1939ExtMsg",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GATEWAY",
+      "comment": "J1939-style extended CAN ID message",
+      "signals": [
+        {
+          "name": "VehicleSpeed",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.00390625,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 250.996,
+          "unit": "kph",
+          "receivers": [
+            "ECU1",
+            "ECU2"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TotalDistance",
+          "start_bit": 16,
+          "length": 32,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.125,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 536870911.875,
+          "unit": "km",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    }
+  ],
+  "value_tables": [
+    {
+      "name": "GearPositions",
+      "entries": {
+        "0": "Park",
+        "1": "Reverse",
+        "2": "Neutral",
+        "3": "Drive"
+      }
+    },
+    {
+      "name": "OnOff",
+      "entries": {
+        "0": "Off",
+        "1": "On"
+      }
+    }
+  ]
+}

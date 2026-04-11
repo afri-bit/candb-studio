@@ -7,9 +7,14 @@
   import { vscode } from '../../vscode';
   import { bytesFromHexString, sanitizeHexDigits } from '../../transmitCodec';
 
+  const FD_VALID_LENGTHS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+
   let canIdInput = $state('0x100');
   let isExtended = $state(false);
+  let isFd = $state(false);
+  let isBrs = $state(true);
   let dlc = $state(8);
+  let fdDlc = $state(8);
   let dataHex = $state('00 00 00 00 00 00 00 00');
   let localError = $state<string | null>(null);
 
@@ -33,11 +38,22 @@
       localError = 'Enter a valid CAN ID (decimal or 0x hex).';
       return;
     }
-    const dlcN = Math.max(0, Math.min(8, Math.trunc(Number(dlc))));
-    if (!Number.isFinite(dlcN)) {
-      localError = 'DLC must be 0–8 for classic CAN.';
-      return;
+
+    let dlcN: number;
+    if (isFd) {
+      dlcN = Number(fdDlc);
+      if (!FD_VALID_LENGTHS.includes(dlcN)) {
+        localError = `CAN FD payload size must be one of: ${FD_VALID_LENGTHS.join(', ')} bytes.`;
+        return;
+      }
+    } else {
+      dlcN = Math.max(0, Math.min(8, Math.trunc(Number(dlc))));
+      if (!Number.isFinite(dlcN)) {
+        localError = 'DLC must be 0–8 for classic CAN.';
+        return;
+      }
     }
+
     const cleaned = sanitizeHexDigits(dataHex);
     const data = bytesFromHexString(cleaned, dlcN);
     vscode.postMessage({
@@ -46,6 +62,8 @@
       data,
       dlc: dlcN,
       isExtended,
+      isFd,
+      isBrs: isFd ? isBrs : undefined,
     });
   }
 </script>
@@ -80,18 +98,39 @@
       <span>29-bit extended ID</span>
     </label>
 
-    <label class="raw-field">
-      <span>DLC (0–8)</span>
-      <input
-        type="number"
-        class="raw-input raw-input--narrow"
-        min="0"
-        max="8"
-        step="1"
-        bind:value={dlc}
-        aria-label="Data length code"
-      />
+    <label class="raw-field raw-check">
+      <input type="checkbox" bind:checked={isFd} />
+      <span>CAN FD frame</span>
     </label>
+
+    {#if isFd}
+      <label class="raw-field raw-check">
+        <input type="checkbox" bind:checked={isBrs} />
+        <span>BRS (bit-rate switch)</span>
+      </label>
+
+      <label class="raw-field">
+        <span>Payload length (bytes)</span>
+        <select class="raw-input raw-input--narrow" bind:value={fdDlc} aria-label="FD payload length">
+          {#each FD_VALID_LENGTHS as len}
+            <option value={len}>{len}</option>
+          {/each}
+        </select>
+      </label>
+    {:else}
+      <label class="raw-field">
+        <span>DLC (0–8)</span>
+        <input
+          type="number"
+          class="raw-input raw-input--narrow"
+          min="0"
+          max="8"
+          step="1"
+          bind:value={dlc}
+          aria-label="Data length code"
+        />
+      </label>
+    {/if}
 
     <label class="raw-field raw-field--full">
       <span>Data (hex bytes)</span>

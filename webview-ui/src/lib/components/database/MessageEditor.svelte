@@ -62,6 +62,7 @@
   const columns = [
     { key: 'name', label: 'Name', width: '180px' },
     { key: 'idHex', label: 'ID (hex)', width: '100px' },
+    { key: 'frameFormat', label: 'Frame', width: '56px' },
     { key: 'dlc', label: 'DLC', width: '50px' },
     { key: 'transmitter', label: 'Transmitter', width: '140px' },
     { key: 'signalCount', label: 'Signals', width: '70px' },
@@ -83,6 +84,7 @@
       messageId: m.id,
       name: m.name,
       idHex: `0x${m.id.toString(16).toUpperCase().padStart(3, '0')}`,
+      frameFormat: m.isFd ? 'FD' : 'CAN',
       dlc: m.dlc,
       transmitter: m.transmitter,
       signalCount: m.signals.length,
@@ -118,6 +120,9 @@
       : false,
   );
 
+  /** Valid CAN FD payload byte counts per ISO 11898-1. */
+  const FD_VALID_LENGTHS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+
   let definitionProps = $derived(
     selectedMessage
       ? [
@@ -133,7 +138,21 @@
             value: selectedMessage.id,
             type: 'number' as const,
           },
-          { key: 'dlc', label: 'DLC', value: selectedMessage.dlc, type: 'number' as const },
+          {
+            key: 'isFd',
+            label: 'CAN FD frame',
+            value: selectedMessage.isFd,
+            type: 'boolean' as const,
+          },
+          selectedMessage.isFd
+            ? {
+                key: 'dlc',
+                label: 'Payload length (bytes)',
+                value: String(selectedMessage.dlc),
+                type: 'select' as const,
+                options: FD_VALID_LENGTHS.map(String),
+              }
+            : { key: 'dlc', label: 'DLC (0–8)', value: selectedMessage.dlc, type: 'number' as const },
         ]
       : [],
   );
@@ -166,12 +185,17 @@
     if (selectedMessageId === null) return;
     const uri = get(documentUri);
     if (!uri) return;
+    // PropertyGrid select returns strings; coerce numeric fields back to number
+    let coerced: string | number | boolean = value;
+    if (key === 'dlc' && typeof value === 'string') {
+      coerced = Number(value);
+    }
     vscode.postMessage({
       type: 'updateMessage',
       payload: {
         documentUri: uri,
         messageId: selectedMessageId,
-        changes: { [key]: value },
+        changes: { [key]: coerced },
       },
     });
   }
@@ -313,7 +337,7 @@
           <span class="ctx-label">Selected frame</span>
           <span class="dbc-pill">{msg.name}</span>
           <span class="ctx-id">0x{msg.id.toString(16).toUpperCase()}</span>
-          <span class="ctx-meta">{msg.signals.length} signals · DLC {msg.dlc}</span>
+          <span class="ctx-meta">{msg.signals.length} signals · DLC {msg.dlc} · {msg.isFd ? 'CAN FD' : 'CAN 2.0'}</span>
           <div class="ctx-actions">
             {#if msg.transmitter}
               <span class="ctx-tx">

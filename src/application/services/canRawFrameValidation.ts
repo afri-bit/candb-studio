@@ -1,4 +1,9 @@
-import { MAX_CAN_DLC, MAX_EXTENDED_CAN_ID, MAX_STANDARD_CAN_ID } from '../../shared/constants';
+import {
+    CAN_FD_VALID_LENGTHS,
+    MAX_CAN_DLC,
+    MAX_EXTENDED_CAN_ID,
+    MAX_STANDARD_CAN_ID,
+} from '../../shared/constants';
 
 export type RawFrameValidation = { ok: true } | { ok: false; message: string; code: string };
 
@@ -31,6 +36,48 @@ export function validateCanRawFrame(
             ok: false,
             message: `DLC must be between 0 and ${MAX_CAN_DLC} for classic CAN.`,
             code: 'BAD_DLC',
+        };
+    }
+    if (data.length !== dlc) {
+        return {
+            ok: false,
+            message: `Payload length ${data.length} does not match DLC ${dlc}.`,
+            code: 'DLC_PAYLOAD',
+        };
+    }
+    return { ok: true };
+}
+
+/** Validate CAN FD raw frame before send / virtual inject (no DBC). */
+export function validateCanFdRawFrame(
+    id: number,
+    data: Uint8Array,
+    dlc: number,
+    isExtended: boolean,
+    _isBrs: boolean,
+): RawFrameValidation {
+    if (!Number.isInteger(id) || id < 0) {
+        return { ok: false, message: 'CAN ID must be a non-negative integer.', code: 'BAD_ID' };
+    }
+    if (!isExtended && id > MAX_STANDARD_CAN_ID) {
+        return {
+            ok: false,
+            message: `Standard CAN ID must be ≤ 0x${MAX_STANDARD_CAN_ID.toString(16)} (11-bit).`,
+            code: 'ID_STANDARD_RANGE',
+        };
+    }
+    if (isExtended && id > MAX_EXTENDED_CAN_ID) {
+        return {
+            ok: false,
+            message: 'Extended CAN ID exceeds 29-bit range.',
+            code: 'ID_EXTENDED_RANGE',
+        };
+    }
+    if (!(CAN_FD_VALID_LENGTHS as readonly number[]).includes(dlc)) {
+        return {
+            ok: false,
+            message: `CAN FD payload size must be one of: ${CAN_FD_VALID_LENGTHS.join(', ')} bytes.`,
+            code: 'FD_INVALID_PAYLOAD_SIZE',
         };
     }
     if (data.length !== dlc) {

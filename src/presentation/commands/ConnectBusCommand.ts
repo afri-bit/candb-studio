@@ -150,6 +150,20 @@ export class ConnectBusCommand {
             return;
         }
 
+        let dataBitrate: number | undefined;
+        if (!isVirtual) {
+            const dataBitrateStr = await vscode.window.showInputBox({
+                prompt: 'CAN FD data bitrate in bps (leave empty for classic CAN / no BRS)',
+                placeHolder: '2000000',
+                validateInput: (v) =>
+                    !v || /^\d+$/.test(v) ? null : 'Enter a positive integer or leave empty',
+            });
+            if (dataBitrateStr === undefined) {
+                return;
+            }
+            dataBitrate = dataBitrateStr ? parseInt(dataBitrateStr, 10) : undefined;
+        }
+
         const existing = this.adapter;
         if (existing) {
             const targetVirtual = selected.adapterType === AdapterType.Virtual;
@@ -177,6 +191,7 @@ export class ConnectBusCommand {
                 name: channelName,
                 adapterType: selected.adapterType,
                 bitrate: DEFAULT_BITRATE,
+                dataBitrate,
             });
             await this.connectAdapter(newAdapter, channel, { silentToast: false });
         } catch (err: unknown) {

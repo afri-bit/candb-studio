@@ -1,0 +1,36 @@
+VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: ECU1
+
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_ SG_  "InitValue" FLOAT 0 100;
+BA_DEF_DEF_  "InitValue" 0;
+BA_DEF_ BO_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_ BO_  "SystemClass" ENUM "Class_A","Class_B","Class_C";
+BA_DEF_DEF_  "SystemClass" "Class_A";
+BA_DEF_ SG_  "SigType" HEX 0 255;
+BA_DEF_DEF_  "SigType" 0;
+BA_DEF_  "NetworkName" STRING ;
+BA_DEF_DEF_  "NetworkName" "";
+
+BO_ 100 TestMsg: 8 ECU1
+ SG_ Val : 0|8@1+ (1,0) [0|255] "" ECU1
+ SG_ Temp : 8|8@1- (0.5,-40) [-40|87.5] "degC" ECU1
+
+BA_ "GenMsgCycleTime" BO_ 100 10;
+BA_ "InitValue" SG_ 100 Val 1.5;
+BA_ "BusType" BO_ 100 "CAN";
+
+BA_ "SystemClass" BO_ 100 2;
+BA_ "SigType" SG_ 100 Val 7;
+BA_ "NetworkName" "TestNetwork";
+
+CM_ BO_ 100 "Test message for all attribute types";
+CM_ SG_ 100 Val "Unsigned byte value";
+CM_ SG_ 100 Temp "Signed temperature signal";

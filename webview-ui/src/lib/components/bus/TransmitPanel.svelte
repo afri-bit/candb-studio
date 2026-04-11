@@ -250,6 +250,9 @@
         >
           <span class="msg-id">0x{msg.id.toString(16).toUpperCase().padStart(3, '0')}</span>
           <span class="msg-name">{msg.name}</span>
+          {#if msg.isFd}
+            <span class="fd-badge" title="CAN FD message">FD</span>
+          {/if}
           {#if $transmitPeriodicStore.intervals[msg.id] !== undefined}
             <span class="periodic-badge" title="Periodic transmit active"
               >{formatIntervalLabel($transmitPeriodicStore.intervals[msg.id] ?? 0)}</span
@@ -560,6 +563,17 @@
     max-width: 7rem;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .fd-badge {
+    font-size: 0.65em;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--vscode-charts-blue) 20%, transparent);
+    color: var(--vscode-charts-blue);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .interval-field .interval-row {

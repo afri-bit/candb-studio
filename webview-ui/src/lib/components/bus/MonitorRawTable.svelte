@@ -85,7 +85,9 @@
           <span class="cell ext" title={snap.isExtended ? 'Extended 29-bit' : 'Standard 11-bit'}
             >{snap.isExtended ? 'EXT' : 'STD'}</span
           >
-          <span class="cell dlc">{snap.dlc}</span>
+          <span class="cell dlc"
+            >{snap.dlc}{#if snap.isFd}&nbsp;<span class="badge-fd" title="CAN FD frame">FD</span>{/if}</span
+          >
           <span class="cell data mono" title="Last payload">{snap.dataHex}</span>
           <span class="cell time">{formatTime(snap.timestamp)}</span>
         </div>
@@ -201,5 +203,18 @@
     text-align: center;
     color: var(--vscode-descriptionForeground);
     font-size: 0.92em;
+  }
+
+  .badge-fd {
+    display: inline-block;
+    font-size: 0.72em;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--vscode-charts-blue) 20%, transparent);
+    color: var(--vscode-charts-blue);
+    vertical-align: middle;
+    letter-spacing: 0.03em;
   }
 </style>

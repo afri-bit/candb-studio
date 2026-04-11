@@ -1,7 +1,10 @@
 import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 import { ByteOrder } from '../../../core/enums/ByteOrder';
+import { MultiplexIndicator } from '../../../core/enums/MultiplexIndicator';
 import { ObjectType } from '../../../core/enums/ObjectType';
+import { SignalValueType } from '../../../core/enums/SignalValueType';
 import type { ICanDatabaseParser } from '../../../core/interfaces/database/ICanDatabaseParser';
+import { Attribute } from '../../../core/models/database/Attribute';
 import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
 import { CanDatabase } from '../../../core/models/database/CanDatabase';
 import { Message } from '../../../core/models/database/Message';
@@ -12,10 +15,11 @@ import { parseOrphanSignalsFromDbcContent } from '../../../presentation/webview/
 import { ParseError } from '../../../shared/errors/ParseError';
 import { DbcTokenizer } from './DbcTokenizer';
 
-/** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line. */
+/** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line.
+ * Keys may be negative integers (e.g. `-1 "Reverse"`). */
 export function parseDbcValuePairs(s: string): Map<number, string> {
     const m = new Map<number, string>();
-    const re = /(\d+)\s+"([^"]*)"/g;
+    const re = /(-?\d+)\s+"([^"]*)"/g;
     let match;
     while ((match = re.exec(s)) !== null) {
         m.set(parseInt(match[1], 10), match[2]);
@@ -44,8 +48,8 @@ function unescapeDbcQuotedString(s: string): string {
  * Parser for the DBC (Vector CANdb++) file format.
  * Converts raw DBC text into a CanDatabase domain model.
  *
- * TODO: Replace the line-based approach with full token-stream parsing
- *       to handle all DBC sections (comments, attributes, value descriptions, etc.)
+ * Parses: VERSION, BU_, BO_/SG_, VAL_TABLE_, VAL_, CM_, BA_DEF_, BA_DEF_DEF_, BA_.
+ * Not yet parsed: EV_, SIG_GROUP_, SG_MUL_VAL_, BO_TX_BU_.
  */
 export class DbcParser implements ICanDatabaseParser {
     parse(content: string): CanDatabase {
@@ -70,10 +74,36 @@ export class DbcParser implements ICanDatabaseParser {
             }
         }
 
+        this.applyFdAttributes(database);
+
         return database;
     }
 
     readonly supportedExtensions = ['.dbc'];
+
+    /**
+     * Post-parse pass: reads `VFrameFormat` BA_ attributes and sets `Message.isFd = true`
+     * for any message whose VFrameFormat enum index is ≥ 2 (StandardCAN_FD or ExtendedCAN_FD).
+     * This is the industry-standard mechanism used by Vector CANdb++ and PEAK tools.
+     */
+    private applyFdAttributes(database: CanDatabase): void {
+        for (const attr of database.attributes) {
+            if (attr.definitionName !== 'VFrameFormat') {
+                continue;
+            }
+            if (attr.objectType !== ObjectType.Message || attr.messageId === undefined) {
+                continue;
+            }
+            // Enum value ≥ 2 means FD (tolerant of different tool index conventions)
+            const val = typeof attr.value === 'number' ? attr.value : parseInt(String(attr.value), 10);
+            if (!isNaN(val) && val >= 2) {
+                const msg = database.findMessageById(attr.messageId);
+                if (msg) {
+                    msg.isFd = true;
+                }
+            }
+        }
+    }
 
     private parseLines(content: string, database: CanDatabase): void {
         const lines = content.split('\n');
@@ -83,6 +113,15 @@ export class DbcParser implements ICanDatabaseParser {
 
             if (line.startsWith('VERSION')) {
                 this.parseVersion(line, database);
+            } else if (line.startsWith('NS_')) {
+                // Capture NS_ header + all indented continuation lines verbatim
+                const start = i;
+                while (i + 1 < lines.length && /^\s/.test(lines[i + 1]) && lines[i + 1].trim() !== '') {
+                    i++;
+                }
+                database.nsContent = lines.slice(start, i + 1).join('\n').trimEnd();
+            } else if (line.startsWith('BS_:')) {
+                database.bsContent = lines[i].trimEnd();
             } else if (line.startsWith('BU_:')) {
                 this.parseNodes(line, database);
             } else if (line.startsWith('BO_ ')) {
@@ -97,9 +136,227 @@ export class DbcParser implements ICanDatabaseParser {
                 this.parseBaDefDef(line, database);
             } else if (line.startsWith('BA_DEF_')) {
                 this.parseBaDef(line, database);
+            } else if (line.startsWith('CM_') && !line.startsWith('CM_ VAL_TABLE_')) {
+                i = this.parseCmLines(lines, i, database);
+            } else if (line.startsWith('BA_ ')) {
+                this.parseBaLine(line, database);
+            } else if (this.isTopLevelSectionStart(lines[i])) {
+                // Unknown/unsupported top-level section — collect verbatim for round-trip fidelity
+                const start = i;
+                while (i + 1 < lines.length && !this.isTopLevelSectionStart(lines[i + 1])) {
+                    i++;
+                }
+                const block = lines.slice(start, i + 1).join('\n').trimEnd();
+                if (block.trim()) {
+                    database.rawUnknownSections.push(block);
+                }
             }
-            // TODO: Parse CM_, BA_, EV_, SIG_GROUP_
         }
+    }
+
+    /**
+     * Returns true if a raw (untrimmed) line begins a top-level DBC section:
+     * non-empty, does NOT start with whitespace (signal lines inside BO_ blocks
+     * are always indented), and whose trimmed form matches the DBC keyword pattern.
+     */
+    private isTopLevelSectionStart(rawLine: string): boolean {
+        if (!rawLine || /^\s/.test(rawLine)) {
+            return false;
+        }
+        return /^[A-Z][A-Z0-9_]*[_ :]/.test(rawLine.trim());
+    }
+
+    /** DBC structural keywords that delimit sections — used to guard CM_ line accumulation. */
+    private static readonly DBC_SECTION_KEYWORDS = [
+        'BO_ ',
+        'BU_:',
+        'VAL_TABLE_',
+        'VAL_ ',
+        'BA_DEF_DEF_',
+        'BA_DEF_',
+        'BA_ ',
+        'EV_ ',
+        'SIG_GROUP_',
+        'BO_TX_BU_',
+        'SG_MUL_VAL_',
+        'NS_ ',
+        'BS_:',
+    ];
+
+    /**
+     * Accumulates lines until a CM_ entry is complete (closing `";`), then applies it.
+     * Stops before consuming any structural DBC section keyword to prevent
+     * swallowing BO_/BA_/VAL_ blocks when a CM_ entry has no terminating `";`.
+     * Returns the index of the last consumed line.
+     */
+    private parseCmLines(lines: string[], startIndex: number, database: CanDatabase): number {
+        let text = lines[startIndex];
+        let i = startIndex;
+        while (!this.cmEntryComplete(text) && i + 1 < lines.length) {
+            const nextLine = lines[i + 1].trimStart();
+            if (DbcParser.DBC_SECTION_KEYWORDS.some((kw) => nextLine.startsWith(kw))) {
+                break;
+            }
+            i++;
+            text += '\n' + lines[i];
+        }
+        this.applyCmEntry(text.trim(), database);
+        return i;
+    }
+
+    /** Returns true once the accumulated CM_ text contains a closed quoted string followed by `;`. */
+    private cmEntryComplete(text: string): boolean {
+        let inStr = false;
+        for (let i = 0; i < text.length; i++) {
+            if (!inStr) {
+                if (text[i] === '"') {
+                    inStr = true;
+                }
+            } else {
+                if (text[i] === '\\') {
+                    i++; // skip escaped char
+                } else if (text[i] === '"') {
+                    const after = text.slice(i + 1).trimStart();
+                    if (after.startsWith(';')) {
+                        return true;
+                    }
+                    inStr = false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Parses one CM_ entry (possibly multi-line) and stores the comment on the target object. */
+    private applyCmEntry(text: string, database: CanDatabase): void {
+        const rest = text.slice('CM_'.length).trimStart();
+
+        let keyword: string | null = null;
+        let args: string[] = [];
+        let body = rest;
+
+        if (rest.startsWith('BU_ ')) {
+            keyword = 'BU_';
+            body = rest.slice('BU_'.length).trimStart();
+            const m = body.match(/^(\w+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1]];
+            body = body.slice(m[0].length);
+        } else if (rest.startsWith('BO_ ')) {
+            keyword = 'BO_';
+            body = rest.slice('BO_'.length).trimStart();
+            const m = body.match(/^(\d+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1]];
+            body = body.slice(m[0].length);
+        } else if (rest.startsWith('SG_ ')) {
+            keyword = 'SG_';
+            body = rest.slice('SG_'.length).trimStart();
+            const m = body.match(/^(\d+)\s+(\w+)\s*/);
+            if (!m) {
+                return;
+            }
+            args = [m[1], m[2]];
+            body = body.slice(m[0].length);
+        }
+
+        // Extract quoted comment — the `s` flag lets `.` match embedded newlines
+        const qm = body.match(/^"((?:[^"\\]|\\[\s\S])*?)"\s*;/s);
+        if (!qm) {
+            return;
+        }
+        const comment = unescapeDbcQuotedString(qm[1]);
+
+        if (!keyword) {
+            database.comment = comment;
+        } else if (keyword === 'BU_') {
+            const node = database.findNodeByName(args[0]);
+            if (node) {
+                node.comment = comment;
+            }
+        } else if (keyword === 'BO_') {
+            const msg = database.findMessageById(parseInt(args[0], 10));
+            if (msg) {
+                msg.comment = comment;
+            }
+        } else if (keyword === 'SG_') {
+            const sig = database.findPoolSignalByName(args[1]);
+            if (sig) {
+                sig.comment = comment;
+            }
+        }
+    }
+
+    /**
+     * Parses a single-line `BA_` entry and appends it to `database.attributes`.
+     * Format: BA_ "<name>" [BU_ <node> | BO_ <id> | SG_ <id> <sig>] <value>;
+     */
+    private parseBaLine(line: string, database: CanDatabase): void {
+        const nameMatch = line.match(/^BA_\s+"([^"]+)"\s+(.+?)\s*;?\s*$/);
+        if (!nameMatch) {
+            return;
+        }
+
+        const defName = nameMatch[1];
+        let rest = nameMatch[2].trim();
+
+        let objectType = ObjectType.Network;
+        let objectName: string | undefined;
+        let messageId: number | undefined;
+        let signalName: string | undefined;
+
+        if (rest.startsWith('BU_ ')) {
+            objectType = ObjectType.Node;
+            const m = rest.match(/^BU_\s+(\w+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            objectName = m[1];
+            rest = m[2].trim();
+        } else if (rest.startsWith('BO_ ')) {
+            objectType = ObjectType.Message;
+            const m = rest.match(/^BO_\s+(\d+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            messageId = parseInt(m[1], 10);
+            rest = m[2].trim();
+        } else if (rest.startsWith('SG_ ')) {
+            objectType = ObjectType.Signal;
+            const m = rest.match(/^SG_\s+(\d+)\s+(\w+)\s+(.*)/);
+            if (!m) {
+                return;
+            }
+            messageId = parseInt(m[1], 10);
+            signalName = m[2];
+            rest = m[3].trim();
+        }
+
+        rest = rest.replace(/\s*;\s*$/, '');
+
+        database.attributes.push(
+            new Attribute({
+                definitionName: defName,
+                objectType,
+                value: this.parseAttributeValue(rest),
+                objectName,
+                messageId,
+                signalName,
+            }),
+        );
+    }
+
+    private parseAttributeValue(raw: string): string | number {
+        if (raw.startsWith('"')) {
+            const m = raw.match(/^"((?:[^"\\]|\\[\s\S])*)"$/s);
+            return m ? unescapeDbcQuotedString(m[1]) : raw;
+        }
+        const n = Number(raw);
+        return isNaN(n) ? raw : n;
     }
 
     private parseCmValTableLine(line: string, database: CanDatabase): void {
@@ -165,13 +422,14 @@ export class DbcParser implements ICanDatabaseParser {
     }
 
     private parseBaDef(line: string, database: CanDatabase): void {
+        // Scope prefix (BU_/BO_/SG_/EV_) is optional — omitted for network-level attributes.
         const m = line.match(
-            /^BA_DEF_\s+(BU_|BO_|SG_|EV_)\s+"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
+            /^BA_DEF_\s+(?:(BU_|BO_|SG_|EV_)\s+)?"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
         );
         if (!m) {
             return;
         }
-        const prefix = m[1];
+        const prefix = m[1]; // undefined when network-level (no scope)
         const name = m[2];
         const vtToken = m[3].toUpperCase();
         const tail = (m[4] ?? '').trim();
@@ -252,7 +510,7 @@ export class DbcParser implements ICanDatabaseParser {
         return parseInt(raw, 10);
     }
 
-    private baDefPrefixToObjectType(prefix: string): ObjectType {
+    private baDefPrefixToObjectType(prefix: string | undefined): ObjectType {
         switch (prefix) {
             case 'BU_':
                 return ObjectType.Node;
@@ -262,6 +520,8 @@ export class DbcParser implements ICanDatabaseParser {
                 return ObjectType.Signal;
             case 'EV_':
                 return ObjectType.EnvironmentVariable;
+            case undefined:
+                return ObjectType.Network;
             default:
                 return ObjectType.Message;
         }
@@ -348,29 +608,43 @@ export class DbcParser implements ICanDatabaseParser {
     private parseSignal(line: string): Signal | null {
         // DBC signal format:
         // SG_ name [mux] : startBit|bitLength@byteOrder(+|-) (factor,offset) [min|max] "unit" receivers
+        // The optional mux token is one of: M (multiplexor), m<N> (multiplexed on value N)
         const match = line.match(
-            /SG_\s+(\w+)(?:\s+\w*)?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
+            /SG_\s+(\w+)(?:\s+(M|m\d+))?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
         );
         if (!match) {
             return null;
         }
 
+        const muxToken = match[2]; // undefined for regular signals, "M" for muxor, "m0"/"m1"/... for muxed
+        let multiplexIndicator = MultiplexIndicator.None;
+        let multiplexValue: number | undefined;
+        if (muxToken === 'M') {
+            multiplexIndicator = MultiplexIndicator.Multiplexor;
+        } else if (muxToken?.startsWith('m')) {
+            multiplexIndicator = MultiplexIndicator.MultiplexedSignal;
+            multiplexValue = parseInt(muxToken.slice(1), 10);
+        }
+
         return new Signal({
             name: match[1],
-            startBit: parseInt(match[2], 10),
-            bitLength: parseInt(match[3], 10),
-            byteOrder: match[4] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
-            factor: parseFloat(match[6]),
-            offset: parseFloat(match[7]),
-            minimum: parseFloat(match[8]),
-            maximum: parseFloat(match[9]),
-            unit: match[10],
-            receivingNodes: match[11]
-                ? match[11]
+            startBit: parseInt(match[3], 10),
+            bitLength: parseInt(match[4], 10),
+            byteOrder: match[5] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
+            valueType: match[6] === '-' ? SignalValueType.Signed : SignalValueType.Unsigned,
+            factor: parseFloat(match[7]),
+            offset: parseFloat(match[8]),
+            minimum: parseFloat(match[9]),
+            maximum: parseFloat(match[10]),
+            unit: match[11],
+            receivingNodes: match[12]
+                ? match[12]
                       .split(',')
                       .map((s: string) => s.trim())
                       .filter(Boolean)
                 : [],
+            multiplexIndicator,
+            multiplexValue,
         });
     }
 }

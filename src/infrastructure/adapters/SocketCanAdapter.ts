@@ -23,11 +23,20 @@ export class SocketCanAdapter implements ICanBusAdapter {
     }
 
     async connect(channel: CanChannel): Promise<void> {
-        Logger.info(`SocketCAN: connecting to ${channel.name} at ${channel.bitrate} bps`);
+        const dataBitrateInfo = channel.dataBitrate ? ` / data ${channel.dataBitrate} bps (FD)` : '';
+        Logger.info(`SocketCAN: connecting to ${channel.name} at ${channel.bitrate} bps${dataBitrateInfo}`);
         this.setState(CanBusState.Connecting);
         try {
             // TODO: Open SocketCAN socket via native bindings
             // e.g., socket(PF_CAN, SOCK_RAW, CAN_RAW) + bind to channel.name
+            //
+            // CAN FD requirements (when channel.dataBitrate is set):
+            //   - Set CAN_RAW_FD_FRAMES socket option to enable FD frame reception/transmission
+            //   - Use canfd_frame struct (72 bytes) instead of can_frame (16 bytes)
+            //   - canfd_frame.flags: bit 0 = CANFD_BRS (bit-rate switch), bit 1 = CANFD_ESI (error state indicator)
+            //   - canfd_frame.len is the actual payload byte count (0–64), not a wire DLC nibble
+            //   - Map received flags to CanFrame: isBrs = (flags & 0x01) !== 0, isEsi = (flags & 0x02) !== 0
+            //   - Set isFd = true on every canfd_frame received
             throw new ConnectionError(
                 `SocketCAN adapter not yet implemented. Cannot connect to ${channel.name}.`,
                 'socketcan',

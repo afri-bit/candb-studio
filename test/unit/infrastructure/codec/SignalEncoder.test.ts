@@ -87,11 +87,58 @@ suite('SignalEncoder', () => {
     });
   });
 
-  suite('big-endian (Motorola byte order) — stub', () => {
-    test('encode does not throw for Motorola signals', () => {
+  suite('big-endian (Motorola byte order)', () => {
+    test('encodes an 8-bit Motorola signal into byte 0 (startBit=7)', () => {
       const sig = makeSignal({ startBit: 7, bitLength: 8, byteOrder: ByteOrder.BigEndian });
-      // TODO: assert correct byte-level output once Motorola encoding is implemented
-      assert.doesNotThrow(() => encoder.encode(sig, 42, new Uint8Array(8)));
+      const result = encoder.encode(sig, 0xAB, new Uint8Array(2));
+      assert.strictEqual(result[0], 0xAB);
+      assert.strictEqual(result[1], 0x00, 'byte 1 should be untouched');
+    });
+
+    test('encodes zero correctly and clears pre-set bits', () => {
+      const sig = makeSignal({ startBit: 7, bitLength: 8, byteOrder: ByteOrder.BigEndian });
+      const result = encoder.encode(sig, 0, new Uint8Array([0xFF, 0xFF]));
+      assert.strictEqual(result[0], 0x00);
+      assert.strictEqual(result[1], 0xFF, 'byte 1 should be untouched');
+    });
+
+    test('encodes a 16-bit Motorola signal (known vector: 0x0102 → [0x01, 0x02])', () => {
+      const sig = makeSignal({ startBit: 7, bitLength: 16, byteOrder: ByteOrder.BigEndian });
+      const result = encoder.encode(sig, 0x0102, new Uint8Array(2));
+      assert.strictEqual(result[0], 0x01);
+      assert.strictEqual(result[1], 0x02);
+    });
+
+    test('encodes a 1-bit Motorola signal (bit 7 of byte 0)', () => {
+      const sig = makeSignal({ startBit: 7, bitLength: 1, byteOrder: ByteOrder.BigEndian });
+      const on = encoder.encode(sig, 1, new Uint8Array(2));
+      assert.strictEqual(on[0], 0x80);
+      const off = encoder.encode(sig, 0, new Uint8Array([0xFF, 0xFF]));
+      assert.strictEqual(off[0] & 0x80, 0x00);
+    });
+
+    test('encode then decode round-trip (8-bit Motorola)', () => {
+      const { SignalDecoder } = require('../../../../src/infrastructure/codec/SignalDecoder');
+      const decoder = new SignalDecoder();
+      const sig = makeSignal({ startBit: 7, bitLength: 8, byteOrder: ByteOrder.BigEndian });
+      const encoded = encoder.encode(sig, 0xC3, new Uint8Array(2));
+      assert.strictEqual(decoder.decode(sig, encoded), 0xC3);
+    });
+
+    test('encode then decode round-trip (16-bit Motorola)', () => {
+      const { SignalDecoder } = require('../../../../src/infrastructure/codec/SignalDecoder');
+      const decoder = new SignalDecoder();
+      const sig = makeSignal({ startBit: 7, bitLength: 16, byteOrder: ByteOrder.BigEndian });
+      const encoded = encoder.encode(sig, 12345, new Uint8Array(2));
+      assert.strictEqual(decoder.decode(sig, encoded), 12345);
+    });
+
+    test('encode result is a new Uint8Array (does not mutate input)', () => {
+      const sig = makeSignal({ startBit: 7, bitLength: 8, byteOrder: ByteOrder.BigEndian });
+      const original = new Uint8Array(2);
+      const result = encoder.encode(sig, 0xFF, original);
+      assert.notStrictEqual(result, original);
+      assert.strictEqual(original[0], 0x00, 'original should be unchanged');
     });
   });
 });

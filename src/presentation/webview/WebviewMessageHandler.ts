@@ -2,7 +2,10 @@ import * as vscode from 'vscode';
 import type { CanDatabaseService } from '../../application/services/CanDatabaseService';
 import type { MonitorService } from '../../application/services/MonitorService';
 import type { TransmitService } from '../../application/services/TransmitService';
-import { validateCanRawFrame } from '../../application/services/canRawFrameValidation';
+import {
+    validateCanFdRawFrame,
+    validateCanRawFrame,
+} from '../../application/services/canRawFrameValidation';
 import type { VirtualBusSimulationService } from '../../application/services/VirtualBusSimulationService';
 import { AdapterType } from '../../core/enums/AdapterType';
 import { CanBusState } from '../../core/enums/CanBusState';
@@ -165,8 +168,12 @@ export class WebviewMessageHandler {
         data: Uint8Array,
         dlc: number,
         isExtended: boolean,
+        isFd = false,
+        isBrs = false,
     ): Promise<void> {
-        const v = validateCanRawFrame(id, data, dlc, isExtended);
+        const v = isFd
+            ? validateCanFdRawFrame(id, data, dlc, isExtended, isBrs)
+            : validateCanRawFrame(id, data, dlc, isExtended);
         if (!v.ok) {
             this.postSignalLabError(v.message, v.code);
             return;
@@ -185,6 +192,8 @@ export class WebviewMessageHandler {
             dlc,
             isExtended,
             timestamp: Date.now(),
+            isFd,
+            isBrs,
         });
         try {
             if (adapter instanceof VirtualCanAdapter) {
@@ -268,6 +277,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: empty,
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
     }
 
@@ -317,6 +327,9 @@ export class WebviewMessageHandler {
                     /** Host receive instant (ms), not the raw frame field (periodic transmit reuses one CanFrame). */
                     timestamp: decoded.timestamp,
                     isExtended: f.isExtended,
+                    isFd: f.isFd,
+                    brs: f.isBrs,
+                    esi: f.isEsi,
                 },
                 messageName: decoded.message.name,
                 signals,
@@ -339,6 +352,9 @@ export class WebviewMessageHandler {
                     dlc: frame.dlc,
                     timestamp: receiveTime,
                     isExtended: frame.isExtended,
+                    isFd: frame.isFd,
+                    brs: frame.isBrs,
+                    esi: frame.isEsi,
                 },
                 messageName: '(unknown)',
                 signals: [],
@@ -387,6 +403,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: db ? serializeDatabaseForWebview(db) : empty,
             documentUri: key,
+            settings: this.getWebviewSettings(),
         } satisfies ExtensionToWebviewMessage);
     }
 
@@ -426,11 +443,14 @@ export class WebviewMessageHandler {
 
             case 'transmit.send': {
                 const data = message.data;
+                const busDb = this.databaseService.getDatabaseForBus();
+                const msgDef = busDb?.findMessageById(message.messageId);
                 const frame = new CanFrame({
                     id: message.messageId,
                     data: new Uint8Array(data),
                     dlc: data.length,
                     timestamp: Date.now(),
+                    isFd: msgDef?.isFd ?? false,
                 });
                 await this.transmitService?.sendOnce(frame);
                 break;
@@ -443,6 +463,8 @@ export class WebviewMessageHandler {
                     new Uint8Array(m.data),
                     m.dlc,
                     m.isExtended ?? false,
+                    m.isFd ?? false,
+                    m.isBrs ?? false,
                 );
                 break;
             }
@@ -463,11 +485,14 @@ export class WebviewMessageHandler {
                     }
                 } else {
                     const taskId = `periodic-${p.messageId}`;
+                    const periodicBusDb = this.databaseService.getDatabaseForBus();
+                    const periodicMsgDef = periodicBusDb?.findMessageById(p.messageId);
                     const frame = new CanFrame({
                         id: p.messageId,
                         data: new Uint8Array(p.data),
                         dlc: p.data.length,
                         timestamp: Date.now(),
+                        isFd: periodicMsgDef?.isFd ?? false,
                     });
                     const task = new TransmitTask({
                         id: taskId,
@@ -846,6 +871,7 @@ export class WebviewMessageHandler {
                             id: message.payload.id,
                             name: message.payload.name,
                             dlc: message.payload.dlc,
+                            isFd: message.payload.isFd ?? false,
                         }),
                         message.payload.documentUri,
                     );
@@ -926,7 +952,13 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: serialized,
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
+    }
+
+    private getWebviewSettings(): { showOverallView: boolean } {
+        const cfg = vscode.workspace.getConfiguration('candb-studio');
+        return { showOverallView: cfg.get<boolean>('explorer.showOverallView', true) };
     }
 
     private postDatabaseUpdate(uri: string, database: CanDatabase): void {
@@ -938,6 +970,7 @@ export class WebviewMessageHandler {
             type: 'database.update',
             database: serializeDatabaseForWebview(database),
             documentUri: uri,
+            settings: this.getWebviewSettings(),
         });
     }
 

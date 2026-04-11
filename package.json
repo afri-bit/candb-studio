@@ -2,7 +2,7 @@
   "name": "candb-studio",
   "displayName": "CANdb Studio",
   "description": "CAN database editor and bus connectivity tools for VS Code",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "afri-bit",
   "repository": {
     "type": "git",
@@ -136,7 +136,17 @@
         "title": "Transmit CAN Message",
         "category": "CANdb Studio"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "CANdb Studio",
+      "properties": {
+        "candb-studio.explorer.showOverallView": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the Overall View sidebar in the DBC editor by default."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -144,6 +154,7 @@
     "compile": "npm run build:webview && webpack",
     "watch": "webpack --watch",
     "package": "npm run build:webview && webpack --mode production --devtool hidden-source-map",
+    "vsix": "vsce package",
     "compile-tests": "tsc -p ./tsconfig.test.json --outDir out",
     "watch-tests": "tsc -p ./tsconfig.test.json -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -152,9 +163,11 @@
     "format:check": "prettier --check \"src/**/*.ts\" \"webview-ui/**/*.{ts,svelte,css,js}\"",
     "test": "vscode-test",
     "test:unit": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\" && npm run compile-tests && mocha --exit --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/**/*.test.js\"",
+    "test:unit:parser": "npm run compile-tests && mocha --exit --ui tdd --require ./test/mocha-vscode-stub.cjs \"out/test/unit/infrastructure/parsers/**/*.test.js\"",
     "test:integration": "npm run compile && npm run compile-tests && cross-env VSCODE_TEST_FILES=out/test/integration/**/*.test.js vscode-test"
   },
   "devDependencies": {
+    "@vscode/vsce": "^3.7.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "@types/vscode": "^1.110.0",
