@@ -91,12 +91,14 @@ export class VirtualBusSimulationService {
         if (!this.adapter || this.adapter.state !== CanBusState.Connected) {
             return { ok: false, message: 'Virtual adapter is not connected.', code: 'NO_ADAPTER' };
         }
+        const msgDef = database?.findMessageById(canId);
         const frame: CanFrame = new CanFrameCtor({
             id: canId,
             data: new Uint8Array(data),
             dlc: data.length,
             isExtended,
             timestamp: Date.now(),
+            isFd: msgDef?.isFd ?? false,
         });
         this.eventBus.emit('bus:frameTransmitted', frame);
         this.adapter.injectFrameForMonitor(frame);

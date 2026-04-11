@@ -20,6 +20,7 @@ import {
     type WebviewSignalInput,
 } from '../../presentation/webview/webviewDescriptorsToDomain';
 import { EventBus } from '../../shared/events/EventBus';
+import { MAX_CAN_DLC, MAX_CAN_FD_DLC } from '../../shared/constants';
 import { Logger } from '../../shared/utils/Logger';
 
 /**
@@ -258,8 +259,13 @@ export class CanDatabaseService {
             }
             msg.id = nid;
         }
+        if ('isFd' in changes && typeof changes.isFd === 'boolean') {
+            msg.isFd = changes.isFd;
+        }
         if ('dlc' in changes && typeof changes.dlc === 'number') {
-            msg.dlc = Math.max(0, Math.min(8, Math.floor(changes.dlc)));
+            const isFd = msg.isFd;
+            const maxDlc = isFd ? MAX_CAN_FD_DLC : MAX_CAN_DLC;
+            msg.dlc = Math.max(0, Math.min(maxDlc, Math.floor(changes.dlc)));
         }
         if ('transmitter' in changes && typeof changes.transmitter === 'string') {
             const name = changes.transmitter.trim();
@@ -360,6 +366,12 @@ export class CanDatabaseService {
         }
         const startBit =
             options?.startBit !== undefined ? Math.floor(options.startBit) : def.startBit;
+        const signalEnd = startBit + def.bitLength;
+        if (signalEnd > msg.dlc * 8) {
+            throw new Error(
+                `Signal "${def.name}" (bits ${startBit}–${signalEnd - 1}) exceeds message "${msg.name}" payload (${msg.dlc * 8} bits)`,
+            );
+        }
         msg.addSignalRef({
             signalName: def.name,
             startBit,
