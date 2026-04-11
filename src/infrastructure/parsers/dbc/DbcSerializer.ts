@@ -64,6 +64,12 @@ export class DbcSerializer implements ICanDatabaseSerializer {
             sections.push(cmBlock);
         }
 
+        const fdAttrBlock = this.serializeFdAttributes(database);
+        if (fdAttrBlock) {
+            sections.push('');
+            sections.push(fdAttrBlock);
+        }
+
         const baBlock = this.serializeAttributeValues(database);
         if (baBlock) {
             sections.push('');
@@ -241,6 +247,39 @@ export class DbcSerializer implements ICanDatabaseSerializer {
         return lines.join('\n');
     }
 
+    /**
+     * Synthesizes BA_DEF_ and BA_ lines for CAN FD messages using the VFrameFormat
+     * attribute (Vector CANdb++ convention). Emits only for messages with isFd === true.
+     * Handles serialization exclusively so serializeAttributeValues skips VFrameFormat.
+     */
+    private serializeFdAttributes(database: CanDatabase): string {
+        const fdMessages = database.messages.filter((m) => m.isFd);
+        if (fdMessages.length === 0) {
+            return '';
+        }
+
+        const lines: string[] = [];
+
+        // Emit BA_DEF_ only if the database doesn't already have a VFrameFormat definition
+        const alreadyDefined = database.attributeDefinitions.some(
+            (d) => d.name === 'VFrameFormat',
+        );
+        if (!alreadyDefined) {
+            lines.push(
+                'BA_DEF_ BO_ "VFrameFormat" ENUM "StandardCAN","ExtendedCAN","StandardCAN_FD","ExtendedCAN_FD";',
+            );
+            lines.push('BA_DEF_DEF_ "VFrameFormat" "StandardCAN";');
+        }
+
+        for (const msg of fdMessages) {
+            // 2 = StandardCAN_FD, 3 = ExtendedCAN_FD (extended = 29-bit ID > 0x7FF)
+            const fdIndex = msg.id > 0x7ff ? 3 : 2;
+            lines.push(`BA_ "VFrameFormat" BO_ ${msg.id} ${fdIndex};`);
+        }
+
+        return lines.join('\n');
+    }
+
     /** Serializes BA_ attribute value lines. */
     private serializeAttributeValues(database: CanDatabase): string {
         if (database.attributes.length === 0) {
@@ -248,6 +287,10 @@ export class DbcSerializer implements ICanDatabaseSerializer {
         }
         const lines: string[] = [];
         for (const attr of database.attributes) {
+            // VFrameFormat is handled exclusively by serializeFdAttributes to avoid double-emit
+            if (attr.definitionName === 'VFrameFormat') {
+                continue;
+            }
             const name = `"${escapeDbcString(attr.definitionName)}"`;
             const valStr =
                 typeof attr.value === 'string'

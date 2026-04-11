@@ -71,10 +71,36 @@ export class DbcParser implements ICanDatabaseParser {
             }
         }
 
+        this.applyFdAttributes(database);
+
         return database;
     }
 
     readonly supportedExtensions = ['.dbc'];
+
+    /**
+     * Post-parse pass: reads `VFrameFormat` BA_ attributes and sets `Message.isFd = true`
+     * for any message whose VFrameFormat enum index is ≥ 2 (StandardCAN_FD or ExtendedCAN_FD).
+     * This is the industry-standard mechanism used by Vector CANdb++ and PEAK tools.
+     */
+    private applyFdAttributes(database: CanDatabase): void {
+        for (const attr of database.attributes) {
+            if (attr.definitionName !== 'VFrameFormat') {
+                continue;
+            }
+            if (attr.objectType !== ObjectType.Message || attr.messageId === undefined) {
+                continue;
+            }
+            // Enum value ≥ 2 means FD (tolerant of different tool index conventions)
+            const val = typeof attr.value === 'number' ? attr.value : parseInt(String(attr.value), 10);
+            if (!isNaN(val) && val >= 2) {
+                const msg = database.findMessageById(attr.messageId);
+                if (msg) {
+                    msg.isFd = true;
+                }
+            }
+        }
+    }
 
     private parseLines(content: string, database: CanDatabase): void {
         const lines = content.split('\n');
