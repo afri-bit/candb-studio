@@ -49,6 +49,7 @@ export interface MessageDescriptor {
   transmitter: string;
   signals: SignalDescriptor[];
   comment: string;
+  isFd: boolean;
 }
 
 export interface NodeDescriptor {
@@ -91,6 +92,9 @@ export interface CanFrameDescriptor {
   dlc: number;
   timestamp: number;
   isExtended: boolean;
+  isFd?: boolean;
+  brs?: boolean;
+  esi?: boolean;
 }
 
 export interface DecodedSignalValue {
@@ -147,5 +151,5 @@ export type WebviewOutboundMessage =
   | { type: 'virtualBus.start' }
   | { type: 'virtualBus.stop' }
   | { type: 'virtualBus.inject'; messageId: number; data: number[] }
-  | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean }
+  | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean; isFd?: boolean; isBrs?: boolean }
   | { type: 'removeAttributeDefinition'; payload: { documentUri: string; index: number } };

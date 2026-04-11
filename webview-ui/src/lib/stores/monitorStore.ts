@@ -19,6 +19,8 @@ export interface LiveMessageSnapshot {
   signals: Record<string, LiveSignalEntry>;
   /** Standard (11-bit) vs extended (29-bit) CAN ID. */
   isExtended: boolean;
+  /** True when this frame was transmitted as a CAN FD frame. */
+  isFd?: boolean;
 }
 
 /** Newer of Rx vs Tx snapshot for the same ID (for a single “current values” table). */
@@ -107,6 +109,7 @@ function createMonitorStore() {
           dataHex: dataToHex(frame.frame.data),
           signals,
           isExtended: frame.frame.isExtended,
+          isFd: frame.frame.isFd,
         };
 
         return {

@@ -85,6 +85,9 @@
           <span class="msg-meta"
             >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')} · DLC {msg.dlc}</span
           >
+          {#if msg.isFd}
+            <span class="badge-fd" title="CAN FD message">FD</span>
+          {/if}
           {#if live}
             <span class="msg-dir" title="Direction of the latest frame for this ID"
               >{live.lastDirection === 'rx' ? 'Rx' : 'Tx'}</span
@@ -148,6 +151,9 @@
               <span class="msg-meta"
                 >0x{id.toString(16).toUpperCase().padStart(3, '0')} · DLC {snap.dlc}</span
               >
+              {#if snap.isFd}
+                <span class="badge-fd" title="CAN FD frame">FD</span>
+              {/if}
               <span class="msg-dir" title="Direction of the latest frame for this ID"
                 >{snap.lastDirection === 'rx' ? 'Rx' : 'Tx'}</span
               >
@@ -403,5 +409,18 @@
     text-align: center;
     color: var(--vscode-descriptionForeground);
     font-size: 0.92em;
+  }
+
+  .badge-fd {
+    display: inline-block;
+    font-size: 0.72em;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--vscode-charts-blue) 20%, transparent);
+    color: var(--vscode-charts-blue);
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
   }
 </style>
