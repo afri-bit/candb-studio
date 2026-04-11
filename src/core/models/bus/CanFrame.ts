@@ -11,6 +11,12 @@ export class CanFrame {
     public dlc: number;
     public isExtended: boolean;
     public timestamp: number;
+    /** True if this is a CAN FD frame (payload up to 64 bytes). */
+    public isFd: boolean;
+    /** Bit Rate Switch — data phase transmitted at higher bitrate. */
+    public isBrs: boolean;
+    /** Error State Indicator — transmitting node is error-passive. */
+    public isEsi: boolean;
 
     constructor(params: {
         id: number;
@@ -18,12 +24,18 @@ export class CanFrame {
         dlc?: number;
         isExtended?: boolean;
         timestamp?: number;
+        isFd?: boolean;
+        isBrs?: boolean;
+        isEsi?: boolean;
     }) {
         this.id = params.id;
         this.data = params.data;
         this.dlc = params.dlc ?? params.data.length;
         this.isExtended = params.isExtended ?? false;
         this.timestamp = params.timestamp ?? 0;
+        this.isFd = params.isFd ?? false;
+        this.isBrs = params.isBrs ?? false;
+        this.isEsi = params.isEsi ?? false;
     }
 
     /** Format the arbitration ID as a hex string (e.g. "0x1A3"). */

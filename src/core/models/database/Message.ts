@@ -18,6 +18,8 @@ export class Message {
     /** References to global pool signals with per-frame layout. */
     public signalRefs: MessageSignalRef[];
     public comment?: string;
+    /** True if this message is a CAN FD frame (DLC up to 64 bytes). */
+    public isFd: boolean;
 
     constructor(params: {
         id: number;
@@ -26,6 +28,7 @@ export class Message {
         transmittingNode?: string;
         signalRefs?: MessageSignalRef[];
         comment?: string;
+        isFd?: boolean;
     }) {
         this.id = params.id;
         this.name = params.name;
@@ -33,6 +36,7 @@ export class Message {
         this.transmittingNode = params.transmittingNode ?? '';
         this.signalRefs = params.signalRefs ?? [];
         this.comment = params.comment;
+        this.isFd = params.isFd ?? false;
     }
 
     findSignalRefByName(name: string): MessageSignalRef | undefined {

@@ -44,6 +44,9 @@ export class VirtualCanAdapter implements ICanBusAdapter {
             dlc: frame.dlc,
             isExtended: frame.isExtended,
             timestamp: Date.now(),
+            isFd: frame.isFd,
+            isBrs: frame.isBrs,
+            isEsi: frame.isEsi,
         });
         for (const cb of this.frameCallbacks) {
             cb(loopback);
@@ -64,6 +67,9 @@ export class VirtualCanAdapter implements ICanBusAdapter {
             dlc: frame.dlc,
             isExtended: frame.isExtended,
             timestamp: Date.now(),
+            isFd: frame.isFd,
+            isBrs: frame.isBrs,
+            isEsi: frame.isEsi,
         });
         for (const cb of this.frameCallbacks) {
             cb(copy);

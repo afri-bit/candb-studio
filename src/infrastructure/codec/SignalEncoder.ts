@@ -21,7 +21,27 @@ export class SignalEncoder implements ISignalEncoder {
     }
 
     private encodeLittleEndian(signal: Signal, rawValue: number, data: Uint8Array): void {
-        // Intel byte order: LSB at startBit, bits increment sequentially
+        // Intel byte order: LSB at startBit, bits increment sequentially.
+        // For signals wider than 32 bits (CAN FD), use BigInt to avoid 32-bit truncation.
+        if (signal.bitLength > 32) {
+            let value = BigInt(rawValue);
+            let bitPos = signal.startBit;
+            for (let i = 0; i < signal.bitLength; i++) {
+                const byteIndex = Math.floor(bitPos / 8);
+                const bitIndex = bitPos % 8;
+                if (byteIndex < data.length) {
+                    if (value & 1n) {
+                        data[byteIndex] |= 1 << bitIndex;
+                    } else {
+                        data[byteIndex] &= ~(1 << bitIndex);
+                    }
+                }
+                value >>= 1n;
+                bitPos++;
+            }
+            return;
+        }
+
         let value = rawValue;
         let bitPos = signal.startBit;
 
@@ -45,6 +65,29 @@ export class SignalEncoder implements ISignalEncoder {
     private encodeBigEndian(signal: Signal, rawValue: number, data: Uint8Array): void {
         // Motorola (big-endian) bit packing — startBit is the MSB in DBC bit numbering.
         // Within a byte go right (decrement); at a byte boundary jump to MSB of next byte.
+        // For signals wider than 32 bits (CAN FD), use BigInt to avoid 32-bit truncation.
+        if (signal.bitLength > 32) {
+            const raw = BigInt(rawValue);
+            let bitPos = signal.startBit;
+            for (let i = 0; i < signal.bitLength; i++) {
+                const byteIndex = Math.floor(bitPos / 8);
+                const bitIndex = bitPos % 8;
+                if (byteIndex < data.length) {
+                    if ((raw >> BigInt(signal.bitLength - 1 - i)) & 1n) {
+                        data[byteIndex] |= 1 << bitIndex;
+                    } else {
+                        data[byteIndex] &= ~(1 << bitIndex);
+                    }
+                }
+                if (bitPos % 8 === 0) {
+                    bitPos += 15;
+                } else {
+                    bitPos -= 1;
+                }
+            }
+            return;
+        }
+
         let bitPos = signal.startBit;
 
         for (let i = 0; i < signal.bitLength; i++) {
