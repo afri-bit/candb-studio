@@ -14,6 +14,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **BA_ attribute value serialization** — parsed attribute values are written back to DBC text, completing the round-trip for `BA_DEF_` / `BA_DEF_DEF_` / `BA_` blocks.
 - **Motorola (big-endian) signal codec** — full implementation of Motorola bit extraction and packing in `SignalDecoder` and `SignalEncoder`, replacing the previous no-op stubs. Both encoder and decoder now use the Vector CANdb++ convention (MSB at `startBit`, navigate right within a byte and jump to the next byte's MSB at each byte boundary).
 - **Webview transmit codec alignment** — `transmitCodec.ts` Motorola encode/decode updated to match the same Vector CANdb++ convention used by the extension host, eliminating the mismatch that caused the Signal Lab transmit panel to write signal bits to different byte positions than the monitor decoder read them from.
+- **CAN FD support** — first-class CAN FD across the full stack:
+  - `Message.isFd` and `CanFrame.isFd / isBrs / isEsi` added as domain fields (backwards-compatible, all default to `false`).
+  - Parser derives `isFd` from `VFrameFormat` BA_ attributes (Vector CANdb++ standard); serializer synthesizes `BA_DEF_` and `BA_` lines from `Message.isFd` and filters them from the normal attribute loop to prevent double-emit. Full round-trip supported.
+  - DLC validation updated: classic CAN enforces 0–8, CAN FD accepts ISO 11898-1 canonical sizes (0–8, 12, 16, 20, 24, 32, 48, 64) with a warning for non-canonical values and an error above 64.
+  - `CanDatabaseService.updateMessage` lifts the hard-coded `Math.min(8, …)` DLC cap for FD messages.
+  - Signal codec (encoder and decoder) switches to a BigInt accumulation path for signals wider than 32 bits, enabling correct decoding of wide signals in 64-byte FD payloads.
+  - `VirtualCanAdapter` propagates `isFd`, `isBrs`, `isEsi` on loopback frames; `VirtualBusSimulationService` marks injected frames as FD when the message definition is FD.
+  - `validateCanFdRawFrame` added to validate raw FD frame submissions (ID range, canonical payload size, DLC/payload length agreement).
+  - `CanChannel.dataBitrate` field added; connect flow prompts for CAN FD data bitrate when using SocketCAN.
+  - `fdDlcNibbleToBytes` / `fdBytesToDlcNibble` utility functions added to `constants.ts` for future hardware adapter use.
+  - `linkSignalToMessage` now rejects signal placements that exceed the message payload (`startBit + bitLength > dlc × 8`).
+  - WebviewMessageHandler propagates `isFd` when building `CanFrame` for both single-shot and periodic transmit.
+  - Database editor shows a **Frame** column (`CAN` / `FD`) in the message list; message property grid exposes an `isFd` toggle and switches the DLC field to a canonical-size `<select>` when FD is enabled.
+  - Signal Lab monitor shows **FD** badge in the DLC column of the raw frame table and in the decoded message view; transmit panel message list shows **FD** badge; raw transmit panel exposes a CAN FD checkbox with BRS toggle and canonical DLC selector.
+  - `SocketCanAdapter` comment block documents `CAN_RAW_FD_FRAMES` socket option, `canfd_frame` struct layout, and BRS/ESI flag mapping for when the backend is implemented.
 
 ### Fixed
 

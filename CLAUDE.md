@@ -91,8 +91,7 @@ When adding or changing editor/webview behavior:
 - Prefer minimal, task-focused diffs; match existing naming, imports, and patterns in touched files.
 - Keep `CHANGELOG.md` or `README.md` updates aligned with user requests — do not update them speculatively.
 
-## Known limitations (as of 0.1.1)
+## Known limitations (as of 0.2.0)
 
 - **SocketCAN**: appears in the UI but the backend is not implemented; only the **virtual** adapter works end-to-end.
-- **Motorola (big-endian)** signal decode/encode is a stub — do not rely on correct physical values.
 - Multi-adapter support (PCAN, Vector, SLCAN, etc.) is not yet available.
