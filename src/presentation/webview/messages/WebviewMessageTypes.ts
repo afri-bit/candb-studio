@@ -15,7 +15,7 @@ export type WebviewToExtensionMessage =
     | { type: 'monitor.stop' }
     | { type: 'transmit.send'; messageId: number; data: number[] }
     /** Signal Lab: raw frame (no DBC). Virtual adapter uses inject path; hardware uses send. */
-    | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean }
+    | { type: 'transmit.sendRaw'; id: number; data: number[]; dlc: number; isExtended?: boolean; isFd?: boolean; isBrs?: boolean }
     | { type: 'transmit.startPeriodic'; messageId: number; data: number[]; intervalMs: number }
     | { type: 'transmit.stopPeriodic'; messageId: number }
     /** Signal Lab: update payload of a running periodic task without restarting the timer. */
@@ -56,7 +56,7 @@ export type WebviewToExtensionMessage =
       }
     | {
           type: 'addMessage';
-          payload: { documentUri: string; name: string; id: number; dlc: number };
+          payload: { documentUri: string; name: string; id: number; dlc: number; isFd?: boolean };
       }
     | { type: 'removeMessage'; payload: { documentUri: string; messageId: number } }
     | {
@@ -112,7 +112,7 @@ export type ExtensionToWebviewMessage =
     | { type: 'update'; payload: { content: string } }
     | {
           type: 'frameReceived';
-          payload: { id: number; data: number[]; dlc: number; timestamp: number };
+          payload: { id: number; data: number[]; dlc: number; timestamp: number; isFd?: boolean; brs?: boolean; esi?: boolean };
       }
     | {
           type: 'decodedMessage';
@@ -133,6 +133,9 @@ export type ExtensionToWebviewMessage =
                   dlc: number;
                   timestamp: number;
                   isExtended: boolean;
+                  isFd?: boolean;
+                  brs?: boolean;
+                  esi?: boolean;
               };
               messageName: string;
               signals: Array<{
