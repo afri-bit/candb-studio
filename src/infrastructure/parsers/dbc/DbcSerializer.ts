@@ -28,9 +28,9 @@ export class DbcSerializer implements ICanDatabaseSerializer {
 
         sections.push(`VERSION "${database.version}"`);
         sections.push('');
-        sections.push('NS_ :');
+        sections.push(database.nsContent ?? 'NS_ :');
         sections.push('');
-        sections.push('BS_:');
+        sections.push(database.bsContent ?? 'BS_:');
         sections.push('');
         sections.push(this.serializeNodes(database));
         sections.push('');
@@ -76,6 +76,14 @@ export class DbcSerializer implements ICanDatabaseSerializer {
             sections.push(baBlock);
         }
 
+        // Emit preserved unknown/unsupported sections verbatim (round-trip fidelity)
+        if (database.rawUnknownSections.length > 0) {
+            for (const block of database.rawUnknownSections) {
+                sections.push('');
+                sections.push(block);
+            }
+        }
+
         const poolOnlyUnreferenced = database.signalPool.filter(
             (s) => !database.isSignalReferencedByMessage(s.name),
         );
@@ -108,18 +116,20 @@ export class DbcSerializer implements ICanDatabaseSerializer {
         const lines: string[] = [];
         for (const def of defs) {
             const scope = this.objectTypeToBaDefScope(def.objectType);
+            // Network-level attributes have no scope prefix; others get "SCOPE " with a trailing space.
+            const scopePrefix = scope ? `${scope} ` : '';
             const vt = def.valueType;
             if (vt === AttributeValueType.String) {
-                lines.push(`BA_DEF_ ${scope} "${escapeDbcString(def.name)}" STRING ;`);
+                lines.push(`BA_DEF_ ${scopePrefix}"${escapeDbcString(def.name)}" STRING ;`);
             } else if (vt === AttributeValueType.Enum) {
                 const parts = def.enumValues?.length
                     ? def.enumValues.map((v) => `"${escapeDbcString(v)}"`).join(',')
                     : '""';
-                lines.push(`BA_DEF_ ${scope} "${escapeDbcString(def.name)}" ENUM ${parts};`);
+                lines.push(`BA_DEF_ ${scopePrefix}"${escapeDbcString(def.name)}" ENUM ${parts};`);
             } else {
                 const min = def.minimum ?? 0;
                 const max = def.maximum ?? 0;
-                lines.push(`BA_DEF_ ${scope} "${escapeDbcString(def.name)}" ${vt} ${min} ${max};`);
+                lines.push(`BA_DEF_ ${scopePrefix}"${escapeDbcString(def.name)}" ${vt} ${min} ${max};`);
             }
             lines.push(this.serializeBaDefDefLine(def));
         }
@@ -136,6 +146,8 @@ export class DbcSerializer implements ICanDatabaseSerializer {
                 return 'SG_';
             case ObjectType.EnvironmentVariable:
                 return 'EV_';
+            case ObjectType.Network:
+                return ''; // network-level: no scope prefix
             default:
                 return 'BO_';
         }
@@ -272,8 +284,16 @@ export class DbcSerializer implements ICanDatabaseSerializer {
         }
 
         for (const msg of fdMessages) {
-            // 2 = StandardCAN_FD, 3 = ExtendedCAN_FD (extended = 29-bit ID > 0x7FF)
-            const fdIndex = msg.id > 0x7ff ? 3 : 2;
+            // Preserve the original vendor enum index when it exists (e.g. Kvaser uses index 14
+            // in a 16-value enum). Fall back to 2/3 only for messages newly added by the extension.
+            const stored = database.attributes.find(
+                (a) =>
+                    a.definitionName === 'VFrameFormat' &&
+                    a.objectType === ObjectType.Message &&
+                    a.messageId === msg.id,
+            );
+            const fdIndex =
+                stored !== undefined ? stored.value : msg.id > 0x7ff ? 3 : 2;
             lines.push(`BA_ "VFrameFormat" BO_ ${msg.id} ${fdIndex};`);
         }
 

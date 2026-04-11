@@ -33,6 +33,13 @@ export class CanDatabase {
     public valueTables: ValueTable[];
     public comment?: string;
 
+    /** Raw NS_ block text (header + indented symbols). Null = none seen; serializer falls back to 'NS_ :'. */
+    public nsContent: string | null = null;
+    /** Raw BS_: line. Null = none seen; serializer falls back to 'BS_:'. */
+    public bsContent: string | null = null;
+    /** Ordered raw text blocks for unrecognized top-level DBC sections. Emitted verbatim by DbcSerializer. */
+    public rawUnknownSections: string[] = [];
+
     constructor(params?: {
         version?: string;
         nodes?: Node[];

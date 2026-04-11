@@ -110,6 +110,15 @@ export class DbcParser implements ICanDatabaseParser {
 
             if (line.startsWith('VERSION')) {
                 this.parseVersion(line, database);
+            } else if (line.startsWith('NS_')) {
+                // Capture NS_ header + all indented continuation lines verbatim
+                const start = i;
+                while (i + 1 < lines.length && /^\s/.test(lines[i + 1]) && lines[i + 1].trim() !== '') {
+                    i++;
+                }
+                database.nsContent = lines.slice(start, i + 1).join('\n').trimEnd();
+            } else if (line.startsWith('BS_:')) {
+                database.bsContent = lines[i].trimEnd();
             } else if (line.startsWith('BU_:')) {
                 this.parseNodes(line, database);
             } else if (line.startsWith('BO_ ')) {
@@ -128,8 +137,30 @@ export class DbcParser implements ICanDatabaseParser {
                 i = this.parseCmLines(lines, i, database);
             } else if (line.startsWith('BA_ ')) {
                 this.parseBaLine(line, database);
+            } else if (this.isTopLevelSectionStart(lines[i])) {
+                // Unknown/unsupported top-level section — collect verbatim for round-trip fidelity
+                const start = i;
+                while (i + 1 < lines.length && !this.isTopLevelSectionStart(lines[i + 1])) {
+                    i++;
+                }
+                const block = lines.slice(start, i + 1).join('\n').trimEnd();
+                if (block.trim()) {
+                    database.rawUnknownSections.push(block);
+                }
             }
         }
+    }
+
+    /**
+     * Returns true if a raw (untrimmed) line begins a top-level DBC section:
+     * non-empty, does NOT start with whitespace (signal lines inside BO_ blocks
+     * are always indented), and whose trimmed form matches the DBC keyword pattern.
+     */
+    private isTopLevelSectionStart(rawLine: string): boolean {
+        if (!rawLine || /^\s/.test(rawLine)) {
+            return false;
+        }
+        return /^[A-Z][A-Z0-9_]*[_ :]/.test(rawLine.trim());
     }
 
     /** DBC structural keywords that delimit sections — used to guard CM_ line accumulation. */
@@ -388,13 +419,14 @@ export class DbcParser implements ICanDatabaseParser {
     }
 
     private parseBaDef(line: string, database: CanDatabase): void {
+        // Scope prefix (BU_/BO_/SG_/EV_) is optional — omitted for network-level attributes.
         const m = line.match(
-            /^BA_DEF_\s+(BU_|BO_|SG_|EV_)\s+"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
+            /^BA_DEF_\s+(?:(BU_|BO_|SG_|EV_)\s+)?"([^"]+)"\s+(INT|FLOAT|STRING|ENUM|HEX)\s*(.*?)\s*;$/i,
         );
         if (!m) {
             return;
         }
-        const prefix = m[1];
+        const prefix = m[1]; // undefined when network-level (no scope)
         const name = m[2];
         const vtToken = m[3].toUpperCase();
         const tail = (m[4] ?? '').trim();
@@ -475,7 +507,7 @@ export class DbcParser implements ICanDatabaseParser {
         return parseInt(raw, 10);
     }
 
-    private baDefPrefixToObjectType(prefix: string): ObjectType {
+    private baDefPrefixToObjectType(prefix: string | undefined): ObjectType {
         switch (prefix) {
             case 'BU_':
                 return ObjectType.Node;
@@ -485,6 +517,8 @@ export class DbcParser implements ICanDatabaseParser {
                 return ObjectType.Signal;
             case 'EV_':
                 return ObjectType.EnvironmentVariable;
+            case undefined:
+                return ObjectType.Network;
             default:
                 return ObjectType.Message;
         }

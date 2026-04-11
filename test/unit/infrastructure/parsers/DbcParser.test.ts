@@ -449,6 +449,23 @@ suite('DbcParser', () => {
       assert.strictEqual(count, 1, 'exactly one VFrameFormat BA_ line should be emitted');
     });
 
+    test('preserves vendor VFrameFormat enum index (e.g. Kvaser index 14) on round-trip', () => {
+      // Kvaser uses a 16-value VFrameFormat enum; StandardCAN_FD is at index 14, not 2.
+      const dbc = [
+        'VERSION ""',
+        'BU_:',
+        'BO_ 100 FdMsg: 16 Vector__XXX',
+        'BA_DEF_ BO_ "VFrameFormat" ENUM "StandardCAN","ExtendedCAN","r","r","r","r","r","r","r","r","r","r","r","r","StandardCAN_FD","ExtendedCAN_FD";',
+        'BA_DEF_DEF_ "VFrameFormat" "StandardCAN";',
+        'BA_ "VFrameFormat" BO_ 100 14;',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findMessageById(100)!.isFd, true, 'isFd must be set');
+      const serializer = new DbcSerializer();
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('BA_ "VFrameFormat" BO_ 100 14'), 'original index 14 must be preserved, not rewritten to 2');
+    });
+
     test('accepts VFrameFormat index ≥ 2 (tolerant of tool variations)', () => {
       const altFdDbc = [
         'VERSION ""',
@@ -460,6 +477,176 @@ suite('DbcParser', () => {
       ].join('\n');
       const db = parser.parse(altFdDbc);
       assert.strictEqual(db.findMessageById(300)!.isFd, true);
+    });
+  });
+
+  suite('parse — unknown/unsupported DBC sections (round-trip passthrough)', () => {
+    let serializer: DbcSerializer;
+
+    setup(() => {
+      serializer = new DbcSerializer();
+    });
+
+    test('preserves NS_ block with symbol names through round-trip', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '   NS_DESC_',
+        '   CM_',
+        '',
+        'BS_:',
+        '',
+        'BU_:',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.ok(db.nsContent, 'nsContent should be populated');
+      assert.ok(db.nsContent!.includes('NS_DESC_'), 'nsContent should contain symbol names');
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('NS_DESC_'), 'serialized output should contain NS_ symbols');
+    });
+
+    test('uses default NS_ : when nsContent is null (files without NS_ block)', () => {
+      const db = parser.parse('VERSION ""\n\nBU_:\n');
+      assert.strictEqual(db.nsContent, null);
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('NS_ :'), 'fallback NS_ : should be emitted');
+    });
+
+    test('survives EV_ section through parse → serialize → parse', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '',
+        'BS_:',
+        '',
+        'BU_: ECU1',
+        '',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "kph" ECU1',
+        '',
+        'EV_ EnvVar1 : 0 [0,100] "" 0 0 DUMMY_NODE_VECTOR0 ECU1;',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.rawUnknownSections.length, 1, 'EV_ section should be captured');
+      assert.ok(db.rawUnknownSections[0].startsWith('EV_'), 'captured block should start with EV_');
+
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('EV_'), 'serialized output must contain EV_ section');
+
+      const db2 = parser.parse(text);
+      assert.strictEqual(db2.rawUnknownSections.length, 1, 'EV_ should survive re-parse');
+      assert.ok(db2.rawUnknownSections[0].startsWith('EV_'));
+    });
+
+    test('survives SIG_GROUP_ section through parse → serialize → parse', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '',
+        'BS_:',
+        '',
+        'BU_: ECU1',
+        '',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "kph" ECU1',
+        ' SG_ Temp  : 8|8@1+ (1,0) [0|255] "degC" ECU1',
+        '',
+        'SIG_GROUP_ 100 Group1 1 : Speed Temp;',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.rawUnknownSections.length, 1, 'SIG_GROUP_ section should be captured');
+      assert.ok(db.rawUnknownSections[0].startsWith('SIG_GROUP_'));
+
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('SIG_GROUP_'), 'serialized output must contain SIG_GROUP_');
+
+      const db2 = parser.parse(text);
+      assert.strictEqual(db2.rawUnknownSections.length, 1, 'SIG_GROUP_ must survive re-parse');
+    });
+
+    test('preserves multiple unknown sections in order', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '',
+        'BS_:',
+        '',
+        'BU_:',
+        '',
+        'EV_ EnvVar1 : 0 [0,100] "" 0 0 DUMMY_NODE_VECTOR0;',
+        '',
+        'BO_TX_BU_ 100 : ECU1;',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.rawUnknownSections.length, 2, 'both EV_ and BO_TX_BU_ should be captured');
+      assert.ok(db.rawUnknownSections[0].startsWith('EV_'));
+      assert.ok(db.rawUnknownSections[1].startsWith('BO_TX_BU_'));
+
+      const text = serializer.serialize(db);
+      const db2 = parser.parse(text);
+      assert.strictEqual(db2.rawUnknownSections.length, 2, 'section count must be stable after round-trip');
+    });
+
+    test('parses network-level BA_DEF_ (no scope prefix) and round-trips it', () => {
+      // Tools like Kvaser emit: BA_DEF_  "BusType" STRING ;  (no BU_/BO_/SG_/EV_ scope)
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '',
+        'BS_:',
+        '',
+        'BU_:',
+        '',
+        'BA_DEF_  "BusType" STRING ;',
+        'BA_DEF_DEF_  "BusType" "";',
+        '',
+        'BA_ "BusType" "CAN FD";',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      const busDef = db.findAttributeDefinition('BusType');
+      assert.ok(busDef, 'BusType BA_DEF_ must be parsed');
+      assert.strictEqual(busDef!.objectType, ObjectType.Network, 'must be Network scope');
+
+      const text = serializer.serialize(db);
+      assert.ok(text.includes('BA_DEF_ "BusType" STRING'), 'serialized BA_DEF_ must have no scope prefix');
+      assert.ok(text.includes('BA_ "BusType" "CAN FD"'), 'BA_ value must be preserved');
+
+      const db2 = parser.parse(text);
+      assert.ok(db2.findAttributeDefinition('BusType'), 'BusType must survive round-trip');
+    });
+
+    test('known sections (BO_, CM_) still parse correctly alongside unknown sections', () => {
+      const dbc = [
+        'VERSION ""',
+        '',
+        'NS_ :',
+        '',
+        'BS_:',
+        '',
+        'BU_: ECU1',
+        '',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "kph" ECU1',
+        '',
+        'EV_ MyEnv : 0 [0,100] "" 0 0 DUMMY_NODE_VECTOR0;',
+        '',
+        'CM_ BO_ 100 "Test message";',
+        '',
+      ].join('\n');
+      const db = parser.parse(dbc);
+      assert.ok(db.findMessageById(100), 'BO_ must still parse');
+      assert.strictEqual(db.findMessageById(100)!.comment, 'Test message', 'CM_ must still parse');
+      assert.strictEqual(db.rawUnknownSections.length, 1, 'EV_ must be captured');
     });
   });
 });
