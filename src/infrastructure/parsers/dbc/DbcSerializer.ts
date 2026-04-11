@@ -1,5 +1,6 @@
 import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 import { ByteOrder } from '../../../core/enums/ByteOrder';
+import { MultiplexIndicator } from '../../../core/enums/MultiplexIndicator';
 import { ObjectType } from '../../../core/enums/ObjectType';
 import type { ICanDatabaseSerializer } from '../../../core/interfaces/database/ICanDatabaseSerializer';
 import type { CanDatabase } from '../../../core/models/database/CanDatabase';
@@ -340,11 +341,18 @@ export class DbcSerializer implements ICanDatabaseSerializer {
     private serializeSignal(signal: Signal): string {
         // DBC byte order: 1 = Intel (little-endian), 0 = Motorola (big-endian)
         const byteOrderChar = signal.byteOrder === ByteOrder.LittleEndian ? '1' : '0';
-        // SignalValueType.Signed = 1; use '-' for signed
         const signChar = signal.valueType === 1 ? '-' : '+';
         const receivers =
             signal.receivingNodes.length > 0 ? signal.receivingNodes.join(',') : 'Vector__XXX';
 
-        return `SG_ ${signal.name} : ${signal.startBit}|${signal.bitLength}@${byteOrderChar}${signChar} (${signal.factor},${signal.offset}) [${signal.minimum}|${signal.maximum}] "${signal.unit}" ${receivers}`;
+        // Mux token: "M " for multiplexor, "m<N> " for multiplexed signal, "" for regular
+        let muxToken = '';
+        if (signal.multiplexIndicator === MultiplexIndicator.Multiplexor) {
+            muxToken = ' M';
+        } else if (signal.multiplexIndicator === MultiplexIndicator.MultiplexedSignal) {
+            muxToken = ` m${signal.multiplexValue ?? 0}`;
+        }
+
+        return `SG_ ${signal.name}${muxToken} : ${signal.startBit}|${signal.bitLength}@${byteOrderChar}${signChar} (${signal.factor},${signal.offset}) [${signal.minimum}|${signal.maximum}] "${signal.unit}" ${receivers}`;
     }
 }

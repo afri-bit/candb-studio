@@ -1,0 +1,58 @@
+{
+  "nodes": [
+    "ECU1"
+  ],
+  "messages": [
+    {
+      "id": 100,
+      "name": "TestMsg",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ECU1",
+      "comment": "Test message for all attribute types",
+      "signals": [
+        {
+          "name": "Val",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": "Unsigned byte value",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Temp",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": -40.0,
+          "minimum": -40.0,
+          "maximum": 87.5,
+          "unit": "degC",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": "Signed temperature signal",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    }
+  ],
+  "value_tables": []
+}

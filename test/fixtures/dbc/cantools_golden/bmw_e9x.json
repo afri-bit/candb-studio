@@ -1,0 +1,6354 @@
+{
+  "nodes": [
+    "EON",
+    "XXX",
+    "RDC",
+    "SZL",
+    "VGSG",
+    "JBBF",
+    "RFK",
+    "FLA",
+    "RAD1",
+    "CAS",
+    "CID",
+    "AHM",
+    "HKL",
+    "HUD",
+    "EKP",
+    "DWA",
+    "DSC",
+    "SM_BF",
+    "GWS",
+    "VDM",
+    "DDE1",
+    "ACI",
+    "CCC",
+    "DSC",
+    "SM_FA",
+    "CTM",
+    "LDM",
+    "RSE",
+    "MRSZ",
+    "VDA",
+    "EDCK",
+    "ZBE",
+    "EGS",
+    "ACC_Sensor",
+    "Kombi",
+    "IHKA",
+    "ARS",
+    "ACSM",
+    "FZD",
+    "PGS",
+    "NVC",
+    "AFS",
+    "DME",
+    "FRMFA",
+    "EMF",
+    "FKA",
+    "VSW",
+    "EPS",
+    "PDC",
+    "DKG",
+    "EHC",
+    "Diagnosetool_PT_CAN",
+    "Diagnosetool_K_CAN_System",
+    "Vector__XXX"
+  ],
+  "messages": [
+    {
+      "id": 170,
+      "name": "AccPedal",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_170",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_170",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "AcceleratorPedalPercentage",
+          "start_bit": 16,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "ToDo Factor to be adjusted",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EngineSpeed",
+          "start_bit": 32,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.25,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 8000.0,
+          "unit": "rpm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruisePedalInactive",
+          "start_bit": 55,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruisePedalActive",
+          "start_bit": 54,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "KickDownPressed",
+          "start_bit": 53,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "AcceleratorPedalPressed",
+          "start_bit": 52,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Active only when driver actually presses the pedal",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ThrottlelPressed",
+          "start_bit": 50,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Active when accelerator pedal pressed or cruise control: drives",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 404,
+      "name": "CruiseControl",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_404",
+          "start_bit": 7,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "requests_0xF",
+          "start_bit": 15,
+          "length": 4,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_404",
+          "start_bit": 11,
+          "length": 4,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Message is sent at higher rate when cruise stalk is pressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Cancel_request_up_stalk",
+          "start_bit": 23,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Appears when cancel stalk (up) is depressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Resume_request",
+          "start_bit": 22,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "It appears when resume stalk button is depressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Cancel_request_up_or_down_stalk",
+          "start_bit": 20,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Appears when cancel stalk (up or down) is depressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "minus5mph_request",
+          "start_bit": 19,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "minus1mph_request",
+          "start_bit": 18,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Appears when -1mph/kph stalk is depressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "plus5mph_request",
+          "start_bit": 17,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "plus1mph_request",
+          "start_bit": 16,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Appears when +1mph/kph stalk is depressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "setMe_0xFC",
+          "start_bit": 31,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 512,
+      "name": "CruiseControlStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "CruiseControlSetpointSpeed",
+          "start_bit": 7,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.25,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "mph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruiseCoontrolActiveFlag",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruiseControlInactiveFlag",
+          "start_bit": 12,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 168,
+      "name": "EngineAndBrake",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_EngineAndBrake",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ALIV_TORQ_1_DME",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Counter TORQ_1",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EngineTorque",
+          "start_bit": 12,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.03125,
+          "offset": 0.0,
+          "minimum": -1024.0,
+          "maximum": 1023.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Engine torque without inertia - combustion torque",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EngineTorqueWoInterv",
+          "start_bit": 24,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.03125,
+          "offset": 0.0,
+          "minimum": -1024.0,
+          "maximum": 1023.96875,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Engine torque without inertia and without shift intervention",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_DMEA_SWO",
+          "start_bit": 44,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_RCPT_ENG_ACC",
+          "start_bit": 48,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_RCPT_ENG_ARS",
+          "start_bit": 50,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_RCPT_ENG_DSC",
+          "start_bit": 52,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_RCPT_ENG_EGS",
+          "start_bit": 54,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Brake_active2",
+          "start_bit": 62,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "BrakePressed",
+          "start_bit": 61,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Brake when driver presses the brake or hill hold",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 470,
+      "name": "SteeringButtons",
+      "dlc": 2,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Next_up",
+          "start_bit": 5,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Previous_down",
+          "start_bit": 4,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Volume_UP",
+          "start_bit": 3,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Volume_DOWN",
+          "start_bit": 2,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Telephone",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "VoiceControl",
+          "start_bit": 8,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 403,
+      "name": "DynamicCruiseControlStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Counter_403",
+          "start_bit": 7,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruiseControlSetpointSpeed",
+          "start_bit": 15,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -2.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph/mph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Speed target - unit depends on locale",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruiseActive",
+          "start_bit": 43,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CruiseSpeedChangeRequest",
+          "start_bit": 48,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "name": "SteeringWheelAngle_DSC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": [
+        {
+          "name": "SteeringPosition",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0428316886,
+          "offset": 0.0,
+          "minimum": -600.0,
+          "maximum": 600.0,
+          "unit": "deg",
+          "receivers": [
+            "DSC"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_201",
+          "start_bit": 20,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "DSC"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SteeringPositionComplementLow",
+          "start_bit": 24,
+          "length": 11,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "DSC"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 206,
+      "name": "WheelSpeeds",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Wheel_FL",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0625,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Wheel_FR",
+          "start_bit": 16,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0625,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Wheel_RL",
+          "start_bit": 32,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0625,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Wheel_RR",
+          "start_bit": 48,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0625,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 884,
+      "name": "WheelToleranceAdjustment",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 678,
+      "name": "WiperSwitch",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": [
+        {
+          "name": "AutoWipersOn",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 304,
+      "name": "TerminalStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "IgnitionOff",
+          "start_bit": 22,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "AccOn",
+          "start_bit": 23,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_304",
+          "start_bit": 32,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_304",
+          "start_bit": 36,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 169,
+      "name": "Torque2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "CHKSM_TORQ_2_DME",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ALIV_TORQ_2_DME",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Counter TORQ_2",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_SW_LEV_RPM",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_INFS",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TORQ_AVL_MIN",
+          "start_bit": 16,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": -1023.5,
+          "maximum": 1023.5,
+          "unit": "Nm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TORQ_AVL_MAX",
+          "start_bit": 28,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": -1023.5,
+          "maximum": 1023.5,
+          "unit": "Nm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TORQ_AVL_SPAR_NEG",
+          "start_bit": 40,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": -1023.5,
+          "maximum": 1023.5,
+          "unit": "Nm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TORQ_AVL_SPAR_POS",
+          "start_bit": 52,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": -1023.5,
+          "maximum": 1023.5,
+          "unit": "Nm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 184,
+      "name": "TorqueTransmisionRequest",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_184",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_184",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 196,
+      "name": "SteeringWheelAngle",
+      "dlc": 7,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "SteeringPosition",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0428316886,
+          "offset": 0.0,
+          "minimum": -600.0,
+          "maximum": 600.0,
+          "unit": "degree",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SteeringSpeed",
+          "start_bit": 24,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0428316886,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "degree/s",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 180,
+      "name": "WheelTorqueDriveTrain1",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 182,
+      "name": "DynamicCruiseControlTorqueDemand",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_182",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_182",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TORQ_TAR_DSC",
+          "start_bit": 12,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1000.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "torque target DSC",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 186,
+      "name": "TransmissionData",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EGS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "GearTar",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -4.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Values corresponds to forward gears. TBD Add enums for park, reverse",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Shifting",
+          "start_bit": 4,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "GearRatio",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.05,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "OutputShaftSpeed",
+          "start_bit": 24,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.125,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "rpm",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_186",
+          "start_bit": 40,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_186",
+          "start_bit": 48,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 191,
+      "name": "RequestedWheelTorqueDriveTrain",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_191",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 19.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_191",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TorqueReq",
+          "start_bit": 16,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": 350.0,
+          "minimum": -1024.0,
+          "maximum": 1023.96875,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 414,
+      "name": "StatusDSC_KCAN",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DSC_full_off",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "0x4 enabling, 0xA enabled. TBD",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DTC_on",
+          "start_bit": 12,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_414",
+          "start_bit": 20,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "BrakeStates",
+          "start_bit": 40,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "BrakePressure",
+          "start_bit": 48,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_414",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 416,
+      "name": "Speed",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "VehicleSpeed",
+          "start_bit": 0,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.103,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "kph",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "MovingForward",
+          "start_bit": 12,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "MovingReverse",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "AccY",
+          "start_bit": 16,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "AccX",
+          "start_bit": 28,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "YawRate",
+          "start_bit": 40,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Lateral Acceleration",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_416",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_416",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 418,
+      "name": "TransimissionData2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EGS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Counter_418",
+          "start_bit": 28,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ManualMode",
+          "start_bit": 50,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_418",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 690,
+      "name": "WheelPressure_KCAN",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 691,
+      "name": "AccelerationData",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 402,
+      "name": "GearSelectorSwitch_1",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Counter_402",
+          "start_bit": 24,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 408,
+      "name": "GearSelectorSwitch",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GWS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Counter_408",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "m3ShifterPosition",
+          "start_bit": 4,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "m3ShifterPositionXOR1111",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ShifterPosition",
+          "start_bit": 12,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [],
+          "comment": "0001 = N|R, 0010 = R, 0011 = N|D, 0100 = D, 0101 = -1, 0110 = +1, 0111 = ManualMode, 1000 = inBetween,",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "D",
+            "2": "S",
+            "3": "N",
+            "4": "R",
+            "5": "P"
+          }
+        },
+        {
+          "name": "ShifterPositionXOR1111",
+          "start_bit": 16,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "param1",
+          "start_bit": 20,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "can not be 0x03. Always 0 in 135i.",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "param1XOR11",
+          "start_bit": 22,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ParkButtonFirst",
+          "start_bit": 24,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "0x1 = pressed",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ParkButtonSecond",
+          "start_bit": 26,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Redundant buton. 0x1 = pressed;",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SideButton",
+          "start_bit": 28,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "0x1 = pressed;",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SideButtonXOR11",
+          "start_bit": 30,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Complement value",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "param5",
+          "start_bit": 32,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Always 0 in 135i.",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SportButtonPressed",
+          "start_bit": 34,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "0x1 = pressed;",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "M3_button",
+          "start_bit": 36,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "M3 POWER (?)",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "always11",
+          "start_bit": 38,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 422,
+      "name": "DistanceRoute",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 436,
+      "name": "InstrumentClusterStatus_KOMBI",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": [
+        {
+          "name": "HandbrakeActive",
+          "start_bit": 41,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 464,
+      "name": "EngineData",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "TEMP_ENG",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -48.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "C",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TEMP_EOI",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -48.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "C",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_464",
+          "start_bit": 16,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ST_ENG_RUN",
+          "start_bit": 20,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "signal invalid",
+            "2": "engine running",
+            "1": "engine starting",
+            "0": "engine off"
+          }
+        },
+        {
+          "name": "ST_SW_WAUP",
+          "start_bit": 22,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "signal invalid",
+            "2": "EGS forced switching active",
+            "1": "engine warm",
+            "0": "warming up"
+          }
+        },
+        {
+          "name": "AIP_ENG",
+          "start_bit": 24,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 2.0,
+          "offset": 598.0,
+          "minimum": 600.0,
+          "maximum": 1106.0,
+          "unit": "hPa",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "IJV_FU",
+          "start_bit": 32,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -48.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "C",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CTR_SLCK",
+          "start_bit": 48,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "signal invalid",
+            "2": "requirement Shiftlock",
+            "1": "no requirement Shiftlock",
+            "0": "not allowed"
+          }
+        },
+        {
+          "name": "RPM_IDLG_TAR",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 5.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1270.0,
+          "unit": "1/min",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 945,
+      "name": "TransmissionData3",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DKG",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_946",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 19.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_945",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "name": "SteeringWheelAngle_slow",
+      "dlc": 6,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": [
+        {
+          "name": "SteeringPosition",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0428316886,
+          "offset": 0.0,
+          "minimum": -600.0,
+          "maximum": 600.0,
+          "unit": "degree",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_200",
+          "start_bit": 20,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SteeringSpeed",
+          "start_bit": 24,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.0428316886,
+          "offset": 0.0,
+          "minimum": -65535.0,
+          "maximum": 65535.0,
+          "unit": "degree/s",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 466,
+      "name": "TransmissionDataDisplay",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EGS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "ShiftLeverPosition",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 8.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Off",
+            "1": "P",
+            "2": "R",
+            "4": "N",
+            "8": "D"
+          }
+        },
+        {
+          "name": "ShiftLeverPositionXOR",
+          "start_bit": 4,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "GearAct",
+          "start_bit": 12,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -4.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "TransmissionDataDisplay",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SportButtonState",
+          "start_bit": 26,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_466",
+          "start_bit": 28,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 14.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ShiftLeverMode",
+          "start_bit": 32,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "On the dashboard, there are displayed:  D1...D7 in Normal. S1...S6 in Sport.  M1..M7 in Manual",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Normal",
+            "1": "Sport",
+            "2": "Manual"
+          }
+        },
+        {
+          "name": "xFF",
+          "start_bit": 40,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 437,
+      "name": "HeatFlow_LoadTorqueClimate",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1152,
+      "name": "NetworkManagment1",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1170,
+      "name": "NetworkManagment2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1175,
+      "name": "NetworkManagment3",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1176,
+      "name": "NetworkManagment4",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1193,
+      "name": "NetworkManagment5",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1246,
+      "name": "GWS_ShiftLeverHeartbeat",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "IgnOff",
+          "start_bit": 12,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 438,
+      "name": "HeatFlowEngine",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 784,
+      "name": "AmbientTemperature_RelativeTime",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 821,
+      "name": "ElectricFuelPumpStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EKP",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1007,
+      "name": "EngineOBD_data",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1432,
+      "name": "ServicesDKG",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 309,
+      "name": "CrashDisconnectControl",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACSM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 502,
+      "name": "TurnSignals",
+      "dlc": 2,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": [
+        {
+          "name": "HoldActivated",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Spikes down if blinker cleared with timeout or turn. Stays off if blinker cleared with stalk",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "RightTurn",
+          "start_bit": 5,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Indicates right blinker or when steering returning right clears left blinker",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "LeftTurn",
+          "start_bit": 4,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Indicates left blinker or when steering returning left clears right blinker",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TurnSignalIdle",
+          "start_bit": 9,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Turn signal off",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "TurnSignalActive",
+          "start_bit": 8,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "Turn signal on or transitioning",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 514,
+      "name": "Dimming",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 538,
+      "name": "LampStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 550,
+      "name": "RainSensorWiperSpeed",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 578,
+      "name": "ClimateFrontStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 704,
+      "name": "LCD_lighting",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 758,
+      "name": "LightControl",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 760,
+      "name": "Time_Date",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 762,
+      "name": "OccupancySeatBeltContact",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACSM",
+      "comment": null,
+      "signals": [
+        {
+          "name": "NEW_SIGNAL_2",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "NEW_SIGNAL_1",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 764,
+      "name": "TrunkStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 797,
+      "name": "TirePressureStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 816,
+      "name": "Range_Mileage",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 823,
+      "name": "StatusFuelControl",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 897,
+      "name": "EngineOilLevel",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 940,
+      "name": "RunOnTimeTerminal30",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 947,
+      "name": "PowerManagmentConsumptionControl",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 948,
+      "name": "PowerBatteryVoltage",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": [
+        {
+          "name": "BatteryVoltage",
+          "start_bit": 7,
+          "length": 24,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.001,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 958,
+      "name": "PowerRunningTime",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1408,
+      "name": "ServicesKGM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1426,
+      "name": "ServicesDME",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1449,
+      "name": "ServicesDSC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1504,
+      "name": "ServicesKOMBI",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 1522,
+      "name": "ServicesKBM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 209,
+      "name": "Accelerometer1",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "YawRate",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Unknown",
+          "start_bit": 16,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "PitchRate",
+          "start_bit": 32,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_209",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CRC8_209",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 172,
+      "name": "WheelTorqueDrivetrain2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 128,
+      "name": "SYNC",
+      "dlc": 5,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "State1",
+          "start_bit": 16,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "State2",
+          "start_bit": 24,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_128",
+          "start_bit": 28,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 320,
+      "name": "Unknown140",
+      "dlc": 2,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "State",
+          "start_bit": 7,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 212,
+      "name": "Unknown_d4",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "State1",
+          "start_bit": 40,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_212",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Checksum_212",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 205,
+      "name": "Accelerometer2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "YawRate",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "CRC8_205",
+          "start_bit": 16,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 65535.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "LateralAcceleration",
+          "start_bit": 32,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Counter_205",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 790,
+      "name": "OperationPushButtonDTC",
+      "dlc": 2,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DTC_pressed",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "DSC"
+          ],
+          "comment": "Traction control off. Message transmitted when pressed. Few presses may be required followed by off.",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "setMe_0x3FFF",
+          "start_bit": 2,
+          "length": 14,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 63.0,
+          "unit": "",
+          "receivers": [
+            "DSC"
+          ],
+          "comment": "All ones",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 1577,
+      "name": "Unknown_629",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 133,
+      "name": "Synchronization_SC_VDA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 173,
+      "name": "Delay_request_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 177,
+      "name": "Torque_request_steering",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 181,
+      "name": "Torque_request_EGS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EGS",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Checksum_Torque_request_EGS",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Gearbox_temperature",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "C",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 183,
+      "name": "Torque_request_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 187,
+      "name": "Target_torque_request",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 188,
+      "name": "Status_target_torque_conversion",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VGSG",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 190,
+      "name": "Alive_Counter",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ARS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 192,
+      "name": "Alive_Central_Gateway",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 193,
+      "name": "Alive_counter_telephone",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 213,
+      "name": "Request_wheel_torque_brake",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 215,
+      "name": "Alive_Counter_Security",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACSM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 216,
+      "name": "CLU1_VDA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 225,
+      "name": "Wheel_torque_brake",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 226,
+      "name": "Status_central_locking_BFT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 227,
+      "name": "CLU2_VDA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 230,
+      "name": "Status_central_locking_BFTH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 234,
+      "name": "Status_central_locking_FAT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 238,
+      "name": "Central_locking_status_FATH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 242,
+      "name": "Status_central_locking_HK",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 244,
+      "name": "CLU3_VDA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 247,
+      "name": "lateral_dynamics_ARS_VDM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ARS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 249,
+      "name": "Vertical_dynamics_VDM_ARS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 250,
+      "name": "Control_window_lifter_FAT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 251,
+      "name": "Control_window_lifter_BFT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 252,
+      "name": "Control_window_lifter_FATH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 253,
+      "name": "Control_window_lifter_BFTH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 254,
+      "name": "Voltage_level_sensors",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 280,
+      "name": "Exchange_AFS_DSC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "AFS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 286,
+      "name": "Control_interventions_DSC_AFS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 288,
+      "name": "Status_partial_setpoints_AFS_DSC_2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "AFS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 298,
+      "name": "Sensor_data_ROSE",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ASCM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 300,
+      "name": "input_data_ROSE",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 336,
+      "name": "Request_1_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 339,
+      "name": "Request_2_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 345,
+      "name": "Object_data_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACC_Sensor",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 348,
+      "name": "Status_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACC_Sensor",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 351,
+      "name": "Requirement_angle_FFP",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 357,
+      "name": "CLU_Status_VDA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 370,
+      "name": "Acknowledgment_request_Kombination",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 373,
+      "name": "Display_motor_data",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 400,
+      "name": "display_ACC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "LDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 405,
+      "name": "Operation_push_button_MSA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 419,
+      "name": "Raw_data_longitudinal_acceleration",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 423,
+      "name": "actuation_request_EMF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 426,
+      "name": "Effect_ErgoCommander",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 428,
+      "name": "Status_ARS_module",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ARS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 440,
+      "name": "Operation_ErgoCommander",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ZBE",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 450,
+      "name": "Distance_message_PDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PDC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 451,
+      "name": "Distance_message_2_PDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PDC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 454,
+      "name": "Acoustic_message_PDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PDC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 472,
+      "name": "Operation_air_conditioning_air_distribution_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 473,
+      "name": "Operation_pushbutton_MDrive",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SZL",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 474,
+      "name": "Climate_control_remote_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 476,
+      "name": "Operation_stratification_seat_heating",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 478,
+      "name": "Air_conditioning_controls_rear",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 480,
+      "name": "Operation_air_conditioning_air_distribution_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 482,
+      "name": "Operation_air_conditioning_front",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 483,
+      "name": "Operation_pushbutton_interior_lighting",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 487,
+      "name": "Operation_seat_heating_seat_climate_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 488,
+      "name": "Operation_seat_heating_seat_climate_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 490,
+      "name": "Steering_column_adjustment_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 491,
+      "name": "Operation_active_seat_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 492,
+      "name": "Operation_active_seat_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 494,
+      "name": "Steering_column_switch_operation",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 499,
+      "name": "Operation_seat_memory_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 504,
+      "name": "Operation_SHD_MDS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 507,
+      "name": "Status_EPS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EPS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 508,
+      "name": "Status_AFS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "AFS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 509,
+      "name": "Status_request_EMF_KCAN",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EMF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 510,
+      "name": "Crash",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACSM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 513,
+      "name": "Status_EMF_KCAN",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EMF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 517,
+      "name": "Acoustic_request_Kombi",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 518,
+      "name": "Control_Display_Shiftlights",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 523,
+      "name": "Memory_adjustment",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_FA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 524,
+      "name": "Steering_column_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_FA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 525,
+      "name": "Position_steering_column",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 528,
+      "name": "Operation_HUD",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 529,
+      "name": "Status_HUD",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "HUD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 530,
+      "name": "Height_levels_air_spring",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EHC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 540,
+      "name": "Operation_NightVision",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 542,
+      "name": "Status_NightVision",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "NVC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 548,
+      "name": "Operation_push_button_NSW",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 552,
+      "name": "Operation_special_function",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 554,
+      "name": "Status_BFS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 556,
+      "name": "Operation_push_button_NSL",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 558,
+      "name": "Status_BFSH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 562,
+      "name": "Status_FAS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 566,
+      "name": "Status_FASH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 570,
+      "name": "Status_radio_key",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 571,
+      "name": "Status_climate_front_extended",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 573,
+      "name": "Request_display_climate",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 574,
+      "name": "Status_Klima_Fond",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 582,
+      "name": "Status_air_conditioning_front_control_unit",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 584,
+      "name": "Status_rear_view_camera",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RFK",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 585,
+      "name": "Control_rear_view_camera",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 586,
+      "name": "Status_PDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PDC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 587,
+      "name": "Status_door_sensors",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 594,
+      "name": "Wiper_status",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 598,
+      "name": "Challenge_Passive_Access",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 600,
+      "name": "Status_Transmission_Passive_Access",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PGS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 604,
+      "name": "Operation_of_climate_additional_programs",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 621,
+      "name": "Operation_blinds_MK",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 622,
+      "name": "Control_FH_SHD_central_comfort",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 635,
+      "name": "Status_Shiftlights",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 637,
+      "name": "Status_convertible_top_manual_convertible",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 638,
+      "name": "Status_convertible_top_convertible",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CTM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 639,
+      "name": "Status_central_locking_convertible_top",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 642,
+      "name": "Control_security_vehicle_2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 644,
+      "name": "Control_remote_start_safety_vehicle",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 646,
+      "name": "Electrochromic_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 652,
+      "name": "Pushbutton_vertical_dynamics",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GWS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 653,
+      "name": "Operation_pushbutton_sport",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GWS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 656,
+      "name": "Control_response_hydrogen_vehicle",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 658,
+      "name": "Control_high_beam_assistant",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FLA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 670,
+      "name": "Central_locking_control_for_security_vehicle",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 671,
+      "name": "Remote_control_FondCommander",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 672,
+      "name": "Central_locking_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 674,
+      "name": "Operation_of_climate_stand_functions",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 676,
+      "name": "Operation_personalization",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 692,
+      "name": "DWA_Alarm",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DWA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 694,
+      "name": "Control_horn_DWA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DWA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 696,
+      "name": "Operation_onboard_computer",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 697,
+      "name": "Operation_RSE",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 698,
+      "name": "Stopwatch",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 701,
+      "name": "Request_switching_display",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 702,
+      "name": "Switch_status_display",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VSW",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 703,
+      "name": "Water_valve_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 706,
+      "name": "Temperatur_Ist_Fond",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 711,
+      "name": "Display_Kombination_extended",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 714,
+      "name": "Outside_temperature",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 716,
+      "name": "Control_monitor_rear",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RSE",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 718,
+      "name": "Control_monitor",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 719,
+      "name": "Status_of_auxiliary_water_pump",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 720,
+      "name": "Status_Sensor_AUC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 721,
+      "name": "Status_fitting_window_V",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 722,
+      "name": "Status_pressure_refrigeration_circuit",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 723,
+      "name": "Status_stratification_rear",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 725,
+      "name": "Status_heating_rear_window",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 726,
+      "name": "Status_valve_air_conditioning_compressor",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 730,
+      "name": "Status_tailgate_lift",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "HKL",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 734,
+      "name": "Switch_control_display",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VSW",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 738,
+      "name": "Status_setting_video_night_vision",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "NVC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 739,
+      "name": "Status_setting_video_rear_view_camera",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RFK",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 740,
+      "name": "Status_trailer",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "AHM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 742,
+      "name": "Status_of_air_distribution_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 746,
+      "name": "Status_air_distribution_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 750,
+      "name": "Status_climate_additional_programs",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 752,
+      "name": "Status_air_condition_functions",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 753,
+      "name": "Status_driver_detection",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "MRSZ",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 755,
+      "name": "Display_switching_instruction",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 756,
+      "name": "Air_conditioning_control_SH_ZH_auxiliary_water_pump",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 759,
+      "name": "Units",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 768,
+      "name": "Status_RSE",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RSE",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 772,
+      "name": "Status_Gang",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EGS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 773,
+      "name": "Operation_button_convertible_top",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 774,
+      "name": "Vehicle_tilt",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 775,
+      "name": "Operation_button_flap_convertible_top",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 776,
+      "name": "Status_MSA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 785,
+      "name": "Refill_quantity",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 786,
+      "name": "Service_Call_Teleservice",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 787,
+      "name": "Status_Service_Call_Teleservice",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 788,
+      "name": "Status_driving_light",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 789,
+      "name": "Vehicle_mode",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 791,
+      "name": "Operation_button_parking_aids",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 792,
+      "name": "Status_antennas_Passive_Access",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PGS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 793,
+      "name": "Operation_push_button_RDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 794,
+      "name": "Operation_button_HDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 795,
+      "name": "Operation_of_tailgate_interior_button",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 796,
+      "name": "Status_tire_pressure",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RDC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 801,
+      "name": "Operation_button_camera_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 802,
+      "name": "Damper_current",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "EDCK",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 806,
+      "name": "Status_damper_program",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VDM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 808,
+      "name": "Relativzeit",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 813,
+      "name": "Display_HDC",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 814,
+      "name": "Status_climate_internal_control_info",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 817,
+      "name": "Programming_of_step_cruise_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 818,
+      "name": "Driver_display_speed_range",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 822,
+      "name": "Display_check_control_message_role",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 824,
+      "name": "Control_display_check_control_message",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 825,
+      "name": "Status_display_climate",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 826,
+      "name": "Status_Monitor_Front",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CID",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 828,
+      "name": "Status_Monitor_Fond_1",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CID",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 830,
+      "name": "Status_Monitor_Fond_2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CID",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 841,
+      "name": "Raw_data_level_tank",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 843,
+      "name": "Seat_back_lock_status_FA",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_FA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 845,
+      "name": "Status_seat_back_lock_BF",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_BF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 847,
+      "name": "Status_contact_handbrake",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": [
+        {
+          "name": "Handbrake_push",
+          "start_bit": 0,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 858,
+      "name": "Appointment_Condition_Based_Service",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 860,
+      "name": "Status_onboard_computer",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 862,
+      "name": "Onboard_computer_data_trip_data",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 864,
+      "name": "Data_onboard_computer_start_of_journey",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 866,
+      "name": "Data_onboard_computer_average_values",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 868,
+      "name": "Data_onboard_computer_arrival",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 869,
+      "name": "Status_terminal_request",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 870,
+      "name": "Display_Kombination_external_display",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 871,
+      "name": "Control_display_of_demand_oriented_service",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 877,
+      "name": "Setting_the_driving_dynamics_switch",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 886,
+      "name": "Status_wear_lamella",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "VGSG",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 893,
+      "name": "Status_DKG",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DKG",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 894,
+      "name": "Temperatur_Bremse",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DSC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 895,
+      "name": "Range_of_diesel_exhaust_gas_additive",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DDE1",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 896,
+      "name": "chassis_number",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 898,
+      "name": "Electronic_engine_oil_dipstick_M",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 899,
+      "name": "Motor_data_2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 904,
+      "name": "Vehicle_type",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 907,
+      "name": "Status_battery",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 910,
+      "name": "Start_speed",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 914,
+      "name": "Status_System_AFS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "AFS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 916,
+      "name": "RDA_request_data_storage",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 917,
+      "name": "Coding_power_management",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 920,
+      "name": "Operation_chassis",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 921,
+      "name": "Status_MDrive",
+      "dlc": 6,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 926,
+      "name": "Operation_time_date",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 928,
+      "name": "Vehicle_state",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 931,
+      "name": "Request_Remote_Services",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 937,
+      "name": "Status_motor_control_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "DME",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 939,
+      "name": "Status_Shiftlights_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 944,
+      "name": "Status_gear_reverse",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 949,
+      "name": "Status_water_valve",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 950,
+      "name": "Position_window_lifter_FAT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 951,
+      "name": "Position_window_lifter_FATH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 952,
+      "name": "Position_window_regulator_BFT",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 953,
+      "name": "Position_window_regulator_BFTH",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 954,
+      "name": "Position_SHD",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 956,
+      "name": "Position_window_lifter_security_vehicle",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 957,
+      "name": "Status_consumer_shutdown",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 959,
+      "name": "Position_window_rear_window",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CTM",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 960,
+      "name": "Configuration_FAS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_FA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 961,
+      "name": "Configuration_BFS",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_BF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 964,
+      "name": "Status_EDCK_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "JBBF",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 967,
+      "name": "Access_radio",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RAD1",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 968,
+      "name": "Operation_push_button_radio",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "RAD1",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 974,
+      "name": "Radio_audio_control_interface_display",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACI",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 975,
+      "name": "Acknowledgment_access_radio_audio_control_interface",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ACI",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 979,
+      "name": "Status_solar_sensor",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 980,
+      "name": "Configuration_of_central_locking_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 981,
+      "name": "Status_central_locking_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CAS",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 982,
+      "name": "Configuration_DWA_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 983,
+      "name": "Status_DWA_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 984,
+      "name": "Configuration_RLS_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 985,
+      "name": "Status_RLS_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FZD",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 986,
+      "name": "Configuration_of_memory_positions_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 987,
+      "name": "Status_memory_positions_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "SM_FA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 988,
+      "name": "Configuration_light_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "Kombi",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 989,
+      "name": "Status_light_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "FRMFA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 990,
+      "name": "Configuration_Climate_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 991,
+      "name": "Status_Klima_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "IHKA",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 994,
+      "name": "Configuration_of_tailgate_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 995,
+      "name": "Status_tailgate_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "HKL",
+      "comment": null,
+      "signals": []
+    },
+    {
+      "id": 996,
+      "name": "Configuration_rear_view_camera_CKM",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CCC",
+      "comment": null,
+      "signals": []
+    }
+  ],
+  "value_tables": []
+}

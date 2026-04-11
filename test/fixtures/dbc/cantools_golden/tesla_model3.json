@@ -1,0 +1,5919 @@
+{
+  "nodes": [
+    "CH",
+    "DIPF",
+    "DIPR",
+    "ETH",
+    "FC",
+    "HVI",
+    "HVS",
+    "PARTY",
+    "SDCV",
+    "VEH",
+    "VIRT"
+  ],
+  "messages": [
+    {
+      "id": 905,
+      "name": "DAS_status2",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DAS_accSpeedLimit",
+          "start_bit": 0,
+          "length": 10,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.4,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 204.6,
+          "unit": "mph",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1023": "SNA",
+            "0": "NONE"
+          }
+        },
+        {
+          "name": "DAS_pmmObstacleSeverity",
+          "start_bit": 10,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "5": "PMM_CRASH_FRONT",
+            "0": "PMM_NONE",
+            "2": "PMM_IMMINENT_FRONT",
+            "4": "PMM_CRASH_REAR",
+            "1": "PMM_IMMINENT_REAR",
+            "6": "PMM_ACCEL_LIMIT",
+            "7": "PMM_SNA",
+            "3": "PMM_BRAKE_REQUEST"
+          }
+        },
+        {
+          "name": "DAS_pmmLoggingRequest",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "FALSE",
+            "1": "TRUE"
+          }
+        },
+        {
+          "name": "DAS_activationFailureStatus",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "LC_ACTIVATION_IDLE",
+            "2": "LC_ACTIVATION_FAILED_2",
+            "1": "LC_ACTIVATION_FAILED_1"
+          }
+        },
+        {
+          "name": "DAS_pmmUltrasonicsFaultReason",
+          "start_bit": 16,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 4.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "PMM_ULTRASONICS_BLOCKED_REAR",
+            "0": "PMM_ULTRASONICS_NO_FAULT",
+            "1": "PMM_ULTRASONICS_BLOCKED_FRONT",
+            "3": "PMM_ULTRASONICS_BLOCKED_BOTH",
+            "4": "PMM_ULTRASONICS_INVALID_MIA"
+          }
+        },
+        {
+          "name": "DAS_pmmRadarFaultReason",
+          "start_bit": 19,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "PMM_RADAR_INVALID_MIA",
+            "1": "PMM_RADAR_BLOCKED_FRONT",
+            "0": "PMM_RADAR_NO_FAULT"
+          }
+        },
+        {
+          "name": "DAS_pmmSysFaultReason",
+          "start_bit": 21,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "4": "PMM_FAULT_STEERING_ANGLE_RATE",
+            "6": "PMM_FAULT_ROAD_TYPE",
+            "5": "PMM_FAULT_DISABLED_BY_USER",
+            "0": "PMM_FAULT_NONE",
+            "1": "PMM_FAULT_DAS_DISABLED",
+            "3": "PMM_FAULT_DI_FAULT",
+            "2": "PMM_FAULT_SPEED",
+            "7": "PMM_FAULT_BRAKE_PEDAL_INHIBIT"
+          }
+        },
+        {
+          "name": "DAS_pmmCameraFaultReason",
+          "start_bit": 24,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "PMM_CAMERA_BLOCKED_FRONT",
+            "2": "PMM_CAMERA_INVALID_MIA",
+            "0": "PMM_CAMERA_NO_FAULT"
+          }
+        },
+        {
+          "name": "DAS_ACC_report",
+          "start_bit": 26,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 24.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "12": "ACC_REPORT_LC_EXTERNAL_STATE_ABORTING",
+            "17": "ACC_REPORT_TARGET_MCP",
+            "11": "ACC_REPORT_LC_HANDS_ON_REQD_STRUCK_OUT",
+            "19": "ACC_REPORT_MCVLR_DPP",
+            "1": "ACC_REPORT_TARGET_CIPV",
+            "15": "ACC_REPORT_RADAR_OBJ_ONE",
+            "16": "ACC_REPORT_RADAR_OBJ_TWO",
+            "14": "ACC_REPORT_LC_EXTERNAL_STATE_ACTIVE_RESTRICTED",
+            "4": "ACC_REPORT_TARGET_MCVR",
+            "20": "ACC_REPORT_MCVLR_IN_PATH",
+            "10": "ACC_REPORT_CSA",
+            "5": "ACC_REPORT_TARGET_CUTIN",
+            "9": "ACC_REPORT_TARGET_TYPE_FAULT",
+            "7": "ACC_REPORT_TARGET_TYPE_TRAFFIC_LIGHT",
+            "6": "ACC_REPORT_TARGET_TYPE_STOP_SIGN",
+            "24": "ACC_REPORT_BEHAVIOR_REPORT",
+            "18": "ACC_REPORT_FLEET_SPEEDS",
+            "2": "ACC_REPORT_TARGET_IN_FRONT_OF_CIPV",
+            "23": "ACC_REPORT_CAMERA_ONLY",
+            "3": "ACC_REPORT_TARGET_MCVL",
+            "22": "ACC_REPORT_RADAR_OBJ_FIVE",
+            "0": "ACC_REPORT_TARGET_NONE",
+            "8": "ACC_REPORT_TARGET_TYPE_IPSO",
+            "21": "ACC_REPORT_CIPV_CUTTING_OUT",
+            "13": "ACC_REPORT_LC_EXTERNAL_STATE_ABORTED"
+          }
+        },
+        {
+          "name": "DAS_lssState",
+          "start_bit": 31,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "7": "LSS_STATE_OFF",
+            "1": "LSS_STATE_LDW",
+            "4": "LSS_STATE_MONITOR",
+            "2": "LSS_STATE_LKA",
+            "3": "LSS_STATE_ELK",
+            "0": "LSS_STATE_FAULT",
+            "5": "LSS_STATE_BLINDSPOT",
+            "6": "LSS_STATE_ABORT"
+          }
+        },
+        {
+          "name": "DAS_radarTelemetry",
+          "start_bit": 34,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "RADAR_TELEMETRY_IDLE",
+            "1": "RADAR_TELEMETRY_NORMAL",
+            "2": "RADAR_TELEMETRY_URGENT"
+          }
+        },
+        {
+          "name": "DAS_robState",
+          "start_bit": 36,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "ROB_STATE_INHIBITED",
+            "2": "ROB_STATE_ACTIVE",
+            "3": "ROB_STATE_MAPLESS",
+            "1": "ROB_STATE_MEASURE"
+          }
+        },
+        {
+          "name": "DAS_driverInteractionLevel",
+          "start_bit": 38,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "DRIVER_INTERACTING",
+            "1": "DRIVER_NOT_INTERACTING",
+            "2": "CONTINUED_DRIVER_NOT_INTERACTING"
+          }
+        },
+        {
+          "name": "DAS_ppOffsetDesiredRamp",
+          "start_bit": 40,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.01,
+          "offset": -1.28,
+          "minimum": -1.28,
+          "maximum": 1.27,
+          "unit": "m",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "128": "PP_NO_OFFSET"
+          }
+        },
+        {
+          "name": "DAS_longCollisionWarning",
+          "start_bit": 48,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "7": "FCM_LONG_COLLISION_WARNING_VEHICLE_CUTIN",
+            "0": "FCM_LONG_COLLISION_WARNING_NONE",
+            "4": "FCM_LONG_COLLISION_WARNING_STOPSIGN_STOPLINE",
+            "9": "FCM_LONG_COLLISION_WARNING_VEHICLE_MCVL2",
+            "15": "FCM_LONG_COLLISION_WARNING_SNA",
+            "8": "FCM_LONG_COLLISION_WARNING_VEHICLE_MCVL",
+            "5": "FCM_LONG_COLLISION_WARNING_TFL_STOPLINE",
+            "2": "FCM_LONG_COLLISION_WARNING_PEDESTRIAN",
+            "12": "FCM_LONG_COLLISION_WARNING_VEHICLE_CIPV2",
+            "6": "FCM_LONG_COLLISION_WARNING_VEHICLE_CIPV",
+            "10": "FCM_LONG_COLLISION_WARNING_VEHICLE_MCVR",
+            "3": "FCM_LONG_COLLISION_WARNING_IPSO",
+            "1": "FCM_LONG_COLLISION_WARNING_VEHICLE_UNKNOWN",
+            "11": "FCM_LONG_COLLISION_WARNING_VEHICLE_MCVR2"
+          }
+        },
+        {
+          "name": "DAS_status2Counter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_status2Checksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 264,
+      "name": "DI_torque",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DI_torqueChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_torqueCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_torqueCommand",
+          "start_bit": 12,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 2.0,
+          "offset": 0.0,
+          "minimum": -7500.0,
+          "maximum": 7500.0,
+          "unit": "Nm",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "-4096": "SNA"
+          }
+        },
+        {
+          "name": "DI_torqueActual",
+          "start_bit": 27,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 2.0,
+          "offset": 0.0,
+          "minimum": -7500.0,
+          "maximum": 7500.0,
+          "unit": "Nm",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "-4096": "SNA"
+          }
+        },
+        {
+          "name": "DI_axleSpeed",
+          "start_bit": 40,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.1,
+          "offset": 0.0,
+          "minimum": -2750.0,
+          "maximum": 2750.0,
+          "unit": "RPM",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "-32768": "SNA"
+          }
+        }
+      ]
+    },
+    {
+      "id": 585,
+      "name": "SCCM_leftStalk",
+      "dlc": 3,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "SCCM_leftStalkCrc",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_leftStalkCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_highBeamStalkStatus",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "IDLE",
+            "1": "PULL",
+            "2": "PUSH"
+          }
+        },
+        {
+          "name": "SCCM_washWipeButtonStatus",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "NOT_PRESSED",
+            "2": "2ND_DETENT",
+            "1": "1ST_DETENT"
+          }
+        },
+        {
+          "name": "SCCM_turnIndicatorStalkStatus",
+          "start_bit": 16,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "DOWN_1",
+            "5": "SNA",
+            "0": "IDLE",
+            "1": "UP_1",
+            "4": "DOWN_2",
+            "2": "UP_2"
+          }
+        },
+        {
+          "name": "SCCM_leftStalkReserved1",
+          "start_bit": 19,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 31.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 280,
+      "name": "DI_systemStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DI_systemStatusChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_systemStatusCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_systemState",
+          "start_bit": 16,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "5": "DI_SYS_ENABLE",
+            "1": "DI_SYS_IDLE",
+            "2": "DI_SYS_STANDBY",
+            "0": "DI_SYS_UNAVAILABLE",
+            "3": "DI_SYS_FAULT",
+            "4": "DI_SYS_ABORT"
+          }
+        },
+        {
+          "name": "DI_brakePedalState",
+          "start_bit": 19,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "INVALID",
+            "0": "OFF",
+            "1": "ON"
+          }
+        },
+        {
+          "name": "DI_gear",
+          "start_bit": 21,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "DI_GEAR_P",
+            "0": "DI_GEAR_INVALID",
+            "7": "DI_GEAR_SNA",
+            "2": "DI_GEAR_R",
+            "3": "DI_GEAR_N",
+            "4": "DI_GEAR_D"
+          }
+        },
+        {
+          "name": "DI_regenLight",
+          "start_bit": 26,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_immobilizerState",
+          "start_bit": 27,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 6.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "DI_IMM_STATE_AUTHENTICATING",
+            "0": "DI_IMM_STATE_INIT_SNA",
+            "3": "DI_IMM_STATE_DISARMED",
+            "4": "DI_IMM_STATE_IDLE",
+            "6": "DI_IMM_STATE_FAULT",
+            "1": "DI_IMM_STATE_REQUEST",
+            "5": "DI_IMM_STATE_RESET"
+          }
+        },
+        {
+          "name": "DI_accelPedalPos",
+          "start_bit": 32,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.4,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "unit": "%",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "DI_tractionControlMode",
+          "start_bit": 40,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "TC_NORMAL",
+            "1": "TC_SLIP_START",
+            "4": "TC_ROLLS_MODE",
+            "2": "TC_DEV_MODE_1",
+            "5": "TC_DYNO_MODE",
+            "3": "TC_DEV_MODE_2"
+          }
+        },
+        {
+          "name": "DI_epbRequest",
+          "start_bit": 44,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "DI_EPBREQUEST_NO_REQUEST",
+            "1": "DI_EPBREQUEST_PARK",
+            "2": "DI_EPBREQUEST_UNPARK"
+          }
+        },
+        {
+          "name": "DI_proximity",
+          "start_bit": 46,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_keepAliveRequest",
+          "start_bit": 47,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "KEEP_ALIVE",
+            "0": "NO_REQUEST"
+          }
+        },
+        {
+          "name": "DI_trackModeState",
+          "start_bit": 48,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 2.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "TRACK_MODE_UNAVAILABLE",
+            "1": "TRACK_MODE_AVAILABLE",
+            "2": "TRACK_MODE_ON"
+          }
+        }
+      ]
+    },
+    {
+      "id": 697,
+      "name": "DAS_control",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DAS_setSpeed",
+          "start_bit": 0,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 409.4,
+          "unit": "kph",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "4095": "SNA"
+          }
+        },
+        {
+          "name": "DAS_accState",
+          "start_bit": 12,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "4": "ACC_ON",
+            "9": "APC_PAUSE",
+            "14": "ACC_CANCEL_OUT_OF_CALIBRATION",
+            "10": "APC_UNPARK_COMPLETE",
+            "6": "APC_FORWARD",
+            "3": "ACC_HOLD",
+            "2": "ACC_CANCEL_RADAR_BLIND",
+            "7": "APC_COMPLETE",
+            "1": "ACC_CANCEL_CAMERA_BLIND",
+            "8": "APC_ABORT",
+            "13": "ACC_CANCEL_GENERIC_SILENT",
+            "5": "APC_BACKWARD",
+            "11": "APC_SELFPARK_START",
+            "0": "ACC_CANCEL_GENERIC",
+            "12": "ACC_CANCEL_PATH_NOT_CLEAR",
+            "15": "FAULT_SNA"
+          }
+        },
+        {
+          "name": "DAS_aebEvent",
+          "start_bit": 16,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "AEB_FAULT",
+            "0": "AEB_NOT_ACTIVE",
+            "3": "AEB_SNA",
+            "1": "AEB_ACTIVE"
+          }
+        },
+        {
+          "name": "DAS_jerkMin",
+          "start_bit": 18,
+          "length": 9,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.018,
+          "offset": -9.1,
+          "minimum": -9.1,
+          "maximum": 0.097999999999999,
+          "unit": "m/s^3",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "511": "SNA"
+          }
+        },
+        {
+          "name": "DAS_jerkMax",
+          "start_bit": 27,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.034,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 8.67,
+          "unit": "m/s^3",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "DAS_accelMin",
+          "start_bit": 35,
+          "length": 9,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": -15.0,
+          "minimum": -15.0,
+          "maximum": 5.44,
+          "unit": "m/s^2",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "511": "SNA"
+          }
+        },
+        {
+          "name": "DAS_accelMax",
+          "start_bit": 44,
+          "length": 9,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": -15.0,
+          "minimum": -15.0,
+          "maximum": 5.44,
+          "unit": "m/s^2",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "511": "SNA"
+          }
+        },
+        {
+          "name": "DAS_controlCounter",
+          "start_bit": 53,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_controlChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 341,
+      "name": "ESP_B",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "ESP_wheelPulseCountFrL",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 254.0,
+          "unit": "1",
+          "receivers": [
+            "app"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "ESP_wheelPulseCountFrR",
+          "start_bit": 8,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 254.0,
+          "unit": "1",
+          "receivers": [
+            "app"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "ESP_wheelPulseCountReL",
+          "start_bit": 16,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 254.0,
+          "unit": "1",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "ESP_wheelPulseCountReR",
+          "start_bit": 24,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 254.0,
+          "unit": "1",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "SNA"
+          }
+        },
+        {
+          "name": "ESP_WheelRotationReR",
+          "start_bit": 32,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "WR_BACKWARD",
+            "0": "WR_FORWARD",
+            "3": "WR_NOT_DEFINABLE",
+            "2": "WR_STANDSTILL"
+          }
+        },
+        {
+          "name": "ESP_WheelRotationReL",
+          "start_bit": 34,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "WR_BACKWARD",
+            "0": "WR_FORWARD",
+            "3": "WR_NOT_DEFINABLE",
+            "2": "WR_STANDSTILL"
+          }
+        },
+        {
+          "name": "ESP_WheelRotationFrR",
+          "start_bit": 36,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "WR_BACKWARD",
+            "0": "WR_FORWARD",
+            "3": "WR_NOT_DEFINABLE",
+            "2": "WR_STANDSTILL"
+          }
+        },
+        {
+          "name": "ESP_WheelRotationFrL",
+          "start_bit": 38,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "WR_BACKWARD",
+            "0": "WR_FORWARD",
+            "3": "WR_NOT_DEFINABLE",
+            "2": "WR_STANDSTILL"
+          }
+        },
+        {
+          "name": "ESP_wheelSpeedsQF",
+          "start_bit": 40,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "ONE_OR_MORE_WSS_INVALID",
+            "1": "ALL_WSS_VALID"
+          }
+        },
+        {
+          "name": "ESP_vehicleStandstillSts",
+          "start_bit": 41,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "STANDSTILL",
+            "0": "NOT_STANDSTILL"
+          }
+        },
+        {
+          "name": "ESP_vehicleSpeed",
+          "start_bit": 42,
+          "length": 10,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 511.0,
+          "unit": "kph",
+          "receivers": [
+            "app"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1023": "ESP_VEHICLE_SPEED_SNA"
+          }
+        },
+        {
+          "name": "ESP_wheelRotationCounter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "app"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelRotationChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "app"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 373,
+      "name": "ESP_wheelSpeeds",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CH",
+      "comment": null,
+      "signals": [
+        {
+          "name": "ESP_wheelSpeedFrL",
+          "start_bit": 0,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 327.64,
+          "unit": "km/h",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelSpeedFrR",
+          "start_bit": 13,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 327.64,
+          "unit": "km/h",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelSpeedReL",
+          "start_bit": 26,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 327.64,
+          "unit": "km/h",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelSpeedReR",
+          "start_bit": 39,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.04,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 327.64,
+          "unit": "km/h",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelSpeedsCounter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_wheelSpeedsChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 969,
+      "name": "APS_status",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "APS_appStatusMonitorState",
+          "start_bit": 0,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "STATUS_MONITOR_STATE_PWR_OFF",
+            "2": "STATUS_MONITOR_STATE_INIT",
+            "7": "STATUS_MONITOR_NUM_STATES",
+            "0": "STATUS_MONITOR_STATE_UNKNOWN",
+            "4": "STATUS_MONITOR_STATE_CRITICAL",
+            "6": "STATUS_MONITOR_STATE_RECOVERY",
+            "5": "STATUS_MONITOR_STATE_SHUTTING_DOWN",
+            "3": "STATUS_MONITOR_STATE_NOMINAL"
+          }
+        },
+        {
+          "name": "APS_vehBehaviorState",
+          "start_bit": 4,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "VEH_BEHAVIOR_STATE_UNKNOWN",
+            "3": "VEH_BEHAVIOR_STATE_APS_BRIDGE_APP",
+            "1": "VEH_BEHAVIOR_STATE_APS_AVAILABLE",
+            "5": "VEH_BEHAVIOR_STATE_APS_FAIL_SAFE",
+            "7": "VEH_BEHAVIOR_NUM_STATES",
+            "2": "VEH_BEHAVIOR_STATE_APS_CONTROL",
+            "6": "VEH_BEHAVIOR_STATE_APS_OVERRIDE",
+            "4": "VEH_BEHAVIOR_STATE_APS_BRIDGE_APB"
+          }
+        },
+        {
+          "name": "APS_canMaster",
+          "start_bit": 8,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "CAN_MASTER_APS",
+            "2": "CAN_MASTER_APB",
+            "3": "CAN_MASTER_SNA",
+            "1": "CAN_MASTER_APP"
+          }
+        },
+        {
+          "name": "APS_appGpioState",
+          "start_bit": 10,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "AP_GPIO_STATE_PWR_DOWN_REBOOT",
+            "3": "AP_GPIO_STATE_HEALTHY",
+            "1": "AP_GPIO_STATE_DISABLED",
+            "2": "AP_GPIO_STATE_CRITICAL"
+          }
+        },
+        {
+          "name": "APS_eacInternalState",
+          "start_bit": 12,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "APS_EAC_STATE_MOMENTARY",
+            "3": "APS_EAC_STATE_AUTOPARK",
+            "5": "APS_EAC_STATE_OVERRIDE",
+            "4": "APS_EAC_STATE_INHIBIT",
+            "0": "APS_EAC_STATE_INIT",
+            "2": "APS_EAC_STATE_CONTINUOUS",
+            "7": "APS_EAC_NUM_STATES",
+            "6": "APS_EAC_STATE_LSS"
+          }
+        },
+        {
+          "name": "APS_switchState",
+          "start_bit": 15,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "APS_apbStatusMonitorState",
+          "start_bit": 16,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "STATUS_MONITOR_STATE_PWR_OFF",
+            "2": "STATUS_MONITOR_STATE_INIT",
+            "7": "STATUS_MONITOR_NUM_STATES",
+            "0": "STATUS_MONITOR_STATE_UNKNOWN",
+            "4": "STATUS_MONITOR_STATE_CRITICAL",
+            "6": "STATUS_MONITOR_STATE_RECOVERY",
+            "5": "STATUS_MONITOR_STATE_SHUTTING_DOWN",
+            "3": "STATUS_MONITOR_STATE_NOMINAL"
+          }
+        },
+        {
+          "name": "APS_apbGpioState",
+          "start_bit": 20,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "AP_GPIO_STATE_PWR_DOWN_REBOOT",
+            "3": "AP_GPIO_STATE_HEALTHY",
+            "1": "AP_GPIO_STATE_DISABLED",
+            "2": "AP_GPIO_STATE_CRITICAL"
+          }
+        },
+        {
+          "name": "APS_statusCounter",
+          "start_bit": 22,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 925,
+      "name": "IBST_status",
+      "dlc": 5,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "IBST_statusChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "IBST_statusCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "IBST_iBoosterStatus",
+          "start_bit": 12,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 6.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "6": "IBOOSTER_ACTUATION",
+            "4": "IBOOSTER_ACTIVE_GOOD_CHECK",
+            "2": "IBOOSTER_FAILURE",
+            "5": "IBOOSTER_READY",
+            "3": "IBOOSTER_DIAGNOSTIC",
+            "0": "IBOOSTER_OFF",
+            "1": "IBOOSTER_INIT"
+          }
+        },
+        {
+          "name": "IBST_driverBrakeApply",
+          "start_bit": 16,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "BRAKES_NOT_APPLIED",
+            "2": "DRIVER_APPLYING_BRAKES",
+            "3": "FAULT",
+            "0": "NOT_INIT_OR_OFF"
+          }
+        },
+        {
+          "name": "IBST_internalState",
+          "start_bit": 18,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 6.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "5": "TRANSITION_TO_IDLE",
+            "0": "NO_MODE_ACTIVE",
+            "4": "DIAGNOSTIC",
+            "6": "POST_DRIVE_CHECK",
+            "1": "PRE_DRIVE_CHECK",
+            "3": "EXTERNAL_BRAKE_REQUEST",
+            "2": "LOCAL_BRAKE_REQUEST"
+          }
+        },
+        {
+          "name": "IBST_sInputRodDriver",
+          "start_bit": 21,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.015625,
+          "offset": -5.0,
+          "minimum": -5.0,
+          "maximum": 47.0,
+          "unit": "mm",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 880,
+      "name": "EPAS3S_sysStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "EPAS3S_currentTuneMode",
+          "start_bit": 7,
+          "length": 3,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "STEERING_TUNE_RWD_COMFORT",
+            "1": "STEERING_TUNE_DM_STANDARD",
+            "5": "STEERING_TUNE_RWD_SPORT",
+            "0": "STEERING_TUNE_DM_COMFORT",
+            "4": "STEERING_TUNE_RWD_STANDARD",
+            "2": "STEERING_TUNE_DM_SPORT"
+          }
+        },
+        {
+          "name": "EPAS3S_internalSASQF",
+          "start_bit": 4,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "IN_SPEC",
+            "0": "UNDEFINABLE_ACCURACY"
+          }
+        },
+        {
+          "name": "EPAS3S_steeringReduced",
+          "start_bit": 3,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NORMAL_ASSIST",
+            "1": "REDUCED_ASSIST"
+          }
+        },
+        {
+          "name": "EPAS3S_steeringFault",
+          "start_bit": 2,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NO_FAULT",
+            "1": "FAULT"
+          }
+        },
+        {
+          "name": "EPAS3S_steeringRackForce",
+          "start_bit": 1,
+          "length": 10,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 50.0,
+          "offset": -25575.0,
+          "minimum": -25575.0,
+          "maximum": 25575.0,
+          "unit": "N",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1023": "SNA",
+            "1022": "NOT_IN_SPEC"
+          }
+        },
+        {
+          "name": "EPAS3S_eacErrorCode",
+          "start_bit": 23,
+          "length": 4,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "15": "SNA",
+            "11": "EAC_ERROR_HIGH_TORSION_SAFETY",
+            "4": "EAC_ERROR_TMP_FAULT",
+            "2": "EAC_ERROR_MAX_SPEED",
+            "7": "EAC_ERROR_HIGH_ANGLE_RATE_REQ",
+            "0": "EAC_ERROR_IDLE",
+            "10": "EAC_ERROR_HIGH_MMOT_SAFETY",
+            "6": "EAC_ERROR_HIGH_ANGLE_REQ",
+            "8": "EAC_ERROR_HIGH_ANGLE_SAFETY",
+            "5": "EAR_ERROR_MAX_STEER_DELTA",
+            "13": "EAC_ERROR_PINION_VEL_DIFF",
+            "1": "EAC_ERROR_MIN_SPEED",
+            "14": "EAC_EXTERNAL_MONITOR_INHIBIT",
+            "12": "EAC_ERROR_LOW_ASSIST",
+            "9": "EAC_ERROR_HIGH_ANGLE_RATE_SAFETY",
+            "3": "EAC_ERROR_HANDS_ON"
+          }
+        },
+        {
+          "name": "EPAS3S_torsionBarTorque",
+          "start_bit": 19,
+          "length": 12,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.01,
+          "offset": -20.5,
+          "minimum": -20.5,
+          "maximum": 20.45,
+          "unit": "Nm",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "4095": "SNA",
+            "4094": "UNDEFINABLE_DATA"
+          }
+        },
+        {
+          "name": "EPAS3S_handsOnLevel",
+          "start_bit": 39,
+          "length": 2,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "LEVEL_1",
+            "0": "LEVEL_0",
+            "3": "LEVEL_3",
+            "2": "LEVEL_2"
+          }
+        },
+        {
+          "name": "EPAS3S_internalSAS",
+          "start_bit": 37,
+          "length": 14,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": -819.2,
+          "minimum": -819.2,
+          "maximum": 819.0,
+          "unit": "deg",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EPAS3S_sysStatusCounter",
+          "start_bit": 48,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "EPAS3S_eacStatus",
+          "start_bit": 55,
+          "length": 3,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "7": "SNA",
+            "2": "EAC_ACTIVE",
+            "4": "LANE_KEEP_ASSIST",
+            "3": "EAC_FAULT",
+            "1": "EAC_AVAILABLE",
+            "5": "EMERGENCY_LANE_KEEP",
+            "0": "EAC_INHIBITED"
+          }
+        },
+        {
+          "name": "EPAS3S_sysStatusChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 637,
+      "name": "APS_eacMonitor",
+      "dlc": 3,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "APS_eacAllow",
+          "start_bit": 0,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "INHIBIT",
+            "1": "ALLOW",
+            "2": "RESERVED",
+            "3": "SNA"
+          }
+        },
+        {
+          "name": "APS_eacMonitorCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "APS_eacMonitorChecksum",
+          "start_bit": 16,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 545,
+      "name": "VCFRONT_LVPowerState",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "CH",
+      "comment": null,
+      "signals": [
+        {
+          "name": "VCFRONT_LVPowerStateIndex",
+          "start_bit": 0,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": true,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Mux0",
+            "1": "Mux1"
+          }
+        },
+        {
+          "name": "VCFRONT_vehiclePowerState",
+          "start_bit": 5,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "VEHICLE_POWER_STATE_DRIVE",
+            "1": "VEHICLE_POWER_STATE_CONDITIONING",
+            "2": "VEHICLE_POWER_STATE_ACCESSORY",
+            "0": "VEHICLE_POWER_STATE_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_parkLVState",
+          "start_bit": 8,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_cpLVRequest",
+          "start_bit": 8,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_epasLVState",
+          "start_bit": 10,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_espLVState",
+          "start_bit": 10,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "ibst"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_hvcLVRequest",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_radcLVState",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_hvacCompLVState",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_tasLVState",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_pcsLVState",
+          "start_bit": 16,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_ptcLVRequest",
+          "start_bit": 16,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_sccmLVRequest",
+          "start_bit": 18,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_tpmsLVRequest",
+          "start_bit": 20,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "tpms"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_rcmLVRequest",
+          "start_bit": 22,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "rcm"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_iBoosterLVState",
+          "start_bit": 24,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "ibst"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_tunerLVRequest",
+          "start_bit": 26,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_amplifierLVRequest",
+          "start_bit": 28,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_das1HighCurrentLVState",
+          "start_bit": 30,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_das2HighCurrentLVState",
+          "start_bit": 32,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_diLVRequest",
+          "start_bit": 34,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_disLVState",
+          "start_bit": 36,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_oilPumpFrontLVState",
+          "start_bit": 38,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_oilPumpRearLVRequest",
+          "start_bit": 40,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_ocsLVRequest",
+          "start_bit": 42,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_vcleftHiCurrentLVState",
+          "start_bit": 44,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_vcrightHiCurrentLVState",
+          "start_bit": 46,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_uiHiCurrentLVState",
+          "start_bit": 48,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_uiAudioLVState",
+          "start_bit": 50,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {
+            "1": "LV_ON",
+            "2": "LV_GOING_DOWN",
+            "3": "LV_FAULT",
+            "0": "LV_OFF"
+          }
+        },
+        {
+          "name": "VCFRONT_LVPowerStateCounter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "ibst"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "VCFRONT_LVPowerStateChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "ibst"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 599,
+      "name": "DI_speed",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DI_speedChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_speedCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_vehicleSpeed",
+          "start_bit": 12,
+          "length": 12,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.08,
+          "offset": -40.0,
+          "minimum": -40.0,
+          "maximum": 285.0,
+          "unit": "kph",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "4095": "SNA"
+          }
+        },
+        {
+          "name": "DI_uiSpeed",
+          "start_bit": 24,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 254.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "255": "DI_UI_SPEED_SNA"
+          }
+        },
+        {
+          "name": "DI_uiSpeedUnits",
+          "start_bit": 32,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "das"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "DI_SPEED_MPH",
+            "1": "DI_SPEED_KPH"
+          }
+        }
+      ]
+    },
+    {
+      "id": 605,
+      "name": "DAS_road",
+      "dlc": 6,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": "Bytes change when toggling between FSD and AP, as well as Traffic Light and Stop Sign Control in TACC",
+      "signals": [
+        {
+          "name": "DAS_stopLineDist",
+          "start_bit": 16,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 127.5,
+          "unit": "m",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_trafficLightColor",
+          "start_bit": 26,
+          "length": 3,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 7.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NONE",
+            "1": "RED",
+            "2": "GREEN",
+            "3": "YELLOW"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1160,
+      "name": "DAS_steeringControl",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DAS_steeringHapticRequest",
+          "start_bit": 7,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_steeringAngleRequest",
+          "start_bit": 6,
+          "length": 15,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": -1638.35,
+          "minimum": -1638.35,
+          "maximum": 1638.35,
+          "unit": "deg",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "16384": "ZERO_ANGLE"
+          }
+        },
+        {
+          "name": "DAS_steeringControlCounter",
+          "start_bit": 16,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_steeringControlType",
+          "start_bit": 23,
+          "length": 2,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "2": "LANE_KEEP_ASSIST",
+            "0": "NONE",
+            "1": "ANGLE_CONTROL",
+            "3": "EMERGENCY_LANE_KEEP"
+          }
+        },
+        {
+          "name": "DAS_steeringControlChecksum",
+          "start_bit": 24,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 297,
+      "name": "SCCM_steeringAngleSensor",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "SCCM_steeringAngleCrc",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_supplierID",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleSensorStatus",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OK",
+            "1": "INIT",
+            "2": "ERROR",
+            "3": "ERROR_INIT"
+          }
+        },
+        {
+          "name": "SCCM_steeringAngle",
+          "start_bit": 16,
+          "length": 14,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": -819.2,
+          "minimum": -819.2,
+          "maximum": 819.0,
+          "unit": "deg",
+          "receivers": [
+            "epas3s"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleValidity",
+          "start_bit": 30,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "2": "INIT",
+            "0": "INVALID",
+            "1": "VALID"
+          }
+        },
+        {
+          "name": "SCCM_steeringAngleSpeed",
+          "start_bit": 32,
+          "length": 14,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.5,
+          "offset": -4096.0,
+          "minimum": -4096.0,
+          "maximum": 4095.5,
+          "unit": "deg/s",
+          "receivers": [
+            "park"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleSensorReservd1",
+          "start_bit": 46,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleSensorReservd2",
+          "start_bit": 48,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "SCCM_steeringAngleSensorReservd3",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 646,
+      "name": "DI_state",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ETH",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DI_locStatusChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_locStatusCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_cruiseState",
+          "start_bit": 12,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "STANDBY",
+            "2": "ENABLED",
+            "3": "STANDSTILL",
+            "4": "OVERRIDE",
+            "5": "FAULT",
+            "6": "PRE_FAULT",
+            "7": "PRE_CANCEL"
+          }
+        },
+        {
+          "name": "DI_digitalSpeed",
+          "start_bit": 15,
+          "length": 9,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.5,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "speed",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DI_speedUnits",
+          "start_bit": 24,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "MPH",
+            "1": "KPH"
+          }
+        },
+        {
+          "name": "DI_autoparkState",
+          "start_bit": 25,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "STANDBY",
+            "2": "STARTED",
+            "3": "ACTIVE",
+            "4": "COMPLETE",
+            "5": "PAUSED",
+            "6": "ABORTED",
+            "7": "RESUMED",
+            "8": "UNPARK_COMPLETE",
+            "9": "SELFPARK_STARTED",
+            "15": "SNA"
+          }
+        },
+        {
+          "name": "DI_parkBrakeState",
+          "start_bit": 32,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "RELEASED",
+            "2": "REQUESTED",
+            "3": "APPLIED",
+            "4": "FAULTED",
+            "5": "PANIC_EPB",
+            "6": "PANIC_SKID",
+            "7": "RELEASING",
+            "15": "SNA"
+          }
+        },
+        {
+          "name": "DI_autopilotRequest",
+          "start_bit": 36,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "IDLE",
+            "1": "ACTIVATE"
+          }
+        },
+        {
+          "name": "DI_aebState",
+          "start_bit": 37,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "STANDBY",
+            "2": "ENABLED",
+            "3": "STANDSTILL",
+            "4": "FAULT",
+            "7": "SNA"
+          }
+        },
+        {
+          "name": "DI_pmmStatus",
+          "start_bit": 40,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "INACTIVE",
+            "1": "ACTIVE",
+            "2": "LOGGING_ACTIVE",
+            "3": "SNA"
+          }
+        },
+        {
+          "name": "DI_vehicleHoldState",
+          "start_bit": 42,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "STANDBY",
+            "2": "BLEND_IN",
+            "3": "STANDSTILL",
+            "4": "BLEND_OUT",
+            "5": "PARK",
+            "6": "FAULT",
+            "7": "INIT"
+          }
+        },
+        {
+          "name": "DI_rollPreventionState",
+          "start_bit": 45,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNAVAILABLE",
+            "1": "STANDBY",
+            "2": "READY",
+            "3": "BUILD",
+            "4": "HOLD",
+            "5": "PARK",
+            "6": "FAULT",
+            "7": "INIT"
+          }
+        },
+        {
+          "name": "DI_summonInPanic",
+          "start_bit": 48,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 659,
+      "name": "DAS_settings",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DAS_offRoadAssist",
+          "start_bit": 3,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 63.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "disabled",
+            "3": "enabled"
+          }
+        },
+        {
+          "name": "DAS_slipStart",
+          "start_bit": 2,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_driverSteeringWeight",
+          "start_bit": 1,
+          "length": 2,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "light",
+            "1": "standard",
+            "2": "heavy"
+          }
+        },
+        {
+          "name": "DAS_distanceUnits",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "miles",
+            "0": "kilometers"
+          }
+        },
+        {
+          "name": "DAS_aebEnabled",
+          "start_bit": 18,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_adaptiveHeadlights",
+          "start_bit": 22,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 31.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_autosteerEnabled2",
+          "start_bit": 24,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_autosteerEnabled",
+          "start_bit": 38,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "1 if Autosteer or FSD is enabled, 0 otherwise",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_fcwSensitivity",
+          "start_bit": 37,
+          "length": 2,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 63.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "early",
+            "1": "medium",
+            "2": "late",
+            "3": "off"
+          }
+        },
+        {
+          "name": "DAS_fcwEnabled",
+          "start_bit": 34,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_driverAccelerationMode",
+          "start_bit": 44,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 127.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "chill",
+            "1": "standard"
+          }
+        },
+        {
+          "name": "DAS_obstacleAwareAcceleration",
+          "start_bit": 42,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_settingCounter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_settingChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 785,
+      "name": "UI_warning",
+      "dlc": 7,
+      "is_fd": false,
+      "transmitter": "XXX",
+      "comment": null,
+      "signals": [
+        {
+          "name": "UI_warningChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "UI_warningCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "buckleStatus",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "LATCHED",
+            "0": "UNLATCHED"
+          }
+        },
+        {
+          "name": "rightBlinkerOn",
+          "start_bit": 23,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "only describes stalk position if half pressed without auto-cancel blinkers. otherwise acts as expected",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "leftBlinkerOn",
+          "start_bit": 22,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "only describes stalk position if half pressed without auto-cancel blinkers. otherwise acts as expected",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "scrollWheelPressed",
+          "start_bit": 21,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": "captures either scroll wheel left, right or down press",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "rightBlinkerBlinking",
+          "start_bit": 26,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "off",
+            "1": "blinking, off",
+            "2": "blinking, on"
+          }
+        },
+        {
+          "name": "anyDoorOpen",
+          "start_bit": 28,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "OPEN",
+            "0": "CLOSED"
+          }
+        },
+        {
+          "name": "leftBlinkerBlinking",
+          "start_bit": 25,
+          "length": 2,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "off",
+            "1": "blinking, off",
+            "2": "blinking, on"
+          }
+        },
+        {
+          "name": "wiperSettings",
+          "start_bit": 39,
+          "length": 8,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "highBeam",
+          "start_bit": 50,
+          "length": 1,
+          "byte_order": "big_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "XXX"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 923,
+      "name": "DAS_status",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "DAS_autopilotState",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "15": "SNA",
+            "8": "ABORTING",
+            "3": "ACTIVE_NOMINAL",
+            "0": "DISABLED",
+            "4": "ACTIVE_RESTRICTED",
+            "5": "ACTIVE_NAV",
+            "6": "ACTIVE_FSD",
+            "14": "FAULT",
+            "1": "UNAVAILABLE",
+            "9": "ABORTED",
+            "2": "AVAILABLE"
+          }
+        },
+        {
+          "name": "DAS_blindSpotRearLeft",
+          "start_bit": 4,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "NO_WARNING",
+            "1": "WARNING_LEVEL_1",
+            "2": "WARNING_LEVEL_2"
+          }
+        },
+        {
+          "name": "DAS_blindSpotRearRight",
+          "start_bit": 6,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "NO_WARNING",
+            "1": "WARNING_LEVEL_1",
+            "2": "WARNING_LEVEL_2"
+          }
+        },
+        {
+          "name": "DAS_fusedSpeedLimit",
+          "start_bit": 8,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 5.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "unit": "kph/mph",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "31": "NONE",
+            "0": "UNKNOWN_SNA"
+          }
+        },
+        {
+          "name": "DAS_suppressSpeedWarning",
+          "start_bit": 13,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "Suppress_Speed_Warning",
+            "0": "Do_Not_Suppress"
+          }
+        },
+        {
+          "name": "DAS_summonObstacle",
+          "start_bit": 14,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_summonClearedGate",
+          "start_bit": 15,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_visionOnlySpeedLimit",
+          "start_bit": 16,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 5.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 150.0,
+          "unit": "kph/mph",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "31": "NONE",
+            "0": "UNKNOWN_SNA"
+          }
+        },
+        {
+          "name": "DAS_heaterState",
+          "start_bit": 21,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "HEATER_OFF_SNA",
+            "1": "HEATER_ON"
+          }
+        },
+        {
+          "name": "DAS_forwardCollisionWarning",
+          "start_bit": 22,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "NONE",
+            "1": "FORWARD_COLLISION_WARNING"
+          }
+        },
+        {
+          "name": "DAS_autoparkReady",
+          "start_bit": 24,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "AUTOPARK_UNAVAILABLE",
+            "1": "AUTOPARK_READY"
+          }
+        },
+        {
+          "name": "DAS_autoParked",
+          "start_bit": 25,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_autoparkWaitingForBrake",
+          "start_bit": 26,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "gtw"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_summonFwdLeashReached",
+          "start_bit": 28,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_summonRvsLeashReached",
+          "start_bit": 29,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_sideCollisionAvoid",
+          "start_bit": 30,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "3": "SNA",
+            "0": "NONE",
+            "1": "AVOID_LEFT",
+            "2": "AVOID_RIGHT"
+          }
+        },
+        {
+          "name": "DAS_sideCollisionWarning",
+          "start_bit": 32,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NONE",
+            "2": "WARN_RIGHT",
+            "1": "WARN_LEFT",
+            "3": "WARN_LEFT_RIGHT"
+          }
+        },
+        {
+          "name": "DAS_sideCollisionInhibit",
+          "start_bit": 34,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NO_INHIBIT",
+            "1": "INHIBIT"
+          }
+        },
+        {
+          "name": "DAS_csaState",
+          "start_bit": 35,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "CSA_EXTERNAL_STATE_AVAILABLE",
+            "3": "CSA_EXTERNAL_STATE_HOLD",
+            "2": "CSA_EXTERNAL_STATE_ENABLE",
+            "0": "CSA_EXTERNAL_STATE_UNAVAILABLE"
+          }
+        },
+        {
+          "name": "DAS_laneDepartureWarning",
+          "start_bit": 37,
+          "length": 3,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 5.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "5": "SNA",
+            "0": "NONE",
+            "2": "RIGHT_WARNING",
+            "4": "RIGHT_WARNING_SEVERE",
+            "3": "LEFT_WARNING_SEVERE",
+            "1": "LEFT_WARNING"
+          }
+        },
+        {
+          "name": "DAS_fleetSpeedState",
+          "start_bit": 40,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 3.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "FLEETSPEED_UNAVAILABLE",
+            "1": "FLEETSPEED_AVAILABLE",
+            "2": "FLEETSPEED_ACTIVE",
+            "3": "FLEETSPEED_HOLD"
+          }
+        },
+        {
+          "name": "DAS_autopilotHandsOnState",
+          "start_bit": 42,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "8": "LC_HANDS_ON_SUSPENDED",
+            "15": "LC_HANDS_ON_SNA",
+            "7": "LC_HANDS_ON_REQD_STRUCK_OUT",
+            "3": "LC_HANDS_ON_REQD_VISUAL",
+            "4": "LC_HANDS_ON_REQD_CHIME_1",
+            "6": "LC_HANDS_ON_REQD_SLOWING",
+            "1": "LC_HANDS_ON_REQD_DETECTED",
+            "2": "LC_HANDS_ON_REQD_NOT_DETECTED",
+            "5": "LC_HANDS_ON_REQD_CHIME_2",
+            "0": "LC_HANDS_ON_NOT_REQD"
+          }
+        },
+        {
+          "name": "DAS_autoLaneChangeState",
+          "start_bit": 46,
+          "length": 5,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 31.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "5": "ALC_UNAVAILABLE_VEHICLE_SPEED",
+            "17": "ALC_ABORT_POOR_VIEW_RANGE",
+            "23": "ALC_BLOCKED_VEH_TTC_AND_USS_L",
+            "0": "ALC_UNAVAILABLE_DISABLED",
+            "26": "ALC_BLOCKED_LANE_TYPE_L",
+            "29": "ALC_ABORT_TIMEOUT",
+            "9": "ALC_IN_PROGRESS_L",
+            "4": "ALC_UNAVAILABLE_EXITING_HIGHWAY",
+            "22": "ALC_BLOCKED_VEH_TTC_L",
+            "12": "ALC_WAITING_FOR_SIDE_OBST_TO_PASS_R",
+            "18": "ALC_ABORT_LC_HEALTH_BAD",
+            "28": "ALC_WAITING_HANDS_ON",
+            "8": "ALC_AVAILABLE_BOTH",
+            "11": "ALC_WAITING_FOR_SIDE_OBST_TO_PASS_L",
+            "3": "ALC_UNAVAILABLE_TP_FOLLOW",
+            "2": "ALC_UNAVAILABLE_SONICS_INVALID",
+            "21": "ALC_UNAVAILABLE_SOLID_LANE_LINE",
+            "24": "ALC_BLOCKED_VEH_TTC_R",
+            "1": "ALC_UNAVAILABLE_NO_LANES",
+            "25": "ALC_BLOCKED_VEH_TTC_AND_USS_R",
+            "30": "ALC_ABORT_MISSION_PLAN_INVALID",
+            "27": "ALC_BLOCKED_LANE_TYPE_R",
+            "19": "ALC_ABORT_BLINKER_TURNED_OFF",
+            "31": "ALC_SNA",
+            "13": "ALC_WAITING_FOR_FWD_OBST_TO_PASS_L",
+            "16": "ALC_ABORT_SIDE_OBSTACLE_PRESENT_R",
+            "6": "ALC_AVAILABLE_ONLY_L",
+            "20": "ALC_ABORT_OTHER_REASON",
+            "15": "ALC_ABORT_SIDE_OBSTACLE_PRESENT_L",
+            "7": "ALC_AVAILABLE_ONLY_R",
+            "14": "ALC_WAITING_FOR_FWD_OBST_TO_PASS_R",
+            "10": "ALC_IN_PROGRESS_R"
+          }
+        },
+        {
+          "name": "DAS_summonAvailable",
+          "start_bit": 51,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_statusCounter",
+          "start_bit": 52,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DAS_statusChecksum",
+          "start_bit": 56,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "aps"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 325,
+      "name": "ESP_status",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "PARTY",
+      "comment": null,
+      "signals": [
+        {
+          "name": "ESP_statusChecksum",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_statusCounter",
+          "start_bit": 8,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_espModeActive",
+          "start_bit": 12,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "00_NORMAL",
+            "1": "01",
+            "2": "02",
+            "3": "03"
+          }
+        },
+        {
+          "name": "ESP_stabilityControlSts2",
+          "start_bit": 14,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "INIT",
+            "1": "ON",
+            "2": "ENGAGED",
+            "3": "FAULTED"
+          }
+        },
+        {
+          "name": "ESP_ebdFaultLamp",
+          "start_bit": 16,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "ON"
+          }
+        },
+        {
+          "name": "ESP_absFaultLamp",
+          "start_bit": 17,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "ON"
+          }
+        },
+        {
+          "name": "ESP_espFaultLamp",
+          "start_bit": 18,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "ON"
+          }
+        },
+        {
+          "name": "ESP_hydraulicBoostEnabled",
+          "start_bit": 19,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "ESP_espLampFlash",
+          "start_bit": 20,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "FLASH"
+          }
+        },
+        {
+          "name": "ESP_brakeLamp",
+          "start_bit": 21,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "ON"
+          }
+        },
+        {
+          "name": "ESP_absBrakeEvent2",
+          "start_bit": 22,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NOT_ACTIVE",
+            "1": "ACTIVE_FRONT_REAR",
+            "2": "ACTIVE_FRONT",
+            "3": "ACTIVE_REAR"
+          }
+        },
+        {
+          "name": "ESP_longitudinalAccelQF",
+          "start_bit": 24,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNDEFINABLE_ACCURACY",
+            "1": "IN_SPEC"
+          }
+        },
+        {
+          "name": "ESP_lateralAccelQF",
+          "start_bit": 25,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNDEFINABLE_ACCURACY",
+            "1": "IN_SPEC"
+          }
+        },
+        {
+          "name": "ESP_yawRateQF",
+          "start_bit": 26,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNDEFINABLE_ACCURACY",
+            "1": "IN_SPEC"
+          }
+        },
+        {
+          "name": "ESP_steeringAngleQF",
+          "start_bit": 27,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "UNDEFINABLE_ACCURACY",
+            "1": "IN_SPEC"
+          }
+        },
+        {
+          "name": "ESP_brakeDiscWipingActive",
+          "start_bit": 28,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "INACTIVE",
+            "1": "ACTIVE"
+          }
+        },
+        {
+          "name": "ESP_driverBrakeApply",
+          "start_bit": 29,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NotInit_orOff",
+            "1": "Not_Applied",
+            "2": "Driver_applying_brakes",
+            "3": "Faulty_SNA"
+          }
+        },
+        {
+          "name": "ESP_brakeApply",
+          "start_bit": 31,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "INACTIVE",
+            "1": "ACTIVE"
+          }
+        },
+        {
+          "name": "ESP_cdpStatus",
+          "start_bit": 34,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "CDP_IS_NOT_AVAILABLE",
+            "1": "CDP_IS_AVAILABLE",
+            "2": "ACTUATING_EPB_CDP",
+            "3": "CDP_COMMAND_INVALID"
+          }
+        },
+        {
+          "name": "ESP_ptcTargetState",
+          "start_bit": 36,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "FAULT",
+            "1": "BACKUP",
+            "2": "ON",
+            "3": "SNA"
+          }
+        },
+        {
+          "name": "ESP_btcTargetState",
+          "start_bit": 38,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "OFF",
+            "1": "BACKUP",
+            "2": "ON",
+            "3": "SNA"
+          }
+        },
+        {
+          "name": "ESP_ebrStandstillSkid",
+          "start_bit": 48,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "NO_STANDSTILL_SKID",
+            "1": "STANDSTILL_SKID_DETECTED"
+          }
+        },
+        {
+          "name": "ESP_ebrStatus",
+          "start_bit": 49,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "EBR_IS_NOT_AVAILABLE",
+            "1": "EBR_IS_AVAILABLE",
+            "2": "ACTUATING_DI_EBR",
+            "3": "EBR_COMMAND_INVALID"
+          }
+        },
+        {
+          "name": "ESP_brakeTorqueTarget",
+          "start_bit": 51,
+          "length": 13,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 2.0,
+          "offset": 0.0,
+          "minimum": null,
+          "maximum": null,
+          "unit": "Nm",
+          "receivers": [
+            "X"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "8191": "SNA"
+          }
+        }
+      ]
+    }
+  ],
+  "value_tables": []
+}

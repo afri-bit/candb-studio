@@ -6,6 +6,9 @@ import { DbcSerializer } from '../../../../src/infrastructure/parsers/dbc/DbcSer
 import { ParseError } from '../../../../src/shared/errors/ParseError';
 import { ObjectType } from '../../../../src/core/enums/ObjectType';
 import { AttributeValueType } from '../../../../src/core/enums/AttributeValueType';
+import { ByteOrder } from '../../../../src/core/enums/ByteOrder';
+import { SignalValueType } from '../../../../src/core/enums/SignalValueType';
+import { MultiplexIndicator } from '../../../../src/core/enums/MultiplexIndicator';
 
 /** Compiled tests live under `out/test/...`; fixtures stay at repo `test/fixtures`. */
 const FIXTURES_DIR = path.join(__dirname, '../../../../..', 'test', 'fixtures');
@@ -647,6 +650,372 @@ suite('DbcParser', () => {
       assert.ok(db.findMessageById(100), 'BO_ must still parse');
       assert.strictEqual(db.findMessageById(100)!.comment, 'Test message', 'CM_ must still parse');
       assert.strictEqual(db.rawUnknownSections.length, 1, 'EV_ must be captured');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Signal valueType and byteOrder
+  // ───────────────────────────────────────────────────────────────────────────
+
+  suite('parse — signal valueType and byteOrder', () => {
+    const dbc = [
+      'VERSION ""',
+      'BU_: ECU1',
+      'BO_ 100 Msg: 8 ECU1',
+      ' SG_ UnsignedLE : 0|8@1+ (1,0) [0|255] "" ECU1',
+      ' SG_ SignedLE : 8|8@1- (1,0) [-128|127] "" ECU1',
+      ' SG_ UnsignedBE : 16|8@0+ (1,0) [0|255] "" ECU1',
+      ' SG_ SignedBE : 24|8@0- (1,0) [-128|127] "" ECU1',
+    ].join('\n');
+
+    test('unsigned + flag → SignalValueType.Unsigned', () => {
+      const db = parser.parse(dbc);
+      const sig = db.findPoolSignalByName('UnsignedLE');
+      assert.strictEqual(sig!.valueType, SignalValueType.Unsigned);
+    });
+
+    test('signed - flag → SignalValueType.Signed', () => {
+      const db = parser.parse(dbc);
+      const sig = db.findPoolSignalByName('SignedLE');
+      assert.strictEqual(sig!.valueType, SignalValueType.Signed);
+    });
+
+    test('@1 → ByteOrder.LittleEndian', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findPoolSignalByName('UnsignedLE')!.byteOrder, ByteOrder.LittleEndian);
+      assert.strictEqual(db.findPoolSignalByName('SignedLE')!.byteOrder, ByteOrder.LittleEndian);
+    });
+
+    test('@0 → ByteOrder.BigEndian', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findPoolSignalByName('UnsignedBE')!.byteOrder, ByteOrder.BigEndian);
+      assert.strictEqual(db.findPoolSignalByName('SignedBE')!.byteOrder, ByteOrder.BigEndian);
+    });
+
+    test('big-endian signed signal has correct valueType', () => {
+      const db = parser.parse(dbc);
+      assert.strictEqual(db.findPoolSignalByName('SignedBE')!.valueType, SignalValueType.Signed);
+    });
+
+    test('signal min and max are parsed correctly', () => {
+      const db = parser.parse(dbc);
+      const sig = db.findPoolSignalByName('SignedLE')!;
+      assert.strictEqual(sig.minimum, -128);
+      assert.strictEqual(sig.maximum, 127);
+    });
+
+    test('signal receiving nodes are parsed', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1 ECU2 GW',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Speed : 0|8@1+ (1,0) [0|255] "" ECU2,GW',
+      ].join('\n'));
+      const sig = db.findPoolSignalByName('Speed')!;
+      assert.deepStrictEqual(sig.receivingNodes, ['ECU2', 'GW']);
+    });
+
+    test('empty receivers string produces empty array', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ RPM : 0|16@1+ (1,0) [0|255] "" ',
+      ].join('\n'));
+      const sig = db.findPoolSignalByName('RPM')!;
+      assert.deepStrictEqual(sig.receivingNodes, []);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Multiplexing
+  // ───────────────────────────────────────────────────────────────────────────
+
+  suite('parse — multiplexing', () => {
+    const muxDbc = [
+      'VERSION ""',
+      'BU_: ECU1',
+      'BO_ 500 GearboxStatus: 8 ECU1',
+      ' SG_ GearSelector M : 0|4@1+ (1,0) [0|15] "" ECU1',
+      ' SG_ DriveData m0 : 4|8@1+ (1,0) [0|255] "" ECU1',
+      ' SG_ ReverseData m1 : 4|8@1+ (1,0) [0|255] "" ECU1',
+      ' SG_ NeutralFlag m2 : 12|1@1+ (1,0) [0|1] "" ECU1',
+      ' SG_ Regular : 20|8@1+ (1,0) [0|255] "" ECU1',
+    ].join('\n');
+
+    test('M token → MultiplexIndicator.Multiplexor', () => {
+      const db = parser.parse(muxDbc);
+      const sig = db.findPoolSignalByName('GearSelector')!;
+      assert.strictEqual(sig.multiplexIndicator, MultiplexIndicator.Multiplexor);
+    });
+
+    test('m0 token → MultiplexIndicator.MultiplexedSignal with multiplexValue 0', () => {
+      const db = parser.parse(muxDbc);
+      const sig = db.findPoolSignalByName('DriveData')!;
+      assert.strictEqual(sig.multiplexIndicator, MultiplexIndicator.MultiplexedSignal);
+      assert.strictEqual(sig.multiplexValue, 0);
+    });
+
+    test('m1 token → MultiplexIndicator.MultiplexedSignal with multiplexValue 1', () => {
+      const db = parser.parse(muxDbc);
+      const sig = db.findPoolSignalByName('ReverseData')!;
+      assert.strictEqual(sig.multiplexIndicator, MultiplexIndicator.MultiplexedSignal);
+      assert.strictEqual(sig.multiplexValue, 1);
+    });
+
+    test('m2 token → multiplexValue 2', () => {
+      const db = parser.parse(muxDbc);
+      assert.strictEqual(db.findPoolSignalByName('NeutralFlag')!.multiplexValue, 2);
+    });
+
+    test('regular signal alongside muxed signals → MultiplexIndicator.None', () => {
+      const db = parser.parse(muxDbc);
+      const sig = db.findPoolSignalByName('Regular')!;
+      assert.strictEqual(sig.multiplexIndicator, MultiplexIndicator.None);
+      assert.strictEqual(sig.multiplexValue, undefined);
+    });
+
+    test('message contains all 5 signal refs', () => {
+      const db = parser.parse(muxDbc);
+      const msg = db.findMessageById(500)!;
+      assert.strictEqual(msg.signalRefs.length, 5);
+    });
+
+    test('multiplexed signal still has correct startBit and bitLength', () => {
+      const db = parser.parse(muxDbc);
+      const sig = db.findPoolSignalByName('DriveData')!;
+      assert.strictEqual(sig.startBit, 4);
+      assert.strictEqual(sig.bitLength, 8);
+    });
+
+    test('parses multiplexed.dbc fixture without throwing', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'multiplexed.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      assert.ok(db.findMessageById(500), 'GearboxStatus message must be parsed');
+      assert.strictEqual(
+        db.findPoolSignalByName('GearSelector')!.multiplexIndicator,
+        MultiplexIndicator.Multiplexor,
+      );
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // VAL_ value descriptions
+  // ───────────────────────────────────────────────────────────────────────────
+
+  suite('parse — VAL_ value descriptions', () => {
+    const dbc = [
+      'VERSION ""',
+      'BU_: ECU1',
+      'BO_ 200 GearboxMsg: 8 ECU1',
+      ' SG_ Gear : 0|4@1+ (1,0) [0|15] "" ECU1',
+      ' SG_ Active : 4|1@1+ (1,0) [0|1] "" ECU1',
+      'VAL_ 200 Active 0 "Inactive" 1 "Active" ;',
+      'VAL_ 200 Gear 0 "Park" 1 "Reverse" 2 "Neutral" 3 "Drive" ;',
+    ].join('\n');
+
+    test('VAL_ entries are stored in db.valueDescriptions', () => {
+      const db = parser.parse(dbc);
+      const descs = db.findValueDescription(200, 'Active')?.descriptions;
+      assert.ok(descs, 'should have value descriptions for Active');
+      assert.strictEqual(descs!.get(0), 'Inactive');
+      assert.strictEqual(descs!.get(1), 'Active');
+    });
+
+    test('multiple VAL_ entries for different signals', () => {
+      const db = parser.parse(dbc);
+      const gearDescs = db.findValueDescription(200, 'Gear')?.descriptions;
+      assert.strictEqual(gearDescs!.size, 4);
+      assert.strictEqual(gearDescs!.get(3), 'Drive');
+    });
+
+    test('VAL_ with negative integer key is parsed', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BO_ 100 Msg: 4 ECU1',
+        ' SG_ Dir : 0|3@1- (1,0) [-4|3] "" ECU1',
+        'VAL_ 100 Dir 1 "Forward" 0 "Stopped" -1 "Reverse" ;',
+      ].join('\n'));
+      const descs = db.findValueDescription(100, 'Dir')?.descriptions;
+      assert.strictEqual(descs!.get(-1), 'Reverse');
+    });
+
+    test('parses val_descriptions.dbc fixture', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'val_descriptions.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      const gearDescs = db.findValueDescription(200, 'Gear')?.descriptions;
+      assert.ok(gearDescs, 'Gear value descriptions must exist');
+      assert.strictEqual(gearDescs!.get(0), 'Park');
+      assert.strictEqual(gearDescs!.get(4), 'Sport');
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Extended CAN IDs
+  // ───────────────────────────────────────────────────────────────────────────
+
+  suite('parse — extended CAN IDs', () => {
+    test('parses raw extended ID > 0x7FF without truncation', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: GW',
+        'BO_ 2566903870 ExtMsg: 8 GW',
+        ' SG_ Speed : 0|16@1+ (0.01,0) [0|655.35] "kph" GW',
+      ].join('\n'));
+      const msg = db.findMessageById(2566903870);
+      assert.ok(msg, 'extended ID message must be found');
+      assert.strictEqual(msg!.name, 'ExtMsg');
+    });
+
+    test('parses extended_ids.dbc fixture preserving raw IDs', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'extended_ids.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      assert.ok(db.findMessageById(2566903870), 'J1939 extended ID must be preserved');
+      assert.ok(db.findMessageById(100), 'standard ID message must also be parsed');
+    });
+
+    test('extended ID message signals are accessible', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'extended_ids.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      const msg = db.findMessageById(2566903870)!;
+      assert.strictEqual(msg.signalRefs.length, 2);
+    });
+
+    test('signed signal in extended ID message is parsed correctly', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'extended_ids.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      const sig = db.findPoolSignalByName('Torque')!;
+      assert.strictEqual(sig.valueType, SignalValueType.Signed);
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // BA_DEF_ all value types
+  // ───────────────────────────────────────────────────────────────────────────
+
+  suite('parse — BA_DEF_ all value types', () => {
+    test('parses BA_DEF_ FLOAT with min/max', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BA_DEF_ SG_ "InitValue" FLOAT 0 100;',
+        'BA_DEF_DEF_ "InitValue" 0;',
+      ].join('\n'));
+      const def = db.findAttributeDefinition('InitValue');
+      assert.ok(def, 'InitValue definition must exist');
+      assert.strictEqual(def!.valueType, AttributeValueType.Float);
+      assert.strictEqual(def!.minimum, 0);
+      assert.strictEqual(def!.maximum, 100);
+    });
+
+    test('parses BA_DEF_ STRING with no min/max', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BA_DEF_ BO_ "BusType" STRING ;',
+        'BA_DEF_DEF_ "BusType" "";',
+      ].join('\n'));
+      const def = db.findAttributeDefinition('BusType');
+      assert.ok(def, 'BusType definition must exist');
+      assert.strictEqual(def!.valueType, AttributeValueType.String);
+    });
+
+    test('parses BA_DEF_ ENUM with quoted values', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BA_DEF_ BO_ "SystemClass" ENUM "Class_A","Class_B","Class_C";',
+        'BA_DEF_DEF_ "SystemClass" "Class_A";',
+      ].join('\n'));
+      const def = db.findAttributeDefinition('SystemClass');
+      assert.ok(def, 'SystemClass definition must exist');
+      assert.strictEqual(def!.valueType, AttributeValueType.Enum);
+      assert.deepStrictEqual(def!.enumValues, ['Class_A', 'Class_B', 'Class_C']);
+    });
+
+    test('parses BA_DEF_ HEX with min/max', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BA_DEF_ SG_ "SigType" HEX 0 255;',
+        'BA_DEF_DEF_ "SigType" 0;',
+      ].join('\n'));
+      const def = db.findAttributeDefinition('SigType');
+      assert.ok(def, 'SigType definition must exist');
+      assert.strictEqual(def!.valueType, AttributeValueType.Hex);
+      assert.strictEqual(def!.maximum, 255);
+    });
+
+    test('parses BA_DEF_ with no scope prefix → ObjectType.Network', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BA_DEF_  "NetworkName" STRING ;',
+        'BA_DEF_DEF_  "NetworkName" "";',
+      ].join('\n'));
+      const def = db.findAttributeDefinition('NetworkName');
+      assert.ok(def, 'NetworkName definition must exist');
+      assert.strictEqual(def!.objectType, ObjectType.Network);
+    });
+
+    test('parses BA_ for network scope (no BU_/BO_/SG_ prefix)', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BA_DEF_  "NetworkName" STRING ;',
+        'BA_DEF_DEF_  "NetworkName" "";',
+        'BA_ "NetworkName" "TestNetwork";',
+      ].join('\n'));
+      const attr = db.attributes.find(
+        (a) => a.definitionName === 'NetworkName' && a.objectType === ObjectType.Network,
+      );
+      assert.ok(attr, 'network-scope BA_ must be parsed');
+      assert.strictEqual(attr!.value, 'TestNetwork');
+    });
+
+    test('parses BA_ ENUM value as numeric index', () => {
+      const db = parser.parse([
+        'VERSION ""',
+        'BU_: ECU1',
+        'BO_ 100 Msg: 8 ECU1',
+        ' SG_ Val : 0|8@1+ (1,0) [0|255] "" ECU1',
+        'BA_DEF_ BO_ "SystemClass" ENUM "Class_A","Class_B","Class_C";',
+        'BA_DEF_DEF_ "SystemClass" "Class_A";',
+        'BA_ "SystemClass" BO_ 100 2;',
+      ].join('\n'));
+      const attr = db.attributes.find(
+        (a) => a.definitionName === 'SystemClass' && a.objectType === ObjectType.Message,
+      );
+      assert.ok(attr, 'BA_ ENUM attribute must be parsed');
+      assert.strictEqual(attr!.value, 2);
+    });
+
+    test('parses all_attr_types.dbc fixture without throwing', () => {
+      const content = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'dbc', 'all_attr_types.dbc'),
+        'utf-8',
+      );
+      const db = parser.parse(content);
+      assert.ok(db.findAttributeDefinition('GenMsgCycleTime'), 'INT attr def must exist');
+      assert.ok(db.findAttributeDefinition('InitValue'), 'FLOAT attr def must exist');
+      assert.ok(db.findAttributeDefinition('BusType'), 'STRING attr def must exist');
+      assert.ok(db.findAttributeDefinition('SystemClass'), 'ENUM attr def must exist');
+      assert.ok(db.findAttributeDefinition('SigType'), 'HEX attr def must exist');
+      assert.ok(db.findAttributeDefinition('NetworkName'), 'network-scope attr def must exist');
     });
   });
 });

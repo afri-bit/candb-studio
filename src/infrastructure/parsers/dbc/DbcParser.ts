@@ -1,6 +1,8 @@
 import { AttributeValueType } from '../../../core/enums/AttributeValueType';
 import { ByteOrder } from '../../../core/enums/ByteOrder';
+import { MultiplexIndicator } from '../../../core/enums/MultiplexIndicator';
 import { ObjectType } from '../../../core/enums/ObjectType';
+import { SignalValueType } from '../../../core/enums/SignalValueType';
 import type { ICanDatabaseParser } from '../../../core/interfaces/database/ICanDatabaseParser';
 import { Attribute } from '../../../core/models/database/Attribute';
 import { AttributeDefinition } from '../../../core/models/database/AttributeDefinition';
@@ -13,10 +15,11 @@ import { parseOrphanSignalsFromDbcContent } from '../../../presentation/webview/
 import { ParseError } from '../../../shared/errors/ParseError';
 import { DbcTokenizer } from './DbcTokenizer';
 
-/** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line. */
+/** Parse `0 "Off" 1 "On"` pairs from the tail of a `VAL_` / `VAL_TABLE_` line.
+ * Keys may be negative integers (e.g. `-1 "Reverse"`). */
 export function parseDbcValuePairs(s: string): Map<number, string> {
     const m = new Map<number, string>();
-    const re = /(\d+)\s+"([^"]*)"/g;
+    const re = /(-?\d+)\s+"([^"]*)"/g;
     let match;
     while ((match = re.exec(s)) !== null) {
         m.set(parseInt(match[1], 10), match[2]);
@@ -605,29 +608,43 @@ export class DbcParser implements ICanDatabaseParser {
     private parseSignal(line: string): Signal | null {
         // DBC signal format:
         // SG_ name [mux] : startBit|bitLength@byteOrder(+|-) (factor,offset) [min|max] "unit" receivers
+        // The optional mux token is one of: M (multiplexor), m<N> (multiplexed on value N)
         const match = line.match(
-            /SG_\s+(\w+)(?:\s+\w*)?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
+            /SG_\s+(\w+)(?:\s+(M|m\d+))?\s*:\s*(\d+)\|(\d+)@([01])([+-])\s*\(([^,]+),([^)]+)\)\s*\[([^|]+)\|([^\]]+)\]\s*"([^"]*)"\s*(.*)/,
         );
         if (!match) {
             return null;
         }
 
+        const muxToken = match[2]; // undefined for regular signals, "M" for muxor, "m0"/"m1"/... for muxed
+        let multiplexIndicator = MultiplexIndicator.None;
+        let multiplexValue: number | undefined;
+        if (muxToken === 'M') {
+            multiplexIndicator = MultiplexIndicator.Multiplexor;
+        } else if (muxToken?.startsWith('m')) {
+            multiplexIndicator = MultiplexIndicator.MultiplexedSignal;
+            multiplexValue = parseInt(muxToken.slice(1), 10);
+        }
+
         return new Signal({
             name: match[1],
-            startBit: parseInt(match[2], 10),
-            bitLength: parseInt(match[3], 10),
-            byteOrder: match[4] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
-            factor: parseFloat(match[6]),
-            offset: parseFloat(match[7]),
-            minimum: parseFloat(match[8]),
-            maximum: parseFloat(match[9]),
-            unit: match[10],
-            receivingNodes: match[11]
-                ? match[11]
+            startBit: parseInt(match[3], 10),
+            bitLength: parseInt(match[4], 10),
+            byteOrder: match[5] === '1' ? ByteOrder.LittleEndian : ByteOrder.BigEndian,
+            valueType: match[6] === '-' ? SignalValueType.Signed : SignalValueType.Unsigned,
+            factor: parseFloat(match[7]),
+            offset: parseFloat(match[8]),
+            minimum: parseFloat(match[9]),
+            maximum: parseFloat(match[10]),
+            unit: match[11],
+            receivingNodes: match[12]
+                ? match[12]
                       .split(',')
                       .map((s: string) => s.trim())
                       .filter(Boolean)
                 : [],
+            multiplexIndicator,
+            multiplexValue,
         });
     }
 }

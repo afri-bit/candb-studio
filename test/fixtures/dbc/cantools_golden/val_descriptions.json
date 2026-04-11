@@ -1,0 +1,163 @@
+{
+  "nodes": [
+    "ECU1",
+    "BCM"
+  ],
+  "messages": [
+    {
+      "id": 200,
+      "name": "GearboxMsg",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ECU1",
+      "comment": "Gearbox status message",
+      "signals": [
+        {
+          "name": "Gear",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "BCM"
+          ],
+          "comment": "Current gear position",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Park",
+            "1": "Reverse",
+            "2": "Neutral",
+            "3": "Drive",
+            "4": "Sport"
+          }
+        },
+        {
+          "name": "Active",
+          "start_bit": 4,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "BCM"
+          ],
+          "comment": "Gearbox active state",
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Inactive",
+            "1": "Active"
+          }
+        },
+        {
+          "name": "Direction",
+          "start_bit": 8,
+          "length": 2,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": -2.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "BCM"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "1": "Forward",
+            "0": "Stopped",
+            "-1": "Reverse"
+          }
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "name": "LightStatus",
+      "dlc": 4,
+      "is_fd": false,
+      "transmitter": "BCM",
+      "comment": null,
+      "signals": [
+        {
+          "name": "HeadlightOn",
+          "start_bit": 0,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {
+            "0": "Off",
+            "1": "On"
+          }
+        },
+        {
+          "name": "FogLightOn",
+          "start_bit": 1,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    }
+  ],
+  "value_tables": [
+    {
+      "name": "GearTable",
+      "entries": {
+        "0": "Park",
+        "1": "Reverse",
+        "2": "Neutral",
+        "3": "Drive",
+        "4": "Sport"
+      }
+    },
+    {
+      "name": "BoolTable",
+      "entries": {
+        "0": "Off",
+        "1": "On"
+      }
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "nodes": [
+    "GATEWAY",
+    "ECU1"
+  ],
+  "messages": [
+    {
+      "id": 419420222,
+      "name": "J1939ExtMsg",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GATEWAY",
+      "comment": "Extended 29-bit CAN ID message (J1939 style)",
+      "signals": [
+        {
+          "name": "Speed",
+          "start_bit": 0,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.01,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 655.35,
+          "unit": "kph",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Torque",
+          "start_bit": 16,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "signed",
+          "factor": 0.5,
+          "offset": -1600.0,
+          "minimum": -1600.0,
+          "maximum": 1606.5,
+          "unit": "Nm",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "name": "StandardMsg",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "GATEWAY",
+      "comment": "Standard 11-bit CAN ID message",
+      "signals": [
+        {
+          "name": "Temp",
+          "start_bit": 0,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": -40.0,
+          "minimum": -40.0,
+          "maximum": 215.0,
+          "unit": "degC",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "Pressure",
+          "start_bit": 8,
+          "length": 16,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 0.1,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 6553.5,
+          "unit": "kPa",
+          "receivers": [
+            "ECU1"
+          ],
+          "comment": null,
+          "is_multiplexer": false,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        }
+      ]
+    }
+  ],
+  "value_tables": []
+}

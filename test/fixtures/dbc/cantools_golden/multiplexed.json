@@ -1,0 +1,106 @@
+{
+  "nodes": [
+    "ECU1",
+    "TCU"
+  ],
+  "messages": [
+    {
+      "id": 500,
+      "name": "GearboxStatus",
+      "dlc": 8,
+      "is_fd": false,
+      "transmitter": "ECU1",
+      "comment": null,
+      "signals": [
+        {
+          "name": "GearSelector",
+          "start_bit": 0,
+          "length": 4,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 15.0,
+          "unit": "",
+          "receivers": [
+            "ECU1",
+            "TCU"
+          ],
+          "comment": "Multiplexor: selects active gear data signal group",
+          "is_multiplexer": true,
+          "is_multiplexed": false,
+          "multiplexer_ids": null,
+          "choices": {}
+        },
+        {
+          "name": "DriveData",
+          "start_bit": 4,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "TCU"
+          ],
+          "comment": "Drive mode payload active when GearSelector=0",
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            0
+          ],
+          "choices": {}
+        },
+        {
+          "name": "ReverseData",
+          "start_bit": 4,
+          "length": 8,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 255.0,
+          "unit": "",
+          "receivers": [
+            "TCU"
+          ],
+          "comment": "Reverse mode payload active when GearSelector=1",
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            1
+          ],
+          "choices": {}
+        },
+        {
+          "name": "NeutralFlag",
+          "start_bit": 12,
+          "length": 1,
+          "byte_order": "little_endian",
+          "value_type": "unsigned",
+          "factor": 1.0,
+          "offset": 0.0,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "unit": "",
+          "receivers": [
+            "TCU"
+          ],
+          "comment": "Neutral flag active when GearSelector=2",
+          "is_multiplexer": false,
+          "is_multiplexed": true,
+          "multiplexer_ids": [
+            2
+          ],
+          "choices": {}
+        }
+      ]
+    }
+  ],
+  "value_tables": []
+}

@@ -1,0 +1,76 @@
+VERSION "1.0"
+
+NS_ :
+
+BS_:
+
+BU_: ECU1 ECU2 GATEWAY BCM TCU
+
+VAL_TABLE_ GearPositions 0 "Park" 1 "Reverse" 2 "Neutral" 3 "Drive" ;
+VAL_TABLE_ OnOff 0 "Off" 1 "On" ;
+
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenMsgCycleTime" 100;
+BA_DEF_ BO_  "GenMsgSendType" ENUM "Cyclic","Event","NoMsgSendType";
+BA_DEF_DEF_  "GenMsgSendType" "Cyclic";
+BA_DEF_ SG_  "SystemSignalLongSymbol" STRING ;
+BA_DEF_DEF_  "SystemSignalLongSymbol" "";
+
+BO_ 100 EngineStatus: 8 ECU1
+ SG_ RPM : 0|16@1+ (0.25,0) [0|16383.75] "rpm" ECU2,GATEWAY
+ SG_ EngineTemp : 16|8@1+ (1,-40) [-40|215] "degC" ECU2
+ SG_ ThrottlePos : 24|8@1+ (0.39216,0) [0|100] "%" ECU2
+ SG_ EngineLoad : 32|8@1+ (0.39216,0) [0|100] "%" GATEWAY
+
+BO_ 200 GearboxStatus: 8 TCU
+ SG_ GearSelector M : 0|4@1+ (1,0) [0|15] "" ECU1,BCM
+ SG_ DriveData m0 : 4|8@1+ (1,0) [0|255] "" ECU1
+ SG_ ReverseData m1 : 4|8@1+ (1,0) [0|255] "" ECU1
+ SG_ CurrentGear : 12|4@1+ (1,0) [0|15] "" ECU1,GATEWAY
+
+BO_ 300 BrakeSystem: 4 ECU2
+ SG_ BrakePressure : 0|16@1+ (0.1,0) [0|6553.5] "kPa" GATEWAY
+ SG_ ABSActive : 16|1@1+ (1,0) [0|1] "" GATEWAY
+ SG_ BrakeTemp : 17|8@1- (2,-100) [-100|410] "degC" GATEWAY
+
+BO_ 400 BodyControl: 8 BCM
+ SG_ HeadlightOn : 0|1@1+ (1,0) [0|1] "" ECU1
+ SG_ FogLightOn : 1|1@1+ (1,0) [0|1] "" ECU1
+ SG_ WiperSpeed : 2|3@1+ (1,0) [0|7] "" ECU1
+ SG_ DoorLocked : 5|1@1+ (1,0) [0|1] "" ECU1
+ SG_ WindowPos : 8|8@0+ (0.39216,0) [0|100] "%" ECU1
+
+BO_ 2566903870 J1939ExtMsg: 8 GATEWAY
+ SG_ VehicleSpeed : 0|16@1+ (0.00390625,0) [0|250.996] "kph" ECU1,ECU2
+ SG_ TotalDistance : 16|32@1+ (0.125,0) [0|536870911.875] "km" ECU1
+
+VAL_ 200 CurrentGear 0 "Park" 1 "Reverse" 2 "Neutral" 3 "Drive" 4 "Sport" ;
+VAL_ 300 ABSActive 0 "Inactive" 1 "Active" ;
+VAL_ 400 HeadlightOn 0 "Off" 1 "On" ;
+VAL_ 400 FogLightOn 0 "Off" 1 "On" ;
+VAL_ 400 WiperSpeed 0 "Off" 1 "Low" 2 "Medium" 3 "High" 4 "Intermittent1" 5 "Intermittent2" ;
+VAL_ 400 DoorLocked 0 "Unlocked" 1 "Locked" ;
+
+CM_ "Multi-ECU vehicle CAN database for integration testing";
+CM_ BU_ ECU1 "Engine control unit";
+CM_ BU_ ECU2 "Brake and safety ECU";
+CM_ BU_ GATEWAY "Central gateway";
+CM_ BU_ BCM "Body control module";
+CM_ BU_ TCU "Transmission control unit";
+CM_ BO_ 100 "Engine status broadcast at 10ms";
+CM_ BO_ 200 "Gearbox status with multiplexed signals";
+CM_ BO_ 300 "Brake system status";
+CM_ BO_ 400 "Body control state";
+CM_ BO_ 2566903870 "J1939-style extended CAN ID message";
+CM_ SG_ 100 RPM "Engine rotational speed";
+CM_ SG_ 100 EngineTemp "Coolant temperature";
+CM_ SG_ 200 GearSelector "Multiplexor for gear data groups";
+CM_ SG_ 300 BrakePressure "Hydraulic brake line pressure";
+CM_ SG_ 400 WindowPos "Window position (big-endian Motorola)";
+
+BA_ "GenMsgCycleTime" BO_ 100 10;
+BA_ "GenMsgCycleTime" BO_ 200 20;
+BA_ "GenMsgCycleTime" BO_ 300 10;
+BA_ "GenMsgCycleTime" BO_ 400 100;
+BA_ "GenMsgSendType" BO_ 100 0;
+BA_ "GenMsgSendType" BO_ 400 1;

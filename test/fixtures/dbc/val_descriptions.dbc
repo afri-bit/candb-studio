@@ -1,0 +1,28 @@
+VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: ECU1 BCM
+
+VAL_TABLE_ GearTable 0 "Park" 1 "Reverse" 2 "Neutral" 3 "Drive" 4 "Sport" ;
+VAL_TABLE_ BoolTable 0 "Off" 1 "On" ;
+
+BO_ 200 GearboxMsg: 8 ECU1
+ SG_ Gear : 0|4@1+ (1,0) [0|15] "" BCM
+ SG_ Active : 4|1@1+ (1,0) [0|1] "" BCM
+ SG_ Direction : 8|2@1- (1,0) [-2|1] "" BCM
+
+BO_ 300 LightStatus: 4 BCM
+ SG_ HeadlightOn : 0|1@1+ (1,0) [0|1] "" ECU1
+ SG_ FogLightOn : 1|1@1+ (1,0) [0|1] "" ECU1
+
+VAL_ 200 Active 0 "Inactive" 1 "Active" ;
+VAL_ 200 Gear 0 "Park" 1 "Reverse" 2 "Neutral" 3 "Drive" 4 "Sport" ;
+VAL_ 200 Direction 1 "Forward" 0 "Stopped" -1 "Reverse" ;
+VAL_ 300 HeadlightOn 0 "Off" 1 "On" ;
+
+CM_ BO_ 200 "Gearbox status message";
+CM_ SG_ 200 Gear "Current gear position";
+CM_ SG_ 200 Active "Gearbox active state";
