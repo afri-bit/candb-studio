@@ -1,0 +1,29 @@
+# Apply .github/labels.yml to the repository. Does not delete unknown labels.
+name: Sync labels
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/labels.yml
+      - .github/workflows/sync-labels.yml
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Sync labels
+        uses: crazy-max/ghaction-github-labeler@v6
+        with:
+          yaml-file: .github/labels.yml
+          skip-delete: true

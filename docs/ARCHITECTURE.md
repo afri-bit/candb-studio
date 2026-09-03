@@ -4,6 +4,8 @@ High-level view of how the **candb-studio** extension is structured: **persisten
 
 **Step-by-step extension-host guide (layered, with diagrams):** see [architecture/README.md](architecture/README.md) — start with [architecture/01-overview.md](architecture/01-overview.md).
 
+**How we plan and land work** (GitHub issues, Speckit, ADRs, PRs): [workflow/README.md](workflow/README.md). **Decisions:** [adr/README.md](adr/README.md).
+
 ## Layered overview
 
 ```mermaid

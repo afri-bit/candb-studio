@@ -90,6 +90,7 @@ When adding or changing editor/webview behavior:
 
 - Prefer minimal, task-focused diffs; match existing naming, imports, and patterns in touched files.
 - Keep `CHANGELOG.md` or `README.md` updates aligned with user requests — do not update them speculatively.
+- **GitHub first:** actionable work starts as an issue in this repo; the issue body is the brief. Features that add capability use Speckit (`specs/`). Durable design choices use `docs/adr/`. See `docs/workflow/README.md` and `AGENTS.md`. Start from an issue with `/from-issue`.
 
 ## Known limitations (as of 0.2.0)
 

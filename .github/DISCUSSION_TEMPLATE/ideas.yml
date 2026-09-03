@@ -1,0 +1,36 @@
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use **Ideas** when you are not ready to file a feature issue. If this becomes actionable, open a [Feature request](https://github.com/afri-bit/candb-studio/issues/new?template=feature_request.yml) and link here.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would you like CANdb Studio to do, and why?
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What happens today
+      description: Workaround, missing command, or gap in the editor / Signal Lab / explorer.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - DBC editing
+        - Signal Lab
+        - Explorer
+        - Language / parser
+        - Bus adapters
+        - Docs / workflow
+        - Unsure
+    validations:
+      required: true

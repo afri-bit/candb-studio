@@ -11,3 +11,5 @@ This folder breaks down the **candb-studio** extension host (`src/`) in smaller,
 | [05-presentation-layer.md](05-presentation-layer.md) | Custom editor, webview handler, tree, commands, providers |
 
 The authoritative **short** overview (data flow, signal pool) remains in [../ARCHITECTURE.md](../ARCHITECTURE.md).
+
+How work is planned and landed (issues, specs, ADRs, PRs): [../workflow/README.md](../workflow/README.md). Durable decisions: [../adr/README.md](../adr/README.md).

@@ -1,11 +1,12 @@
 name: Bug report
-description: Something is broken or behaves incorrectly in CANdb Studio
-labels: ["bug"]
+description: Something is broken — this issue is the brief for humans and Cursor
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a bug. The more detail you provide, the faster we can reproduce it.
+        Write this so someone (or Cursor via `/from-issue`) can reproduce and fix it without extra context.
 
   - type: textarea
     id: summary
@@ -42,6 +43,17 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Done when
+      description: How we know the fix worked. Used as the agent’s acceptance criteria.
+      placeholder: |
+        - [ ] The steps above show the expected behavior
+        - [ ] Unit/integration test covers the regression if the bug is in parse/domain/services
+    validations:
+      required: true
+
   - type: dropdown
     id: area
     attributes:
@@ -52,6 +64,7 @@ body:
         - Sidebar / tree view
         - Language features (hover, completion, diagnostics)
         - CAN bus (connect / monitor / transmit)
+        - Parser / serialization
         - Other / not sure
     validations:
       required: true
@@ -67,8 +80,8 @@ body:
     id: extension
     attributes:
       label: CANdb Studio version
-      description: Extensions view → CANdb Studio, or `package.json` if you run from source.
-      placeholder: e.g. 0.0.1
+      description: Extensions view → CANdb Studio, or package.json if you run from source.
+      placeholder: e.g. 0.2.0
 
   - type: textarea
     id: os
@@ -79,13 +92,20 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Logs / screenshots (optional)
+      label: Logs / screenshots
       description: Output panel (CANdb Studio channel), errors from Developer Tools, or screenshots. Redact secrets.
       render: markdown
 
   - type: textarea
     id: sample
     attributes:
-      label: Minimal `.dbc` or snippet (optional)
-      description: If the bug depends on file content, attach the smallest example that reproduces it (or describe what to change in `test/fixtures` if applicable).
+      label: Minimal .dbc or snippet
+      description: If the bug depends on file content, attach the smallest example (or describe a test/fixtures change).
       render: markdown
+
+  - type: checkboxes
+    id: agent_ready
+    attributes:
+      label: Ready for an agent
+      options:
+        - label: Steps and expected/actual are complete enough to fix (add label agent-ready after submit if you can)

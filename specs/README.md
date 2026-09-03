@@ -2,6 +2,8 @@
 
 Ordered **history** of capability specs (spec-driven documentation). **001–005** describe **implemented** behavior; **006–013** are **draft** (planned or in progress).
 
+New features start as a **[GitHub issue](https://github.com/afri-bit/candb-studio/issues/new?template=feature_request.yml)**. The issue body is the brief; Speckit (`/speckit.specify` and related Cursor commands) writes the folder below. See [docs/workflow/README.md](../docs/workflow/README.md). Link the issue from `spec.md` when you create a new spec.
+
 | # | Spec | Status |
 |---|------|--------|
 | [001](001-dbc-language-syntax/spec.md) | DBC language and syntax highlighting | Implemented |

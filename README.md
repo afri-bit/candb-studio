@@ -59,8 +59,8 @@ If you work with CAN and DBC, the goal is simple: open a `.dbc`, understand stru
 ### From source
 
 ```bash
-git clone https://github.com/afri-bit/vscode-canbus.git
-cd vscode-canbus
+git clone https://github.com/afri-bit/candb-studio.git
+cd candb-studio
 
 npm install
 npm install --prefix webview-ui
@@ -196,7 +196,12 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for ways to help improve the extension.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Features, bugs, ADRs, and discussions all live in this repository.
+
+- **GitHub + Cursor workflow:** [docs/workflow/README.md](docs/workflow/README.md)
+- **One-time GitHub setup:** [docs/workflow/github-setup.md](docs/workflow/github-setup.md)
+- **ADRs:** [docs/adr/README.md](docs/adr/README.md)
+- **Feature specs:** [specs/README.md](specs/README.md)
 
 ## Code of Conduct
 

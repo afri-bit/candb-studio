@@ -1,12 +1,13 @@
 name: Documentation
-description: Report incorrect, missing, or confusing docs (README, ARCHITECTURE, in-repo guides)
-labels: ["documentation"]
+description: Incorrect, missing, or confusing docs (README, architecture, workflow, in-repo guides)
+title: "[Docs] "
+labels: ["documentation", "needs-triage"]
 body:
   - type: textarea
     id: location
     attributes:
       label: What needs changing?
-      description: Link or path (e.g. `docs/ARCHITECTURE.md`, `AGENTS.md`, webview README).
+      description: Link or path (e.g. docs/ARCHITECTURE.md, AGENTS.md, docs/workflow/README.md).
       placeholder: e.g. docs/architecture/03-application-layer.md — MonitorService section
     validations:
       required: true
@@ -15,12 +16,20 @@ body:
     id: issue
     attributes:
       label: What’s wrong or missing?
-      description: Outdated statement, typo, gap for new contributors, etc.
+      description: Outdated statement, typo, gap for new contributors or agents, etc.
     validations:
       required: true
 
   - type: textarea
     id: suggestion
     attributes:
-      label: Suggested fix (optional)
+      label: Suggested fix
       description: Short outline or patch idea.
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Done when
+      placeholder: |
+        - [ ] The named page states …
+        - [ ] Links from CONTRIBUTING / AGENTS still work
