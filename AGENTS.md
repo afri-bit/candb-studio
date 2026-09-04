@@ -1,6 +1,6 @@
 # CANdb Studio — agent guide
 
-Guidance for **Cursor, Claude Code, Cloud Agents, and other coding agents**. Humans: [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/workflow/README.md](docs/workflow/README.md).
+Guidance for **Cursor** (local and Cloud Agents). Humans: [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/workflow/README.md](docs/workflow/README.md).
 
 **CANdb Studio** is a VS Code extension for `.dbc` (CAN database) files: structured editing via a custom Svelte editor, sidebar tree view, DBC syntax highlighting/language features, and optional bus monitoring/transmit via CAN adapters.
 
