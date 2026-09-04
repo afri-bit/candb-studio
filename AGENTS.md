@@ -1,6 +1,8 @@
 # CANdb Studio — agent guide
 
-This file is for **Cursor, Cloud Agents, and other coding agents**. Humans: [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/workflow/README.md](docs/workflow/README.md).
+Guidance for **Cursor, Claude Code, Cloud Agents, and other coding agents**. Humans: [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/workflow/README.md](docs/workflow/README.md).
+
+**CANdb Studio** is a VS Code extension for `.dbc` (CAN database) files: structured editing via a custom Svelte editor, sidebar tree view, DBC syntax highlighting/language features, and optional bus monitoring/transmit via CAN adapters.
 
 **Repository:** https://github.com/afri-bit/candb-studio  
 **Default branch:** `main`
@@ -16,13 +18,15 @@ This file is for **Cursor, Cloud Agents, and other coding agents**. Humans: [CON
 
 ## Project Structure
 
+Four strict layers — domain must not depend on VS Code APIs:
+
 ```text
 src/core/            Domain (CanDatabase, signals, messages) — no vscode
-src/application/     CanDatabaseService, monitor, transmit, validation
-src/infrastructure/  DBC parse/serialize, adapters, filesystem
-src/presentation/    Custom editor, webview handler, tree, language
+src/application/     CanDatabaseService, monitor, transmit, validation, virtual bus
+src/infrastructure/  DBC parse/serialize, adapters, filesystem, codec
+src/presentation/    Custom editor, webview handler, tree, language, Signal Lab panel
 src/shared/          EventBus, Logger, constants
-webview-ui/          Svelte apps: App.svelte (DB editor), SignalLabApp.svelte
+webview-ui/          Svelte 5 (Vite): App.svelte (DB editor), SignalLabApp.svelte
 test/unit/           Mocha tests (mirrors src/ layers)
 test/integration/    VS Code host tests
 specs/               Numbered feature specs (Speckit)
@@ -35,12 +39,25 @@ docs/architecture/   Layered extension-host guide
 ## Commands
 
 ```bash
-npm install && npm install --prefix webview-ui
+# Install (run both on first checkout)
+npm install
+npm install --prefix webview-ui
+
+# Build
 npm run compile          # webview (Vite) + extension (webpack)
-npm run lint
-npm run test:unit
-npm test                 # pretest compile + lint + vscode-test
-npm run test:integration
+npm run watch            # webpack watch; rebuild webview separately when webview-ui/ changes
+npm run package          # production build (used for .vsix)
+npm run vsix             # package .vsix with vsce
+
+# Code quality
+npm run lint             # ESLint on src/
+npm run format           # Prettier: 4-space indent for src/, 2-space for webview-ui/
+npm run format:check     # dry-run check only
+
+# Tests
+npm test                 # pretest (compile-tests + compile + lint) then vscode-test
+npm run test:unit        # unit tests only: clears out/, compiles, runs mocha with vscode shim
+npm run test:integration # integration tests in VS Code host only
 ```
 
 Single unit file (after `npm run compile-tests`):
@@ -49,12 +66,44 @@ Single unit file (after `npm run compile-tests`):
 mocha --exit --ui tdd --require ./test/mocha-vscode-stub.cjs "out/test/unit/path/to/file.test.js"
 ```
 
+After parser/serializer changes, extend tests under `test/unit/infrastructure/parsers/`.
+
+## Architecture
+
+**Activation flow** (`src/extension.ts`): EventBus → infrastructure → application services → presentation. `MonitorService` and `TransmitService` are created lazily only after a bus adapter connects.
+
+**`CanDatabaseService`** is the central orchestrator: loads/saves `.dbc`, applies webview mutations, emits `database:loaded` / `database:changed` on the `EventBus`. The tree view, language providers, and Signal Lab all subscribe to these events.
+
+**Signal model**: Signals live in a **global pool** keyed by name. Messages reference pool signals by name with per-frame placement (start bit, endianness, etc.). Signals not attached to any message are **unlinked** — they persist via a DBC extension block and appear under "Unlinked signals" in the sidebar.
+
+**Virtual CAN simulation**: `VirtualBusSimulationService` drives `VirtualCanAdapter.injectFrameForMonitor`, which pushes `CanFrame` instances into the same `onFrameReceived` path `MonitorService` already subscribes to — decode, `EventBus` events, and Signal Lab charts behave identically to hardware traffic.
+
+Layered diagrams: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Key file map
+
+| Concern | Location |
+|---|---|
+| Activation & wiring | `src/extension.ts` |
+| Load/save, mutations, events | `src/application/services/CanDatabaseService.ts` |
+| Domain aggregate | `src/core/models/database/` |
+| DBC parse/serialize | `src/infrastructure/parsers/dbc/` |
+| Webview RPC types + handler | `src/presentation/webview/messages/WebviewMessageTypes.ts`, `WebviewMessageHandler.ts` |
+| DB → webview JSON | `src/presentation/webview/serializeDatabaseForWebview.ts` |
+| Custom editor | `src/presentation/editors/CanDatabaseEditorProvider.ts` |
+| Sidebar tree | `src/presentation/views/treeview/` |
+| Svelte DB editor | `webview-ui/src/App.svelte`, `webview-ui/src/lib/` |
+| Signal Lab UI | `webview-ui/src/SignalLabApp.svelte` |
+| CAN adapters | `src/infrastructure/adapters/` |
+| Unit tests | `test/unit/` (mirrors `src/` layer structure) |
+
 ## Code Style
 
 - 4-space indent in `src/`; 2-space in `webview-ui/` (Prettier).
 - Domain and parsers MUST NOT import `vscode`.
-- Prefer small diffs; no drive-by refactors.
+- Prefer small, task-focused diffs; match existing naming, imports, and patterns in touched files.
 - Exported APIs: explicit types; `unknown` + narrowing at boundaries.
+- Keep `CHANGELOG.md` or `README.md` updates aligned with user requests — do not update them speculatively.
 
 ## Recent Changes
 
@@ -68,6 +117,8 @@ mocha --exit --ui tdd --require ./test/mocha-vscode-stub.cjs "out/test/unit/path
 4. PR: `Fixes #<n>`, link spec/ADR, run compile/lint/unit tests.
 
 Constitution: `.specify/memory/constitution.md`.
+
+**GitHub first:** actionable work starts as an issue in this repo; the issue body is the brief. Features that add capability use Speckit (`specs/`). Durable design choices use `docs/adr/`. See `docs/workflow/README.md`.
 
 ## Protocol and serialization checklist
 
@@ -90,6 +141,11 @@ DBC domain (signal pool, `VAL_`, orphans, round-trip): `.cursor/skills/dbc-domai
 | `automotive-can` | CAN/DBC bus semantics |
 | `security` | Webview trust, file access |
 | `refactoring` | Structured cleanup |
+
+## Known limitations (as of 0.2.0)
+
+- **SocketCAN**: appears in the UI but the backend is not implemented; only the **virtual** adapter works end-to-end.
+- Multi-adapter support (PCAN, Vector, SLCAN, etc.) is not yet available.
 
 <!-- MANUAL ADDITIONS START -->
 Workflow details: [docs/workflow/README.md](docs/workflow/README.md).  
