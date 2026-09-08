@@ -1,27 +1,70 @@
 /**
- * Linear DBC bit map analysis (startBit + consecutive bits, same as editor model).
+ * DBC bit map analysis. Bit occupancy is byte-order aware: Intel signals occupy a
+ * linear span, Motorola signals follow the Vector CANdb++ sawtooth (see
+ * {@link signalPhysicalBits}).
  */
 import type { MessageDescriptor, SignalDescriptor } from './types';
 
 /**
- * Physical bit indices of the logical LSB and MSB of the raw value, for a contiguous
- * `[startBit, startBit + bitLength)` span (same as {@link analyzeMessageLayout}).
+ * Ordered list of physical DBC bit indices a signal occupies, from its logical LSB
+ * bit sequence start to end.
  *
- * - **Intel (little endian)**: LSB at `startBit`, MSB at `startBit + bitLength - 1` (matches host decoder).
- * - **Motorola (big endian)**: MSB at `startBit`, LSB at `startBit + bitLength - 1`.
+ * - **Intel (little endian)**: consecutive bits `startBit … startBit + bitLength - 1`;
+ *   `startBit` is the LSB.
+ * - **Motorola (big endian)**: `startBit` is the MSB. Navigate MSB→LSB: decrement
+ *   within a byte, and jump to the MSB of the next byte (`+15`) when crossing a byte
+ *   boundary. Matches `extractBitsMotorola` / the host `SignalDecoder`.
+ *
+ * The returned array is ordered MSB→LSB for Motorola and LSB→MSB for Intel, so the
+ * first element is `startBit` and the last element is the opposite endpoint.
+ */
+export function signalPhysicalBits(
+  sig: Pick<SignalDescriptor, 'startBit' | 'bitLength' | 'byteOrder'>,
+): number[] {
+  const { startBit, bitLength, byteOrder } = sig;
+  if (bitLength <= 0) {
+    return [];
+  }
+  if (byteOrder === 'little_endian') {
+    const bits: number[] = [];
+    for (let i = 0; i < bitLength; i++) {
+      bits.push(startBit + i);
+    }
+    return bits;
+  }
+  const bits: number[] = [];
+  let bitPos = startBit;
+  for (let i = 0; i < bitLength; i++) {
+    bits.push(bitPos);
+    if (bitPos % 8 === 0) {
+      bitPos += 15; // jump to MSB of next byte
+    } else {
+      bitPos -= 1;
+    }
+  }
+  return bits;
+}
+
+/**
+ * Physical bit indices of the logical LSB and MSB of the raw value.
+ *
+ * - **Intel (little endian)**: LSB at `startBit`, MSB at `startBit + bitLength - 1`.
+ * - **Motorola (big endian)**: MSB at `startBit`, LSB at the end of the sawtooth walk.
  */
 export function getSignalLsbMsbPhysicalBits(
   sig: Pick<SignalDescriptor, 'startBit' | 'bitLength' | 'byteOrder'>,
 ): { lsb: number; msb: number } {
-  const { startBit, bitLength, byteOrder } = sig;
-  if (bitLength <= 0) {
+  const { startBit, byteOrder } = sig;
+  const bits = signalPhysicalBits(sig);
+  if (bits.length === 0) {
     return { lsb: startBit, msb: startBit };
   }
-  const hi = startBit + bitLength - 1;
+  const first = bits[0];
+  const last = bits[bits.length - 1];
   if (byteOrder === 'little_endian') {
-    return { lsb: startBit, msb: hi };
+    return { lsb: first, msb: last };
   }
-  return { msb: startBit, lsb: hi };
+  return { msb: first, lsb: last };
 }
 
 export interface LayoutIssue {
@@ -48,17 +91,6 @@ export interface MessageLayoutAnalysis {
   issues: LayoutIssue[];
 }
 
-function rangeBits(startBit: number, bitLength: number, totalBits: number): number[] {
-  const bits: number[] = [];
-  for (let b = 0; b < bitLength; b++) {
-    const p = startBit + b;
-    if (p >= 0 && p < totalBits) {
-      bits.push(p);
-    }
-  }
-  return bits;
-}
-
 /**
  * Analyze bit claims for overlap, gaps, and signals outside the payload.
  */
@@ -78,10 +110,11 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
       return;
     }
 
-    const lo = sig.startBit;
-    const hi = sig.startBit + sig.bitLength - 1;
-    const inPayload = lo < totalBits && hi >= 0;
-    if (!inPayload) {
+    const physical = signalPhysicalBits(sig);
+    const lo = Math.min(...physical);
+    const hi = Math.max(...physical);
+    const inPayloadBits = physical.filter((p) => p >= 0 && p < totalBits);
+    if (inPayloadBits.length === 0) {
       issues.push({
         kind: 'warning',
         message: `Signal "${sig.name}" does not map to any bit inside this DLC (bits ${lo}…${hi}, payload 0…${totalBits - 1}).`,
@@ -90,7 +123,7 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
       return;
     }
 
-    if (lo < 0 || hi >= totalBits) {
+    if (inPayloadBits.length < physical.length) {
       issues.push({
         kind: 'warning',
         message: `Signal "${sig.name}" is partially outside the payload (covers ${lo}…${hi}; valid 0…${totalBits - 1}).`,
@@ -98,11 +131,7 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
       });
     }
 
-    const bits = rangeBits(sig.startBit, sig.bitLength, totalBits);
-    if (bits.length === 0) {
-      return;
-    }
-    for (const bit of bits) {
+    for (const bit of inPayloadBits) {
       if (!claims[bit].includes(sigIdx)) {
         claims[bit].push(sigIdx);
       }

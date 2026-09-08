@@ -4,6 +4,17 @@ All notable changes to the **candb-studio** extension are documented in this fil
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-08-28
+
+### Fixed
+
+- [#6](https://github.com/afri-bit/candb-studio/issues/6), [#8](https://github.com/afri-bit/candb-studio/issues/8) Motorola mode bit layout error in signal layout grid view.
+- [#11](https://github.com/afri-bit/candb-studio/issues/11) Updated the bit order in the signal layout grid view to use the same MSB Left to LSB Right order as was specified in the grid header.
+
+### Added
+
+- Database editor displays the value table entries for signals with a VAL_ definition.
+
 ## [0.2.0] - 2026-04-11
 
 ### Added
