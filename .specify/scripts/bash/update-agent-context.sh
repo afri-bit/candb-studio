@@ -61,7 +61,8 @@ NEW_PLAN="$IMPL_PLAN"  # Alias for compatibility with existing code
 AGENT_TYPE="${1:-}"
 
 # Agent-specific file paths  
-CLAUDE_FILE="$REPO_ROOT/CLAUDE.md"
+# Claude Code shares AGENTS.md (this repo does not keep a separate CLAUDE.md).
+CLAUDE_FILE="$REPO_ROOT/AGENTS.md"
 GEMINI_FILE="$REPO_ROOT/GEMINI.md"
 COPILOT_FILE="$REPO_ROOT/.github/copilot-instructions.md"
 CURSOR_FILE="$REPO_ROOT/.cursor/rules/specify-rules.mdc"
@@ -74,8 +75,8 @@ AUGGIE_FILE="$REPO_ROOT/.augment/rules/specify-rules.md"
 ROO_FILE="$REPO_ROOT/.roo/rules/specify-rules.md"
 CODEBUDDY_FILE="$REPO_ROOT/CODEBUDDY.md"
 QODER_FILE="$REPO_ROOT/QODER.md"
-# Amp, Kiro CLI, IBM Bob, Pi, and Forge all share AGENTS.md — use AGENTS_FILE to avoid
-# updating the same file multiple times.
+# Amp, Kiro CLI, IBM Bob, Pi, Forge, and Claude Code all share AGENTS.md — use AGENTS_FILE to avoid
+# updating the same file multiple times. CLAUDE_FILE is also AGENTS.md (no separate CLAUDE.md).
 AMP_FILE="$AGENTS_FILE"
 SHAI_FILE="$REPO_ROOT/SHAI.md"
 TABNINE_FILE="$REPO_ROOT/TABNINE.md"
@@ -759,10 +760,10 @@ update_all_existing_agents() {
     _update_if_new "$TRAE_FILE" "Trae"                     || _all_ok=false
     _update_if_new "$IFLOW_FILE" "iFlow CLI"               || _all_ok=false
 
-    # If no agent files exist, create a default Claude file
+    # If no agent files exist, create AGENTS.md (shared by Claude, Cursor, Codex, Amp, …)
     if [[ "$_found_agent" == false ]]; then
-        log_info "No existing agent files found, creating default Claude file..."
-        update_agent_file "$CLAUDE_FILE" "Claude Code" || return 1
+        log_info "No existing agent files found, creating default AGENTS.md..."
+        update_agent_file "$AGENTS_FILE" "AGENTS.md" || return 1
     fi
 
     [[ "$_all_ok" == true ]]

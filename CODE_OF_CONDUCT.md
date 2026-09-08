@@ -38,7 +38,7 @@ This Code of Conduct applies in all **project spaces** (for example: GitHub repo
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported as follows:
 
-1. **Preferred:** Open an issue in **[this repository](https://github.com/afri-bit/vscode-canbus/issues)** and describe what happened. You can ask maintainers to treat the report with discretion in the issue body.  
+1. **Preferred:** Open an issue in **[this repository](https://github.com/afri-bit/candb-studio/issues)** and describe what happened. You can ask maintainers to treat the report with discretion in the issue body.  
 2. **If a public issue is not appropriate:** Contact the maintainers via **[GitHub](https://github.com/afri-bit)** (for example, through the profile or organization linked to this repo).
 
 Reports will be reviewed and addressed in line with the situation. The project team will respect confidentiality around reports when possible.

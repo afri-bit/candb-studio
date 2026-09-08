@@ -1,0 +1,25 @@
+title: "[Q] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Questions about using or building CANdb Studio. Bugs still belong in [Issues](https://github.com/afri-bit/candb-studio/issues/new?template=bug_report.yml).
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you already tried
+      description: Docs you read, commands you ran, extension version.
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: VS Code 1.110, CANdb Studio 0.2.0, Ubuntu 24.04

@@ -1,0 +1,50 @@
+title: "[RFC] "
+labels: ["adr"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Design talk **before** an ADR is written. When the choice is settled, open an [ADR issue](https://github.com/afri-bit/candb-studio/issues/new?template=adr.yml) and land `docs/adr/NNNN-….md` in a PR.
+
+  - type: input
+    id: title_decision
+    attributes:
+      label: Decision we need
+      placeholder: e.g. How should multiple loaded DBCs share an “active” decode context?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Forces, users, compatibility with existing .dbc files or the webview protocol.
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Options
+      description: Two or more approaches with trade-offs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: lean
+    attributes:
+      label: Current lean
+      description: Optional. Which option you favor and why.
+
+  - type: dropdown
+    id: layers
+    attributes:
+      label: Layers
+      multiple: true
+      options:
+        - Domain
+        - Application
+        - Infrastructure
+        - Presentation
+        - Webview
+        - Process

@@ -4,6 +4,17 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
   plugins: [svelte()],
+  resolve: {
+    alias: {
+      '@bit-occupancy': path.resolve(__dirname, '../src/core/layout/bitOccupancy.ts'),
+    },
+  },
+  // Occupancy math lives under src/core (outside webview-ui/)
+  server: {
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
+  },
   // Relative asset URLs so the built HTML works inside vscode-resource: webviews
   base: './',
   build: {

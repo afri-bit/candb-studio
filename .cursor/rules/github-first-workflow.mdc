@@ -1,0 +1,35 @@
+---
+description: GitHub-first agentic workflow — issues, specs, ADRs, PRs
+alwaysApply: true
+---
+
+# GitHub-first workflow
+
+Intent lives on **GitHub** in this repo (`afri-bit/candb-studio`). Do not invent a different problem than the issue states.
+
+## Intake
+
+| Work | Start | Artifact |
+|------|--------|----------|
+| Idea / question / RFC | Discussion | Promote to an issue when actionable |
+| Feature | Issue (`enhancement`) | `specs/NNN-name/` when it adds capability |
+| Bug / small fix | Issue (`bug`) | Usually no spec |
+| Durable design | ADR issue | `docs/adr/NNNN-title.md` |
+| Implementation | Pull request | `Fixes #<n>` + spec/ADR links |
+
+Guide: `docs/workflow/README.md`. ADRs: `docs/adr/README.md`.
+
+## When implementing from an issue
+
+1. Read the full issue body (acceptance criteria, out of scope, sample `.dbc`).
+2. Use `/from-issue` if the user pointed at an issue. Otherwise follow the same classification.
+3. Features with `needs-spec` or new user-visible behavior: Speckit (`/speckit.specify` → plan → tasks → implement) using the **issue text** as input.
+4. Stay in scope. New ideas → new issue or discussion, not extra code.
+5. Comment on the issue when you add a spec path, ADR path, or PR URL.
+6. Constitution (`.specify/memory/constitution.md`) overrides ad-hoc process.
+
+## Do not
+
+- Open issues or PRs on a different remote than `candb-studio`.
+- Skip tests for behavior changes.
+- Treat chat history as the spec when a GitHub issue exists.

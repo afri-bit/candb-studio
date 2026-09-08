@@ -1,6 +1,8 @@
 # CANdb Studio specifications
 
-Ordered **history** of capability specs (spec-driven documentation). **001–005** describe **implemented** behavior; **006–013** are **draft** (planned or in progress).
+Ordered **history** of capability specs (spec-driven documentation). **001–005** and **014** describe **implemented** behavior; **006–013** are **draft** (planned or in progress).
+
+New features start as a **[GitHub issue](https://github.com/afri-bit/candb-studio/issues/new?template=feature_request.yml)**. The issue body is the brief; Speckit (`/speckit.specify` and related Cursor commands) writes the folder below. See [docs/workflow/README.md](../docs/workflow/README.md). Link the issue from `spec.md` when you create a new spec.
 
 | # | Spec | Status |
 |---|------|--------|
@@ -17,5 +19,6 @@ Ordered **history** of capability specs (spec-driven documentation). **001–005
 | [011](011-workspace-active-dbc/spec.md) | Workspace and multi-database (active context) policy | Planned (draft) |
 | [012](012-a11y-keyboard-ux/spec.md) | Accessibility, keyboard navigation, and core UX | Planned (draft) |
 | [013](013-dbc-merge-apply/spec.md) | DBC merge and apply after comparison | Planned (draft) |
+| [014](014-signal-layout-and-val-display/spec.md) | Signal layout grid (Motorola / bit order) and VAL_ display | Implemented (0.3.0, unreleased) |
 
 Each folder contains `spec.md` and `checklists/requirements.md`.

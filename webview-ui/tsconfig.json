@@ -11,7 +11,11 @@
     "noEmit": true,
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "baseUrl": ".",
+    "paths": {
+      "@bit-occupancy": ["../src/core/layout/bitOccupancy.ts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.svelte"]
 }

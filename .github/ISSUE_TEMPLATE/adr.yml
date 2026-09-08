@@ -1,0 +1,74 @@
+name: Architecture decision
+description: Record or propose a durable design choice (ADR)
+title: "[ADR] "
+labels: ["adr", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when the choice is hard to reverse (layers, protocols, on-disk DBC extensions, adapter strategy).
+
+        Debate first in an [RFC discussion](https://github.com/afri-bit/candb-studio/discussions) if options are still open. The accepted write-up lands in `docs/adr/`. Guide: `docs/adr/README.md`.
+
+  - type: input
+    id: decision_title
+    attributes:
+      label: Decision title
+      description: Short name, e.g. “Signal pool is global, messages reference by name”
+      placeholder: e.g. Virtual adapter is the only shipped bus backend for 0.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What forces a decision? Who is affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Options considered
+      description: At least two options with a one-line trade-off each.
+      placeholder: |
+        A — …
+        B — …
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed decision
+      description: Which option, and what is explicitly out of scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: What gets easier, what gets harder, follow-up work.
+
+  - type: dropdown
+    id: layers
+    attributes:
+      label: Layers most affected
+      multiple: true
+      options:
+        - Domain (`src/core`)
+        - Application services
+        - Infrastructure (parser, adapters, files)
+        - Presentation / VS Code
+        - Webview (`webview-ui`)
+        - Repo process / tooling
+    validations:
+      required: true
+
+  - type: input
+    id: related
+    attributes:
+      label: Related issue, discussion, or spec
+      placeholder: #12, discussions/3, specs/007-multi-can-adapters/

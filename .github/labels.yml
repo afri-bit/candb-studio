@@ -1,0 +1,85 @@
+# Synced by .github/workflows/sync-labels.yml (skip-delete: existing extra labels stay).
+
+- name: bug
+  color: "d73a4a"
+  description: Something isn't working
+
+- name: enhancement
+  color: "a2eeef"
+  description: New feature or request
+
+- name: documentation
+  color: "0075ca"
+  description: Improvements or additions to documentation
+
+- name: adr
+  color: "5319e7"
+  description: Architecture decision (issue and/or docs/adr)
+
+- name: duplicate
+  color: "cfd3d7"
+  description: This issue or pull request already exists
+
+- name: good first issue
+  color: "7057ff"
+  description: Good for newcomers
+
+- name: help wanted
+  color: "008672"
+  description: Extra attention is needed
+
+- name: invalid
+  color: "e4e669"
+  description: This doesn't seem right
+
+- name: question
+  color: "d876e3"
+  description: Further information is requested
+
+- name: wontfix
+  color: "ffffff"
+  description: This will not be worked on
+
+- name: needs-triage
+  color: "fbca04"
+  description: Not yet classified or the brief is incomplete
+
+- name: needs-spec
+  color: "0052cc"
+  description: Feature needs a Speckit folder under specs/
+
+- name: agent-ready
+  color: "0e8a16"
+  description: Issue body is a complete brief for Cursor
+
+- name: "area:editor"
+  color: "c5def5"
+  description: Custom DBC editor / webview
+
+- name: "area:signal-lab"
+  color: "c5def5"
+  description: Signal Lab (monitor / transmit / charts)
+
+- name: "area:explorer"
+  color: "c5def5"
+  description: Sidebar tree / explorer
+
+- name: "area:language"
+  color: "c5def5"
+  description: DBC language features (hover, completion, diagnostics)
+
+- name: "area:parser"
+  color: "c5def5"
+  description: Parser, serializer, DBC round-trip
+
+- name: "area:bus"
+  color: "c5def5"
+  description: CAN adapters, connect, monitor, transmit
+
+- name: "area:docs"
+  color: "c5def5"
+  description: Documentation and onboarding
+
+- name: "area:workflow"
+  color: "c5def5"
+  description: Repo process, Speckit, ADRs, GitHub templates
