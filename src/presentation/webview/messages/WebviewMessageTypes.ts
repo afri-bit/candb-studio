@@ -6,6 +6,10 @@
 /** Messages sent FROM the webview TO the extension host. */
 export type WebviewToExtensionMessage =
     | { type: 'ready' }
+    | { type: 'folder.select' }
+    | { type: 'folder.clear' }
+    | { type: 'folder.refresh' }
+    | { type: 'folder.open'; uri: string }
     | { type: 'database.ready' }
     | { type: 'requestDatabase' }
     | { type: 'saveDocument'; documentUri: string }

@@ -1,3 +1,4 @@
+import { multiplexErrors, multiplexSignalsCanCoexist } from '../../../src/core/services/multiplex';
 /**
  * Linear DBC bit map analysis (startBit + consecutive bits, same as editor model).
  */
@@ -66,7 +67,7 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
   const totalBits = message.dlc * 8;
   const claims: number[][] = Array.from({ length: totalBits }, () => []);
 
-  const issues: LayoutIssue[] = [];
+  const issues: LayoutIssue[] = multiplexErrors(message.signals).map((message) => ({ kind: 'error', message }));
 
   message.signals.forEach((sig, sigIdx) => {
     if (sig.bitLength <= 0) {
@@ -125,6 +126,7 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
       for (let c = a + 1; c < idxs.length; c++) {
         const i = idxs[a];
         const j = idxs[c];
+        if (!multiplexSignalsCanCoexist(message.signals[i], message.signals[j], message.signals)) continue;
         const key = `${i}-${j}`;
         if (!pairMap.has(key)) {
           pairMap.set(key, []);
@@ -139,6 +141,8 @@ export function analyzeMessageLayout(message: MessageDescriptor): MessageLayoutA
     const [si, sj] = key.split('-').map(Number);
     overlapPairs.push({ i: si, j: sj, bits });
   });
+
+  overlapBits.splice(0, overlapBits.length, ...[...new Set(overlapPairs.flatMap((p) => p.bits))].sort((a, b) => a - b));
 
   const unallocatedBits: number[] = [];
   for (let b = 0; b < totalBits; b++) {

@@ -5,6 +5,7 @@
    * Editing layout on Definition updates the pool and propagates to all linked frames.
    * Editing layout per frame here calls updateSignal (that frame only).
    */
+  import MultiplexEditor from './MultiplexEditor.svelte';
   import { tick, untrack } from 'svelte';
   import { get } from 'svelte/store';
   import type {
@@ -681,6 +682,7 @@
                         <th>DLC</th>
                         <th>Length (def.)</th>
                         <th>Start bit</th>
+                        <th>Multiplexing</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -705,6 +707,7 @@
                                 )}
                             />
                           </td>
+                          <td><MultiplexEditor signal={fr.sig} messageId={fr.messageId} /></td>
                           <td class="cell-actions">
                             {#if onOpenMessage}
                               <button

@@ -163,6 +163,9 @@ export function activate(context: vscode.ExtensionContext): void {
         refreshSignalLabHostUi();
     });
 
+    context.subscriptions.push({ dispose: () => messageHandler.disposeNetworkFolder() });
+    context.subscriptions.push(vscode.commands.registerCommand('candb-studio.selectNetworkFolder', () => messageHandler.selectNetworkFolder()));
+
     // ── Presentation: custom editor for .dbc files ─────────────────────────
     context.subscriptions.push(
         CanDatabaseEditorProvider.register(context, databaseService, messageHandler),

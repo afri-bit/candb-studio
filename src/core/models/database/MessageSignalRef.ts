@@ -1,3 +1,4 @@
+import { MultiplexIndicator } from '../../enums/MultiplexIndicator';
 import { ByteOrder } from '../../enums/ByteOrder';
 
 /**
@@ -6,6 +7,9 @@ import { ByteOrder } from '../../enums/ByteOrder';
  */
 export interface MessageSignalRef {
     signalName: string;
+    /** Multiplex role belongs to this frame, independently of the pool definition. */
+    multiplexIndicator?: MultiplexIndicator;
+    multiplexValue?: number;
     startBit: number;
     bitLength: number;
     byteOrder: ByteOrder;

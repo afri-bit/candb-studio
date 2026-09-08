@@ -1,3 +1,7 @@
+import {
+    readMessageSchedule,
+    type MessageSchedule,
+} from '../../core/models/database/messageSchedule';
 import { ByteOrder } from '../../core/enums/ByteOrder';
 import { MultiplexIndicator } from '../../core/enums/MultiplexIndicator';
 import { ObjectType } from '../../core/enums/ObjectType';
@@ -48,6 +52,7 @@ interface SerializedMessage {
     signals: SerializedSignal[];
     comment: string;
     isFd: boolean;
+    schedule: MessageSchedule;
 }
 
 export interface SerializedSignal {
@@ -149,6 +154,7 @@ function serializeMessage(message: Message, db: CanDatabase): SerializedMessage 
             .map((s) => serializeSignalForWebview(s, db, { mergedDescriptions: true })),
         comment: message.comment ?? '',
         isFd: message.isFd,
+        schedule: readMessageSchedule(db, message.id),
     };
 }
 

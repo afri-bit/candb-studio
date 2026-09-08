@@ -42,6 +42,8 @@ type EditorContext = {
  * Handles incoming webview requests and forwards internal events back to the webview.
  */
 export class WebviewMessageHandler {
+    private networkWatcher?: vscode.FileSystemWatcher;
+    private networkRefreshTimer?: ReturnType<typeof setTimeout>;
     private readonly editorContexts = new Map<string, EditorContext>();
     private monitorService: MonitorService | null;
     private transmitService: TransmitService | null;
@@ -65,6 +67,76 @@ export class WebviewMessageHandler {
         this.monitorService = monitorService;
         this.transmitService = transmitService;
         this.subscribeToEvents();
+    }
+
+    async selectNetworkFolder(): Promise<void> {
+        const picked = await vscode.window.showOpenDialog({
+            canSelectFolders: true,
+            canSelectFiles: false,
+            canSelectMany: false,
+            title: 'Select folder containing CAN network DBC files',
+        });
+        if (!picked?.[0]) {
+            return;
+        }
+        await this.databaseService.selectNetworkFolder(picked[0].fsPath);
+        this.networkWatcher?.dispose();
+        this.networkWatcher = vscode.workspace.createFileSystemWatcher(
+            new vscode.RelativePattern(picked[0], '*'),
+        );
+        const refresh = () => {
+            if (this.networkRefreshTimer) {
+                clearTimeout(this.networkRefreshTimer);
+            }
+            this.networkRefreshTimer = setTimeout(() => {
+                void this.databaseService
+                    .selectNetworkFolder(this.databaseService.getNetworkFolder().path)
+                    .catch((err) => {
+                        Logger.error('Network folder refresh failed', err);
+                        void this.databaseService.selectNetworkFolder(null);
+                    });
+            }, 200);
+        };
+        this.networkWatcher.onDidCreate(refresh);
+        this.networkWatcher.onDidDelete(refresh);
+        this.networkWatcher.onDidChange(refresh);
+        const folder = this.databaseService.getNetworkFolder();
+        if (folder.databases.length) {
+            await vscode.commands.executeCommand(
+                'vscode.openWith',
+                vscode.Uri.parse(folder.databases[0].uri),
+                'candb-studio.canDatabaseEditor',
+            );
+        } else {
+            void vscode.window.showInformationMessage(
+                'No DBC files found directly inside the selected folder.',
+            );
+        }
+    }
+
+    disposeNetworkFolder(): void {
+        this.networkWatcher?.dispose();
+        if (this.networkRefreshTimer) {
+            clearTimeout(this.networkRefreshTimer);
+        }
+    }
+
+    private serializeEditorDatabase(db: CanDatabase, uri: string) {
+        const folder = this.databaseService.getNetworkFolder();
+        const current = folder.databases.find((d) => d.uri === uri);
+        return {
+            ...serializeDatabaseForWebview(db),
+            networkFolder: {
+                path: folder.path,
+                enabled: !!current && folder.databases.length > 1,
+                currentNetwork: current?.network,
+                databases: folder.databases.map((d) => ({
+                    uri: d.uri,
+                    network: d.network,
+                    messages: serializeDatabaseForWebview(d.database).messages,
+                })),
+            },
+        };
     }
 
     /** Host UI (status bar) hooks when monitor or periodic transmit state changes. */
@@ -683,6 +755,41 @@ export class WebviewMessageHandler {
         Logger.info(`Webview message: ${message.type}`);
 
         switch (message.type) {
+            case 'folder.select':
+            case 'folder.clear':
+            case 'folder.refresh':
+                try {
+                    if (message.type === 'folder.select') {
+                        await this.selectNetworkFolder();
+                    } else {
+                        if (message.type === 'folder.clear') {
+                            this.disposeNetworkFolder();
+                        }
+                        await this.databaseService.selectNetworkFolder(
+                            message.type === 'folder.clear'
+                                ? null
+                                : this.databaseService.getNetworkFolder().path,
+                        );
+                    }
+                } catch (err) {
+                    void vscode.window.showErrorMessage(
+                        `Could not load network folder: ${messageForUser(err)}`,
+                    );
+                }
+                break;
+            case 'folder.open':
+                if (
+                    this.databaseService
+                        .getNetworkFolder()
+                        .databases.some((d) => d.uri === message.uri)
+                ) {
+                    await vscode.commands.executeCommand(
+                        'vscode.openWith',
+                        vscode.Uri.parse(message.uri),
+                        'candb-studio.canDatabaseEditor',
+                    );
+                }
+                break;
             case 'ready':
             case 'database.ready':
             case 'requestDatabase':
@@ -938,7 +1045,7 @@ export class WebviewMessageHandler {
             return;
         }
         const serialized = db
-            ? serializeDatabaseForWebview(db)
+            ? this.serializeEditorDatabase(db, uri)
             : {
                   version: '',
                   nodes: [],
@@ -961,27 +1068,20 @@ export class WebviewMessageHandler {
         return { showOverallView: cfg.get<boolean>('explorer.showOverallView', true) };
     }
 
-    private postDatabaseUpdate(uri: string, database: CanDatabase): void {
-        const ctx = this.editorContexts.get(uri);
-        if (!ctx) {
-            return;
-        }
-        ctx.panel.webview.postMessage({
-            type: 'database.update',
-            database: serializeDatabaseForWebview(database),
-            documentUri: uri,
-            settings: this.getWebviewSettings(),
-        });
-    }
-
     private subscribeToEvents(): void {
-        this.eventBus.on('database:loaded', (payload) => {
-            this.postDatabaseUpdate(payload.uri, payload.database);
+        const refreshEditors = () => {
+            for (const uri of this.editorContexts.keys()) {
+                this.sendDatabaseToWebviewForUri(uri);
+            }
+        };
+        this.eventBus.on('database:folderChanged', refreshEditors);
+        this.eventBus.on('database:loaded', () => {
+            refreshEditors();
             this.pushSignalLabState();
         });
 
-        this.eventBus.on('database:changed', (payload) => {
-            this.postDatabaseUpdate(payload.uri, payload.database);
+        this.eventBus.on('database:changed', () => {
+            refreshEditors();
             this.pushSignalLabState();
         });
 

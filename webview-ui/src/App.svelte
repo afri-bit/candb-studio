@@ -3,6 +3,7 @@
   import { vscode } from './lib/vscode';
   import { databaseStore } from './lib/stores/databaseStore';
   import { documentUri } from './lib/stores/editorContext';
+  import BusLoadCalculator from './lib/components/database/BusLoadCalculator.svelte';
   import MessageEditor from './lib/components/database/MessageEditor.svelte';
   import SignalEditor from './lib/components/database/SignalEditor.svelte';
   import NodeEditor from './lib/components/database/NodeEditor.svelte';
@@ -12,7 +13,7 @@
   import DatabaseExplorer from './lib/components/database/DatabaseExplorer.svelte';
   import type { WebviewInboundMessage } from './lib/types';
 
-  type Tab = 'messages' | 'signals' | 'nodes' | 'attributes' | 'valueTables' | 'architecture';
+  type Tab = 'busLoad' | 'messages' | 'signals' | 'nodes' | 'attributes' | 'valueTables' | 'architecture';
 
   const SIDEBAR_MIN = 180;
   const SIDEBAR_DEFAULT = 264;
@@ -101,6 +102,7 @@
     return () => window.removeEventListener('resize', onWinResize);
   });
 
+  let triggerRates = $state<Record<string, number>>({});
   let activeTab: Tab = $state('messages');
   let selectedMessageId: number | null = $state(null);
   let savePulse = $state(false);
@@ -237,6 +239,18 @@
   {/if}
 
   <div class="dbc-main">
+    <div class="network-folder-bar">
+      <button onclick={() => vscode.postMessage({ type: 'folder.select' })}>Select DBC folder</button>
+      {#if $databaseStore.networkFolder?.path}
+        <span title={$databaseStore.networkFolder.path}>{$databaseStore.networkFolder.path} · {$databaseStore.networkFolder.databases.length} DBC files</span>
+        <button onclick={() => vscode.postMessage({ type: 'folder.refresh' })}>Refresh folder</button>
+        <button onclick={() => vscode.postMessage({ type: 'folder.clear' })}>Clear folder</button>
+        <select aria-label="Open network DBC" value="" onchange={(e) => { if (e.currentTarget.value) vscode.postMessage({ type: 'folder.open', uri: e.currentTarget.value }); }}>
+          <option value="">Open network…</option>
+          {#each $databaseStore.networkFolder.databases as d}<option value={d.uri}>{d.network}</option>{/each}
+        </select>
+      {:else}<span>Forwarding requires a selected folder with multiple DBC files.</span>{/if}
+    </div>
     <nav class="tab-bar">
       <button
         type="button"
@@ -263,6 +277,7 @@
         class:active={activeTab === 'architecture'}
         onclick={() => (activeTab = 'architecture')}>Architecture</button
       >
+      <button class:active={activeTab === 'busLoad'} onclick={() => (activeTab = 'busLoad')}>Bus load</button>
       <span class="spacer"></span>
       <button
         class="text-view-btn"
@@ -284,13 +299,16 @@
     </nav>
 
     <div class="tab-content">
-      {#if activeTab === 'messages'}
+      {#if activeTab === 'busLoad'}
+        <BusLoadCalculator messages={$databaseStore.messages} folder={$databaseStore.networkFolder} bind:triggerRates />
+      {:else if activeTab === 'messages'}
         <div class="dbc-card main-card editor-tab-card">
           <div class="dbc-card-header">
             <span>Messages</span>
           </div>
           <div class="dbc-card-body dbc-card-body-fill">
             <MessageEditor
+              folder={$databaseStore.networkFolder}
               messages={$databaseStore.messages}
               nodes={$databaseStore.nodes}
               signalPool={$databaseStore.signalPool}
@@ -393,6 +411,9 @@
 </div>
 
 <style>
+  .network-folder-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--vscode-panel-border); font-size: 11px; }
+  .network-folder-bar button, .network-folder-bar select { background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); border: 0; padding: 5px 8px; cursor: pointer; }
+
   :global(body) {
     margin: 0;
     padding: 0;

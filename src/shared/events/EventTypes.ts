@@ -11,6 +11,7 @@ export type MonitorFrameDirection = 'tx' | 'rx';
  * Keys are event names; values describe the payload type for each event.
  */
 export interface EventMap {
+    'database:folderChanged': undefined;
     /** Emitted after each successful adapter send (single or periodic). Used to correlate loopback with Rx. */
     'bus:frameTransmitted': CanFrame;
     'bus:frameReceived': { frame: CanFrame; direction: MonitorFrameDirection };

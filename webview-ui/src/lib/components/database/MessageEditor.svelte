@@ -6,6 +6,10 @@
   import DataTable from '../shared/DataTable.svelte';
   import PropertyGrid from '../shared/PropertyGrid.svelte';
   import SearchFilter from '../shared/SearchFilter.svelte';
+  import MessageScheduleEditor from './MessageScheduleEditor.svelte';
+  import type { NetworkFolderDescriptor } from '../../types';
+  import MultiplexEditor from './MultiplexEditor.svelte';
+  import { multiplexErrors } from '../../../../../src/core/services/multiplex';
   import BitLayoutView from './BitLayoutView.svelte';
   import { get } from 'svelte/store';
   import { vscode } from '../../vscode';
@@ -13,6 +17,7 @@
 
   interface Props {
     messages: MessageDescriptor[];
+    folder?: NetworkFolderDescriptor;
     nodes: NodeDescriptor[];
     signalPool: SignalDescriptor[];
     selectedMessageId?: number | null;
@@ -23,6 +28,7 @@
 
   let {
     messages,
+    folder,
     nodes,
     signalPool,
     selectedMessageId = $bindable(null),
@@ -66,6 +72,7 @@
     { key: 'dlc', label: 'DLC', width: '50px' },
     { key: 'transmitter', label: 'Transmitter', width: '140px' },
     { key: 'signalCount', label: 'Signals', width: '70px' },
+    { key: 'multiplex', label: 'Multiplexing', width: '100px' },
   ];
 
   let filteredMessages = $derived.by(() => {
@@ -88,6 +95,7 @@
       dlc: m.dlc,
       transmitter: m.transmitter,
       signalCount: m.signals.length,
+      multiplex: m.signals.some((s) => s.multiplex !== 'none') ? 'Multiplexed' : '—',
     })),
   );
 
@@ -398,7 +406,9 @@
           <div class="dbc-card-body message-tab-body">
             {#if messageDetailTab === 'definition'}
               <PropertyGrid properties={definitionProps} onChange={onPropertyChange} />
+              <MessageScheduleEditor message={msg} {folder} />
             {:else if messageDetailTab === 'signals'}
+              {#each multiplexErrors(msg.signals) as issue}<p role="alert">{issue}</p>{/each}
               <div class="signals-toolbar">
                 {#if onNavigateToSignals}
                   <button
@@ -456,12 +466,13 @@
                         <th class="col-bits">Bits</th>
                         <th class="col-endian">Endian</th>
                         <th class="col-unit">Unit</th>
+                        <th>Multiplexing</th>
                       </tr>
                     </thead>
                     <tbody>
                       {#if msg.signals.length === 0}
                         <tr>
-                          <td colspan="5" class="cell-empty">No signals linked — add from pool</td>
+                          <td colspan="6" class="cell-empty">No signals linked — add from pool</td>
                         </tr>
                       {:else}
                         {#each msg.signals as s, si}
@@ -509,6 +520,7 @@
                               {s.byteOrder === 'little_endian' ? 'Intel' : 'Motorola'}
                             </td>
                             <td class="cell-mono">{s.unit || '—'}</td>
+                            <td><MultiplexEditor signal={s} messageId={msg.id} /></td>
                           </tr>
                         {/each}
                       {/if}

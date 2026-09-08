@@ -6,15 +6,15 @@
   "publisher": "afri-bit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/afri-bit/candb-studio.git"
+    "url": "https://github.com/lhr-solar/candb-studio.git"
   },
   "engines": {
     "vscode": "^1.110.0"
   },
   "bugs": {
-    "url": "https://github.com/afri-bit/candb-studio/issues"
+    "url": "https://github.com/lhr-solar/candb-studio/issues"
   },
-  "homepage": "https://github.com/afri-bit/candb-studio",
+  "homepage": "https://github.com/lhr-solar/candb-studio",
   "keywords": [
     "dbc",
     "can",
@@ -108,7 +108,7 @@
       },
       {
         "command": "candb-studio.closeSignalLab",
-        "title": "Close CAN Signal Lab…",
+        "title": "Close CAN Signal Lab\u2026",
         "category": "CANdb Studio"
       },
       {
@@ -134,6 +134,11 @@
       {
         "command": "candb-studio.transmitMessage",
         "title": "Transmit CAN Message",
+        "category": "CANdb Studio"
+      },
+      {
+        "command": "candb-studio.selectNetworkFolder",
+        "title": "Select CAN Network Folder",
         "category": "CANdb Studio"
       }
     ],

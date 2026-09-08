@@ -246,7 +246,7 @@
           <span class="byte-label">Byte {Math.floor(row[0].bit / 8)}</span>
           {#each row as cell}
             {@const sigs = cell.sigIndices}
-            {@const overlap = sigs.length > 1}
+            {@const overlap = analysis.overlapBits.includes(cell.bit)}
             {@const bg = cellBackground(sigs)}
             {@const oneSig = sigs.length === 1 ? message.signals[sigs[0]] : null}
             {@const endTag = oneSig ? cellBitEndLabel(cell.bit, oneSig) : null}
@@ -266,7 +266,7 @@
                 ? `Bit ${cell.bit} — unallocated`
                 : sigs.length === 1 && oneSig
                   ? singleSigTitle(oneSig, cell.bit)
-                  : `Overlap: ${sigs.map((i) => message.signals[i]?.name).join(' + ')} · bit ${cell.bit}`}
+                  : `${overlap ? 'Overlap' : 'Multiplexed branches'}: ${sigs.map((i) => message.signals[i]?.name).join(' + ')} · bit ${cell.bit}`}
               onmouseenter={() => (sigs.length === 1 ? setHover(sigs[0]) : setHover(null))}
               onmouseleave={() => setHover(null)}
               role="gridcell"
@@ -303,7 +303,7 @@
               onmouseleave={() => setHover(null)}
             >
               <span class="swatch"></span>
-              <span class="name">{sig.name}</span>
+              <span class="name">{sig.name} {sig.multiplex === 'multiplexor' ? '[M]' : typeof sig.multiplex === 'number' ? `[m${sig.multiplex}]` : ''}</span>
               {#if pair}
                 <span class="overlap-badge" title="Overlaps with another signal">Overlap</span>
               {/if}

@@ -27,6 +27,9 @@ suite('Extension Integration', () => {
   });
 
   suite('commands', () => {
+    test('network folder command is registered', async () => {
+      assert.ok((await vscode.commands.getCommands(true)).includes('candb-studio.selectNetworkFolder'));
+    });
     test('candb-studio.openDatabase command is registered', async () => {
       const commands = await vscode.commands.getCommands(true);
       assert.ok(

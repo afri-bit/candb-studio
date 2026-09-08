@@ -87,8 +87,9 @@ export class Message {
                 receivingNodes: [...def.receivingNodes],
                 valueDescriptions: merged,
                 valueTableName: def.valueTableName,
-                multiplexIndicator: def.multiplexIndicator,
-                multiplexValue: def.multiplexValue,
+                multiplexIndicator: ref.multiplexIndicator ?? def.multiplexIndicator,
+                multiplexValue:
+                    ref.multiplexIndicator === undefined ? def.multiplexValue : ref.multiplexValue,
                 comment: def.comment,
             });
         });
@@ -119,8 +120,9 @@ export class Message {
             receivingNodes: [...def.receivingNodes],
             valueDescriptions: merged,
             valueTableName: def.valueTableName,
-            multiplexIndicator: def.multiplexIndicator,
-            multiplexValue: def.multiplexValue,
+            multiplexIndicator: ref.multiplexIndicator ?? def.multiplexIndicator,
+            multiplexValue:
+                ref.multiplexIndicator === undefined ? def.multiplexValue : ref.multiplexValue,
             comment: def.comment,
         });
     }

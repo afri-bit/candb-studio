@@ -1,3 +1,9 @@
+import { readdir } from 'fs/promises';
+import {
+    ensureScheduleDefinitions,
+    readMessageSchedule,
+    writeMessageSchedule,
+} from '../../core/models/database/messageSchedule';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { AttributeValueType } from '../../core/enums/AttributeValueType';
@@ -33,6 +39,54 @@ export class CanDatabaseService {
     private readonly sessions = new Map<string, CanDatabase>();
     /** Last URI passed to `load` / `loadFromTextDocument` (fallback for commands). */
     private lastUri: string | null = null;
+    private folderRequest = 0;
+    private selectedFolder: string | null = null;
+    private folderDatabases = new Map<string, CanDatabase>();
+
+    async selectNetworkFolder(folder: string | null): Promise<void> {
+        const request = ++this.folderRequest;
+        const databases = new Map<string, CanDatabase>();
+        if (folder) {
+            const entries = await readdir(folder, { withFileTypes: true });
+            for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+                if (!entry.isFile() || !entry.name.toLowerCase().endsWith('.dbc')) {
+                    continue;
+                }
+                const file = path.join(folder, entry.name);
+                const uri = vscode.Uri.file(file).toString();
+                const open = vscode.workspace?.textDocuments?.find((d) => d.uri.toString() === uri);
+                const db = open
+                    ? this.repository.parseContent(open.getText(), '.dbc')
+                    : await this.repository.load(file);
+                ensureScheduleDefinitions(db);
+                databases.set(uri, db);
+            }
+        }
+        if (request !== this.folderRequest) {
+            return;
+        }
+        this.selectedFolder = folder;
+        this.folderDatabases = databases;
+        this.eventBus.emit('database:folderChanged', undefined);
+    }
+
+    getNetworkFolder() {
+        return {
+            path: this.selectedFolder,
+            databases: [...this.folderDatabases].map(([uri, database]) => ({
+                uri,
+                network: path.basename(vscode.Uri.parse(uri).fsPath),
+                database,
+            })),
+        };
+    }
+
+    private updateFolderDatabase(uri: string, database: CanDatabase): void {
+        if (this.folderDatabases.has(uri)) {
+            this.folderDatabases.set(uri, database);
+        }
+    }
+
     /**
      * Which loaded `.dbc` session decodes bus traffic. Set on each load, and when
      * the user picks another session (Signal Lab). `null` means decode is unlinked (raw frames only).
@@ -43,14 +97,20 @@ export class CanDatabaseService {
         private readonly repository: ICanDatabaseRepository,
         private readonly validationService: IValidationService,
         private readonly eventBus: EventBus,
-    ) {}
+    ) {
+        this.eventBus.on('database:changed', ({ uri, database }) =>
+            this.updateFolderDatabase(uri, database),
+        );
+    }
 
     /** Load a CAN database from the given file path. */
     async load(filePath: string): Promise<CanDatabase> {
         Logger.info(`Loading database from: ${filePath}`);
         const database = await this.repository.load(filePath);
         const uri = vscode.Uri.file(filePath).toString();
+        ensureScheduleDefinitions(database);
         this.sessions.set(uri, database);
+        this.updateFolderDatabase(uri, database);
         this.lastUri = uri;
         this.setActiveBusDatabaseUriInternal(uri);
         this.eventBus.emit('database:loaded', { database, uri });
@@ -71,9 +131,19 @@ export class CanDatabaseService {
             throw new Error('Cannot determine file type for CAN database (expected .dbc)');
         }
         Logger.info(`Loading database from open document: ${document.uri.toString()}`);
-        const database = this.repository.parseContent(content, ext);
         const uri = document.uri.toString();
+        let database: CanDatabase;
+        try {
+            database = this.repository.parseContent(content, ext);
+        } catch (err) {
+            // A failed reparse must not leave a stale model that can overwrite newer text.
+            this.sessions.delete(uri);
+            this.folderDatabases.delete(uri);
+            throw err;
+        }
+        ensureScheduleDefinitions(database);
         this.sessions.set(uri, database);
+        this.updateFolderDatabase(uri, database);
         this.lastUri = uri;
         this.setActiveBusDatabaseUriInternal(uri);
         this.eventBus.emit('database:loaded', { database, uri });
@@ -249,6 +319,42 @@ export class CanDatabaseService {
         if (!msg) {
             throw new Error(`Message id ${messageId} not found`);
         }
+        if ('schedule' in changes) {
+            const schedule =
+                changes.schedule as import('../../core/models/database/messageSchedule').MessageSchedule;
+            const previous = readMessageSchedule(db, messageId);
+            if (schedule?.forwardNetwork) {
+                const folder = this.getNetworkFolder();
+                const source = folder.databases.find((d) => d.uri === uri);
+                const forwardingChanged = [
+                    'forwardNetwork',
+                    'forwardNode',
+                    'forwardRateMode',
+                    'forwardFrequencyHz',
+                    'sourceNetwork',
+                ].some(
+                    (key) =>
+                        schedule[key as keyof typeof schedule] !==
+                        previous[key as keyof typeof previous],
+                );
+                if (forwardingChanged && (!folder.path || folder.databases.length < 2 || !source)) {
+                    throw new Error(
+                        'Select a folder containing this DBC and at least one other DBC to configure forwarding',
+                    );
+                }
+                if (
+                    source &&
+                    folder.databases.length >= 2 &&
+                    (!folder.databases.some(
+                        (d) => d.network === schedule.forwardNetwork && d.uri !== uri,
+                    ) ||
+                        schedule.sourceNetwork !== source.network)
+                ) {
+                    throw new Error('Choose a different destination DBC in the selected folder');
+                }
+            }
+            writeMessageSchedule(db, messageId, changes.schedule);
+        }
         if ('name' in changes && typeof changes.name === 'string') {
             msg.name = changes.name;
         }
@@ -256,6 +362,11 @@ export class CanDatabaseService {
             const nid = changes.id;
             if (nid !== msg.id && db.findMessageById(nid)) {
                 throw new Error(`Message ID ${nid} already exists`);
+            }
+            for (const attr of db.attributes) {
+                if (attr.messageId === msg.id) {
+                    attr.messageId = nid;
+                }
             }
             msg.id = nid;
         }
@@ -314,7 +425,26 @@ export class CanDatabaseService {
                 changes.byteOrder === 'big_endian' ? ByteOrder.BigEndian : ByteOrder.LittleEndian;
         }
 
+        if ('multiplex' in changes) {
+            const m = changes.multiplex;
+            if (
+                m !== 'none' &&
+                m !== 'multiplexor' &&
+                !(typeof m === 'number' && Number.isSafeInteger(m) && m >= 0)
+            ) {
+                throw new Error('Multiplex value must be a non-negative safe integer');
+            }
+            ref.multiplexIndicator =
+                m === 'none'
+                    ? MultiplexIndicator.None
+                    : m === 'multiplexor'
+                      ? MultiplexIndicator.Multiplexor
+                      : MultiplexIndicator.MultiplexedSignal;
+            ref.multiplexValue = typeof m === 'number' ? m : undefined;
+        }
+
         const defChanges: Record<string, unknown> = { ...changes };
+        delete defChanges.multiplex;
         delete defChanges.startBit;
         delete defChanges.bitLength;
         delete defChanges.byteOrder;

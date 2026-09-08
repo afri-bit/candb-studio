@@ -1,3 +1,4 @@
+import type { MessageSchedule } from '../../../../src/core/models/database/messageSchedule';
 /* ── Domain types shared between webview and extension host ── */
 
 /** Byte order / endianness of a CAN signal. */
@@ -50,6 +51,7 @@ export interface MessageDescriptor {
   signals: SignalDescriptor[];
   comment: string;
   isFd: boolean;
+  schedule?: MessageSchedule;
 }
 
 export interface NodeDescriptor {
@@ -73,7 +75,15 @@ export interface EnvironmentVariableDescriptor {
   name: string;
 }
 
+export interface NetworkFolderDescriptor {
+  path: string | null;
+  enabled: boolean;
+  currentNetwork?: string;
+  databases: { uri: string; network: string; messages: MessageDescriptor[] }[];
+}
+
 export interface CanDatabaseDescriptor {
+  networkFolder?: NetworkFolderDescriptor;
   version: string;
   nodes: NodeDescriptor[];
   messages: MessageDescriptor[];
@@ -134,6 +144,10 @@ export type WebviewInboundMessage =
   | { type: 'signalLab.error'; message: string; code?: string };
 
 export type WebviewOutboundMessage =
+  | { type: 'folder.select' }
+  | { type: 'folder.clear' }
+  | { type: 'folder.refresh' }
+  | { type: 'folder.open'; uri: string }
   | { type: 'database.ready' }
   | { type: 'saveDocument'; documentUri: string }
   | { type: 'database.edit'; database: CanDatabaseDescriptor }

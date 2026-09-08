@@ -53,6 +53,10 @@ function unescapeDbcQuotedString(s: string): string {
  */
 export class DbcParser implements ICanDatabaseParser {
     parse(content: string): CanDatabase {
+        // Do not silently discard nested selector signals or reinterpret range multiplexing.
+        if (/^\s*SG_MUL_VAL_\s+\d/m.test(content) || /^\s*SG_\s+\w+\s+m\d+M\s*:/m.test(content)) {
+            throw new ParseError('Extended multiplexing (SG_MUL_VAL_ / mNM) detected. Use Text view; structured editing currently supports basic M / mN multiplexing only.');
+        }
         const database = new CanDatabase();
 
         try {
@@ -585,6 +589,8 @@ export class DbcParser implements ICanDatabaseParser {
                     }
                     message.addSignalRef({
                         signalName: signal.name,
+                        multiplexIndicator: signal.multiplexIndicator,
+                        multiplexValue: signal.multiplexValue,
                         startBit: signal.startBit,
                         bitLength: signal.bitLength,
                         byteOrder: signal.byteOrder,

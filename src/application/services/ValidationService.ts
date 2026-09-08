@@ -1,3 +1,6 @@
+import { SignalValueType } from '../../core/enums/SignalValueType';
+import { multiplexErrors } from '../../core/services/multiplex';
+import { readMessageSchedule, scheduleErrors } from '../../core/models/database/messageSchedule';
 import type { IValidationService } from '../../core/interfaces/database/IValidationService';
 import type { CanDatabase } from '../../core/models/database/CanDatabase';
 import type { DiagnosticItem } from '../../core/types';
@@ -24,6 +27,14 @@ export class ValidationService implements IValidationService {
         for (let mi = 0; mi < database.messages.length; mi++) {
             const message = database.messages[mi];
             const prefix = `messages[${mi}]`;
+
+            for (const error of scheduleErrors(readMessageSchedule(database, message.id))) {
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Error,
+                    message: error,
+                    path: `${prefix}.schedule`,
+                });
+            }
 
             // Duplicate CAN ID
             if (idsSeen.has(message.id)) {
@@ -98,6 +109,29 @@ export class ValidationService implements IValidationService {
 
             // Validate signals (resolved from pool + per-message placement)
             const resolvedSignals = message.getResolvedSignals(database.signalPool, database);
+            for (const error of multiplexErrors(
+                resolvedSignals.map((s) => ({
+                    name: s.name,
+                    multiplex: s.isMultiplexor
+                        ? 'multiplexor'
+                        : s.multiplexIndicator === 'multiplexed'
+                          ? (s.multiplexValue ?? -1)
+                          : 'none',
+                    bitLength: s.bitLength,
+                    isSigned: s.valueType === SignalValueType.Signed,
+                    valueType:
+                        s.valueType === SignalValueType.Signed ||
+                        s.valueType === SignalValueType.Unsigned
+                            ? 'integer'
+                            : 'float',
+                })),
+            )) {
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Error,
+                    message: error,
+                    path: `${prefix}.multiplex`,
+                });
+            }
             for (let si = 0; si < resolvedSignals.length; si++) {
                 const signal = resolvedSignals[si];
                 const sigPrefix = `${prefix}.signals[${si}]`;

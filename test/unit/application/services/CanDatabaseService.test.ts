@@ -348,10 +348,11 @@ suite('CanDatabaseService', () => {
     test('appends unique New_AttrDef_n definitions with defaults', async () => {
       await service.load('/fake/path.dbc');
       const uri = vscode.Uri.file('/fake/path.dbc').toString();
-      service.addAttributeDefinition(uri);
       const db = service.getDatabase()!;
-      assert.strictEqual(db.attributeDefinitions.length, 1);
-      const a0 = db.attributeDefinitions[0];
+      const initialCount = db.attributeDefinitions.length;
+      service.addAttributeDefinition(uri);
+      assert.strictEqual(db.attributeDefinitions.length, initialCount + 1);
+      const a0 = db.attributeDefinitions[initialCount];
       assert.strictEqual(a0.name, 'New_AttrDef_0');
       assert.strictEqual(a0.objectType, ObjectType.Message);
       assert.strictEqual(a0.valueType, AttributeValueType.Integer);
@@ -360,8 +361,8 @@ suite('CanDatabaseService', () => {
       assert.strictEqual(a0.maximum, 0);
 
       service.addAttributeDefinition(uri);
-      assert.strictEqual(db.attributeDefinitions.length, 2);
-      assert.strictEqual(db.attributeDefinitions[1].name, 'New_AttrDef_1');
+      assert.strictEqual(db.attributeDefinitions.length, initialCount + 2);
+      assert.strictEqual(db.attributeDefinitions[initialCount + 1].name, 'New_AttrDef_1');
     });
   });
 });
