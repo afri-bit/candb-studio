@@ -28,11 +28,13 @@ Prefer minimal diffs that solve one problem. New dependencies and new surface ar
 
 ## Development workflow
 
-- **Specs & plans**: Feature work MAY follow `.specify/` and `specs/` when used; `specs/README.md` lists numbered specifications in order. They do not override this constitution.
+- **GitHub first**: Actionable work starts as a GitHub issue in this repository. The issue body is the brief for humans and agents. Ideas and RFCs MAY use Discussions. Process: `docs/workflow/README.md`.
+- **Specs & plans**: Feature work that adds user-visible capability SHOULD follow `.specify/` and `specs/` (Speckit); `specs/README.md` lists numbered specifications in order. They do not override this constitution.
+- **ADRs**: Durable, hard-to-reverse design choices SHOULD be recorded under `docs/adr/` and linked from the issue and PR. Guide: `docs/adr/README.md`.
 - **Documentation**: `docs/ARCHITECTURE.md` and `AGENTS.md` describe layering and commands; significant structural changes SHOULD update those when they affect contributor expectations.
 
 ## Governance
 
 This constitution is the minimum bar for all changes. Conflicts with ad-hoc process are resolved in favor of these rules until the constitution is amended. Amendments: edit this file, bump **Last Amended**, and note the change briefly in the commit message.
 
-**Version**: 1.1.0 | **Ratified**: 2026-03-29 | **Last Amended**: 2026-04-04
+**Version**: 1.2.0 | **Ratified**: 2026-03-29 | **Last Amended**: 2026-09-03

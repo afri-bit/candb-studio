@@ -2,11 +2,11 @@
 
 **Feature Branch**: `004-can-database-visual-editor`  
 **Created**: 2026-03-31  
-**Last amended**: 2026-03-31  
+**Last amended**: 2026-09-09  
 **Status**: Approved (implemented)  
 **Input**: User description: "Structured editor for `.dbc` files—tabs for messages, signals, nodes, attributes, value tables, architecture; sync with disk; optional raw text view."
 
-**Sequence**: **Specification 004** — the **primary editing surface** for semantic work on a database. Builds on [Specification 001](../001-dbc-language-syntax/spec.md)–[003](../003-can-database-explorer/spec.md). Next: [Specification 005: CAN Bus and Signal Lab](../005-can-bus-signal-lab/spec.md). Multi-file **active context**: [Specification 011](../011-workspace-active-dbc/spec.md).
+**Sequence**: **Specification 004** — the **primary editing surface** for semantic work on a database. Builds on [Specification 001](../001-dbc-language-syntax/spec.md)–[003](../003-can-database-explorer/spec.md). Next: [Specification 005: CAN Bus and Signal Lab](../005-can-bus-signal-lab/spec.md). Multi-file **active context**: [Specification 011](../011-workspace-active-dbc/spec.md). Layout grid endianness and signal `VAL_` visibility: [Specification 014](../014-signal-layout-and-val-display/spec.md).
 
 ## Implementation status *(as-built)*
 
