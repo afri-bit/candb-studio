@@ -1,0 +1,63 @@
+VERSION ""
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: CF1 CF2
+
+BO_ 2565804940 MixedEndianTestFrame: 8 CF1
+ SG_ BigEndian16bitSignal M : 7|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ LittleEndian2bitSignal1 m40123 : 16|2@1+ (1,0) [0|0] "" CF2
+ SG_ LittleEndian2bitSignal2 m40123 : 18|2@1+ (1,0) [0|0] "" CF2
+ SG_ LittleEndian3bitSignal3 m40123 : 20|3@1+ (1,0) [0|0] "" CF2
+ SG_ LittleEndian2bitSignal4 m40123 : 24|2@1+ (1,0) [0|0] "" CF2
+ SG_ LittleEndian2bitSignal5 m40123 : 26|2@1+ (1,0) [0|0] "" CF2
+ SG_ LittleEndian8bitSignal6 m40123 : 32|8@1+ (1,0) [0|0] "" CF2
+
+BA_DEF_ SG_  "SystemSignalLongSymbol" STRING;
+
+BA_DEF_DEF_  "SystemSignalLongSymbol" "";
+
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 BigEndian16bitSignal "Big-endian_16_bit_Signal";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian2bitSignal1 "Little-endian_2_bit_Signal_1";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian2bitSignal2 "Little-endian_2_bit_Signal_2";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian3bitSignal3 "Little-endian_3_bit_Signal_3";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian2bitSignal4 "Little-endian_2_bit_Signal_4";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian2bitSignal5 "Little-endian_2_bit_Signal_5";
+BA_ "SystemSignalLongSymbol" SG_ 2565804940 LittleEndian8bitSignal6 "Little-endian_8_bit_Signal_6";
+
+VAL_ 2565804940 LittleEndian2bitSignal1 0 "not off" 1 "off" 2 "reserved" 3 "not available";
+VAL_ 2565804940 LittleEndian2bitSignal2 0 "not valid" 1 "valid" 2 "reserved" 3 "not available";
+VAL_ 2565804940 LittleEndian3bitSignal3 0 "running" 1 "paused" 6 "reserved" 7 "not available";
+VAL_ 2565804940 LittleEndian2bitSignal4 0 "moving" 1 "stationary" 2 "reserved" 3 "not available";
+VAL_ 2565804940 LittleEndian2bitSignal5 0 "off" 1 "on" 2 "reserved" 3 "not available";
+VAL_ 2565804940 LittleEndian8bitSignal6 0 "state 1" 1 "state 2" 2 "state 3" 3 "state 4" 4 "state 5" 5 "state 6" 254 "canceled" 255 "completed";

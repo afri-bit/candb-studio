@@ -24,7 +24,7 @@ export function mergeEffectiveValueDescriptions(
     return out;
 }
 
-/** Pool-only merge (Signals tab): table + pool overrides, no per-message VAL_. */
+/** Pool-only merge (Signals tab): table + pool overrides + per-message `VAL_` from referencing frames. */
 export function mergeEffectiveValueDescriptionsForPoolOnly(
     poolDef: Signal,
     db: CanDatabase,
@@ -37,5 +37,16 @@ export function mergeEffectiveValueDescriptionsForPoolOnly(
         }
     }
     poolDef.valueDescriptions.forEach((label, raw) => out.set(raw, label));
+    // DBC persists a signal's value lables as per-message VAL_ lines; fold them back
+    // in so the pool signal renders its labels after a save/reload round-trip.
+    for (const message of db.messages) {
+        if (!message.findSignalRefByName(poolDef.name)) {
+            continue;
+        }
+        const per = db.findValueDescription(message.id, poolDef.name);
+        if (per) {
+            per.descriptions.forEach((label, raw) => out.set(raw, label));
+        }
+    }
     return out;
 }
