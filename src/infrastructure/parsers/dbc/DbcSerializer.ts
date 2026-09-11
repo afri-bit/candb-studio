@@ -294,7 +294,7 @@ export class DbcSerializer implements ICanDatabaseSerializer {
                     a.messageId === msg.id,
             );
             const fdIndex =
-                stored !== undefined ? stored.value : msg.id > 0x7ff ? 3 : 2;
+                stored !== undefined ? stored.value : msg.isExtended ? 3 : 2;
             lines.push(`BA_ "VFrameFormat" BO_ ${msg.id} ${fdIndex};`);
         }
 

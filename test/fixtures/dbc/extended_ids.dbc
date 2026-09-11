@@ -14,5 +14,11 @@ BO_ 100 StandardMsg: 8 GATEWAY
  SG_ Temp : 0|8@1+ (1,-40) [-40|215] "degC" ECU1
  SG_ Pressure : 8|16@1+ (0.1,0) [0|6553.5] "kPa" ECU1
 
+BO_ 2147483748 LowIdExtMsg: 8 GATEWAY
+ SG_ Temp : 0|8@1+ (1,-40) [-40|215] "degC" ECU1
+ SG_ Pressure : 8|16@1+ (0.1,0) [0|6553.5] "kPa" ECU1
+
+
 CM_ BO_ 2566903870 "Extended 29-bit CAN ID message (J1939 style)";
 CM_ BO_ 100 "Standard 11-bit CAN ID message";
+CM_ BO_ 2147483748 "Extended 29-bit CAN ID message with a low ID to test distinguishing this from a Standard 11-bit CAN ID.";

@@ -48,6 +48,7 @@ interface SerializedMessage {
     signals: SerializedSignal[];
     comment: string;
     isFd: boolean;
+    isExtended: boolean;
 }
 
 export interface SerializedSignal {
@@ -149,6 +150,7 @@ function serializeMessage(message: Message, db: CanDatabase): SerializedMessage 
             .map((s) => serializeSignalForWebview(s, db, { mergedDescriptions: true })),
         comment: message.comment ?? '',
         isFd: message.isFd,
+        isExtended: message.isExtended,
     };
 }
 

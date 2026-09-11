@@ -50,6 +50,7 @@ export interface MessageDescriptor {
   signals: SignalDescriptor[];
   comment: string;
   isFd: boolean;
+  isExtended: boolean;
 }
 
 export interface NodeDescriptor {

@@ -14,6 +14,7 @@
   } from '../../stores/signalChartStore';
   import SearchFilter from '../shared/SearchFilter.svelte';
   import SignalChartUPlot from './SignalChartUPlot.svelte';
+  import { formatMessageId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     messages: MessageDescriptor[];
@@ -41,7 +42,7 @@
     for (const m of messages) {
       for (const s of m.signals) {
         out.push({
-          key: seriesKey(m.id, s.name),
+          key: seriesKey(arbitrationId(m.id), s.name),
           messageName: m.name,
           messageId: m.id,
           signalName: s.name,
@@ -66,8 +67,8 @@
       (o) =>
         o.messageName.toLowerCase().includes(q) ||
         o.signalName.toLowerCase().includes(q) ||
-        o.messageId.toString(16).includes(q) ||
-        `0x${o.messageId.toString(16)}`.includes(q),
+        arbitrationId(o.messageId).toString(16).includes(q) ||
+        formatMessageId(o.messageId).toLowerCase().includes(q),
     );
   });
 
@@ -149,7 +150,7 @@
                 <span class="picker-main" title="{o.messageName} · {o.signalName}">
                   <span class="picker-line1"
                     ><span class="picker-msg">{o.messageName}</span>
-                    <span class="picker-id">0x{o.messageId.toString(16).toUpperCase()}</span></span
+                    <span class="picker-id">{formatMessageId(o.messageId)}</span></span
                   >
                   <span class="picker-line2"
                     ><span class="picker-sig">{o.signalName}</span>

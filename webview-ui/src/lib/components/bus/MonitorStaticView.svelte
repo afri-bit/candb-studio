@@ -8,6 +8,7 @@
     monitorStore,
     type LiveMessageSnapshotWithDirection,
   } from '../../stores/monitorStore';
+  import { formatMessageId, formatFrameId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     messages: MessageDescriptor[];
@@ -27,7 +28,7 @@
     return physical.toFixed(4).replace(/\.?0+$/, '');
   }
 
-  let definedIds = $derived(new Set(messages.map((m) => m.id)));
+  let definedIds = $derived(new Set(messages.map((m) => arbitrationId(m.id))));
 
   let filteredMessages = $derived.by(() => {
     const q = filterText.trim().toLowerCase();
@@ -35,8 +36,8 @@
     return messages
       .filter((m) => {
         if (m.name.toLowerCase().includes(q)) return true;
-        if (m.id.toString(16).includes(q)) return true;
-        if (m.id.toString().includes(q)) return true;
+        if (arbitrationId(m.id).toString(16).includes(q)) return true;
+        if (arbitrationId(m.id).toString().includes(q)) return true;
         return m.signals.some((s) => s.name.toLowerCase().includes(q));
       })
       .sort((a, b) => a.id - b.id);
@@ -78,12 +79,12 @@
   <div class="static-scroll">
     <h3 class="section-label">DBC messages (live)</h3>
     {#each filteredMessages as msg (`live-${msg.id}`)}
-      {@const live = $liveLatestByMessageId[msg.id]}
+      {@const live = $liveLatestByMessageId[arbitrationId(msg.id)]}
       <details class="msg-block" class:msg-block--tx={live?.lastDirection === 'tx'}>
         <summary class="msg-summary">
           <span class="msg-title">{msg.name}</span>
           <span class="msg-meta"
-            >0x{msg.id.toString(16).toUpperCase().padStart(3, '0')} · DLC {msg.dlc}</span
+            >{formatMessageId(msg.id)} · DLC {msg.dlc}</span
           >
           {#if msg.isFd}
             <span class="badge-fd" title="CAN FD message">FD</span>
@@ -149,7 +150,7 @@
             <summary class="msg-summary">
               <span class="msg-title">{snap.messageName}</span>
               <span class="msg-meta"
-                >0x{id.toString(16).toUpperCase().padStart(3, '0')} · DLC {snap.dlc}</span
+                >{formatFrameId(id, snap.isExtended)} · DLC {snap.dlc}</span
               >
               {#if snap.isFd}
                 <span class="badge-fd" title="CAN FD frame">FD</span>

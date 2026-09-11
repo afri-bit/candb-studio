@@ -5,7 +5,7 @@ import { CanBusState } from '../../core/enums/CanBusState';
 import type { ICanBusAdapter } from '../../core/interfaces/bus/ICanBusAdapter';
 import { CanChannel } from '../../core/models/bus/CanChannel';
 import { AdapterFactory } from '../../infrastructure/adapters/AdapterFactory';
-import { SocketCanAdapter } from '../../infrastructure/adapters/SocketCanAdapter';
+import { isHardwareAdapter } from '../../infrastructure/adapters/AdapterKind';
 import { VirtualCanAdapter } from '../../infrastructure/adapters/VirtualCanAdapter';
 import { Commands, DEFAULT_BITRATE } from '../../shared/constants';
 import type { EventBus } from '../../shared/events/EventBus';
@@ -126,6 +126,27 @@ export class ConnectBusCommand {
         }
     }
 
+    /** Channel input-box prompt and default value tailored to the selected adapter backend. */
+    private channelPromptFor(adapterType: AdapterType): { prompt: string; value: string } {
+        switch (adapterType) {
+            case AdapterType.Virtual:
+                return {
+                    prompt: 'Channel label (optional). Virtual mode is in-process software loopback only — no physical adapter or system CAN device.',
+                    value: 'virtual-loopback',
+                };
+            case AdapterType.PCAN:
+                return {
+                    prompt: 'Enter PEAK PCAN channel (e.g. PCAN_USBBUS1). Requires the PCAN-Basic driver and candb-bridge (pip install candb-bridge).',
+                    value: 'PCAN_USBBUS1',
+                };
+            default:
+                return {
+                    prompt: 'Enter SocketCAN interface name (e.g. can0 or vcan0).',
+                    value: 'can0',
+                };
+        }
+    }
+
     async execute(): Promise<void> {
         const adapterTypes = AdapterFactory.getSupportedTypes();
 
@@ -139,11 +160,10 @@ export class ConnectBusCommand {
         }
 
         const isVirtual = selected.adapterType === AdapterType.Virtual;
+        const channelPrompt = this.channelPromptFor(selected.adapterType);
         const channelName = await vscode.window.showInputBox({
-            prompt: isVirtual
-                ? 'Channel label (optional). Virtual mode is in-process software loopback only — no physical adapter or system CAN device.'
-                : 'Enter SocketCAN interface name (e.g. can0 or vcan0).',
-            value: isVirtual ? 'virtual-loopback' : 'can0',
+            prompt: channelPrompt.prompt,
+            value: channelPrompt.value,
         });
 
         if (!channelName) {
@@ -168,8 +188,8 @@ export class ConnectBusCommand {
         if (existing) {
             const targetVirtual = selected.adapterType === AdapterType.Virtual;
             const existingVirtual = existing instanceof VirtualCanAdapter;
-            const existingHw = existing instanceof SocketCanAdapter;
-            const targetHw = selected.adapterType === AdapterType.SocketCAN;
+            const existingHw = isHardwareAdapter(existing);
+            const targetHw = !targetVirtual;
             if ((existingVirtual && targetHw) || (existingHw && targetVirtual)) {
                 const r = await vscode.window.showWarningMessage(
                     existingVirtual

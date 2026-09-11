@@ -7,9 +7,12 @@
   import PropertyGrid from '../shared/PropertyGrid.svelte';
   import SearchFilter from '../shared/SearchFilter.svelte';
   import BitLayoutView from './BitLayoutView.svelte';
+  import { multiplexorValues, signalActiveForMux, messageForMux } from '../../bitLayoutUtils';
   import { get } from 'svelte/store';
+  import { untrack } from 'svelte';
   import { vscode } from '../../vscode';
   import { documentUri } from '../../stores/editorContext';
+  import { formatMessageId, arbitrationId, isExtendedId, toRawId } from '../../formatMessageId';
 
   interface Props {
     messages: MessageDescriptor[];
@@ -52,6 +55,8 @@
   let txDraft = $state('');
   let quickPickTx = $state('');
   let commentDraft = $state('');
+  /** Active multiplexor group; `null` = message has no multiplexing (show all). */
+  let selectedMuxValue = $state<number | null>(null);
 
   let sortedNodeNames = $derived(
     [...nodes]
@@ -74,7 +79,7 @@
     return messages.filter(
       (m) =>
         m.name.toLowerCase().includes(lower) ||
-        m.id.toString(16).includes(lower) ||
+        arbitrationId(m.id).toString(16).includes(lower) ||
         m.transmitter.toLowerCase().includes(lower),
     );
   });
@@ -83,7 +88,7 @@
     filteredMessages.map((m) => ({
       messageId: m.id,
       name: m.name,
-      idHex: `0x${m.id.toString(16).toUpperCase().padStart(3, '0')}`,
+      idHex: formatMessageId(m.id),
       frameFormat: m.isFd ? 'FD' : 'CAN',
       dlc: m.dlc,
       transmitter: m.transmitter,
@@ -120,8 +125,38 @@
       : false,
   );
 
+  /** Distinct multiplexor group values in the selected message (ascending). */
+  let messageMuxValues = $derived(selectedMessage ? multiplexorValues(selectedMessage) : []);
+  let hasMultiplexing = $derived(messageMuxValues.length > 0);
+
+  /** Signals shown in the Signals table, scoped to the active mux group. */
+  let visibleSignals = $derived(
+    selectedMessage
+      ? selectedMessage.signals.filter((s) => signalActiveForMux(s, selectedMuxValue))
+      : [],
+  );
+
+  /** Message copy whose signals/layout reflect only the active mux group. */
+  let layoutMessage = $derived(
+    selectedMessage ? messageForMux(selectedMessage, selectedMuxValue) : null,
+  );
+
+  /** Multiplexing role of a signal, for the editable Mux control. */
+  function muxRole(sig: SignalDescriptor): 'none' | 'multiplexor' | 'multiplexed' {
+    if (sig.multiplex === 'multiplexor') return 'multiplexor';
+    if (typeof sig.multiplex === 'number') return 'multiplexed';
+    return 'none';
+  }
+
+  /** Signals table always shows the Mux column (Signal, Mux, Start, Bits, Endian, Unit). */
+  const signalColSpan = 6;
+
   /** Valid CAN FD payload byte counts per ISO 11898-1. */
   const FD_VALID_LENGTHS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+
+  /** Identifier-format option labels for the Message Definition selector. */
+  const ID_FORMAT_STANDARD = 'Standard CAN (11-bit)';
+  const ID_FORMAT_EXTENDED = 'Extended CAN (29-bit)';
 
   let definitionProps = $derived(
     selectedMessage
@@ -135,8 +170,15 @@
           {
             key: 'id',
             label: 'ID (decimal)',
-            value: selectedMessage.id,
+            value: arbitrationId(selectedMessage.id),
             type: 'number' as const,
+          },
+          {
+            key: 'isExtended',
+            label: 'Identifier format',
+            value: isExtendedId(selectedMessage.id) ? ID_FORMAT_EXTENDED : ID_FORMAT_STANDARD,
+            type: 'select' as const,
+            options: [ID_FORMAT_STANDARD, ID_FORMAT_EXTENDED],
           },
           {
             key: 'isFd',
@@ -162,9 +204,7 @@
   );
 
   let messageTitle = $derived(
-    selectedMessage
-      ? `${selectedMessage.name} (0x${selectedMessage.id.toString(16).toUpperCase()})`
-      : '',
+    selectedMessage ? `${selectedMessage.name} (${formatMessageId(selectedMessage.id)})` : '',
   );
 
   $effect(() => {
@@ -179,12 +219,59 @@
     selectedSignalName = null;
     linkPick = '';
     linkStartBit = 0;
+    // Default to the first mux group so layout/analysis start scoped to one group.
+    const vals = untrack(() => (selectedMessage ? multiplexorValues(selectedMessage) : []));
+    selectedMuxValue = vals.length > 0 ? vals[0] : null;
+  });
+
+  // Keep the active group valid as signals (and their mux roles) change.
+  $effect(() => {
+    if (!hasMultiplexing) {
+      if (selectedMuxValue !== null) selectedMuxValue = null;
+      return;
+    }
+    if (selectedMuxValue === null || !messageMuxValues.includes(selectedMuxValue)) {
+      selectedMuxValue = messageMuxValues[0];
+    }
+  });
+
+  // Switching mux group can hide the currently selected signal — clear selection.
+  $effect(() => {
+    selectedMuxValue;
+    untrack(() => {
+      selectedSignalIndex = null;
+      selectedSignalName = null;
+    });
   });
 
   function onPropertyChange(key: string, value: string | number | boolean) {
-    if (selectedMessageId === null) return;
+    if (selectedMessageId === null || !selectedMessage) return;
     const uri = get(documentUri);
     if (!uri) return;
+
+    // The extended/standard format lives in the id's 0x80000000 bit. Both the "ID"
+    // field and the format selector recombine into a single raw `id` change.
+    if (key === 'id' || key === 'isExtended') {
+      const extended =
+        key === 'isExtended'
+          ? value === ID_FORMAT_EXTENDED
+          : isExtendedId(selectedMessage.id);
+      const arb =
+        key === 'id' ? Math.max(0, Math.floor(Number(value))) : arbitrationId(selectedMessage.id);
+      const rawId = toRawId(arb, extended);
+      vscode.postMessage({
+        type: 'updateMessage',
+        payload: {
+          documentUri: uri,
+          messageId: selectedMessageId,
+          changes: { id: rawId },
+        },
+      });
+      // Keep the selection pointed at the (possibly renumbered) message.
+      selectedMessageId = rawId;
+      return;
+    }
+
     // PropertyGrid select returns strings; coerce numeric fields back to number
     let coerced: string | number | boolean = value;
     if (key === 'dlc' && typeof value === 'string') {
@@ -232,7 +319,8 @@
     if (!uri) return;
     let nextId = 0x100;
     for (const m of messages) {
-      if (m.id >= nextId) nextId = m.id + 1;
+      const arb = arbitrationId(m.id);
+      if (arb >= nextId) nextId = arb + 1;
     }
     vscode.postMessage({
       type: 'addMessage',
@@ -288,6 +376,45 @@
     });
   }
 
+  /** Update a signal's multiplex role/value (`'none' | 'multiplexor' | <group number>`). */
+  function postSignalMultiplex(signalName: string, multiplex: 'none' | 'multiplexor' | number) {
+    if (selectedMessageId === null) return;
+    const uri = get(documentUri);
+    if (!uri) return;
+    vscode.postMessage({
+      type: 'updateSignal',
+      payload: {
+        documentUri: uri,
+        messageId: selectedMessageId,
+        signalName,
+        changes: { multiplex },
+      },
+    });
+  }
+
+  function onMuxRoleChange(sig: SignalDescriptor, role: string) {
+    if (role === 'multiplexor') {
+      // A message may have only one multiplexor — demote any existing one first.
+      if (selectedMessage) {
+        for (const other of selectedMessage.signals) {
+          if (other.name !== sig.name && other.multiplex === 'multiplexor') {
+            postSignalMultiplex(other.name, 'none');
+          }
+        }
+      }
+      postSignalMultiplex(sig.name, 'multiplexor');
+    } else if (role === 'multiplexed') {
+      const value = typeof sig.multiplex === 'number' ? sig.multiplex : 0;
+      postSignalMultiplex(sig.name, value);
+    } else {
+      postSignalMultiplex(sig.name, 'none');
+    }
+  }
+
+  function onMuxValueChange(sig: SignalDescriptor, value: number) {
+    postSignalMultiplex(sig.name, Math.max(0, Math.floor(value)));
+  }
+
   function removeSignalFromSelectedMessage() {
     if (selectedMessageId === null || !selectedSignalName) return;
     const uri = get(documentUri);
@@ -316,6 +443,21 @@
 </script>
 
 <div class="message-editor">
+  {#snippet muxSelector()}
+    {#if hasMultiplexing}
+      <label class="mux-picker" title="Multiplexor value — filters signals and layout to that group">
+        <span class="sr-only">Multiplexor group</span>
+        <select
+          bind:value={selectedMuxValue}
+          onclick={(e) => e.stopPropagation()}
+        >
+          {#each messageMuxValues as v}
+            <option value={v}>Mux m{v}</option>
+          {/each}
+        </select>
+      </label>
+    {/if}
+  {/snippet}
   <div class="toolbar">
     <SearchFilter placeholder="Filter messages…" onFilter={(t) => (filterText = t)} />
     <button type="button" class="btn" onclick={addMessage}>Add message</button>
@@ -336,7 +478,7 @@
         <div class="context-strip">
           <span class="ctx-label">Selected frame</span>
           <span class="dbc-pill">{msg.name}</span>
-          <span class="ctx-id">0x{msg.id.toString(16).toUpperCase()}</span>
+          <span class="ctx-id">{formatMessageId(msg.id)}</span>
           <span class="ctx-meta">{msg.signals.length} signals · DLC {msg.dlc} · {msg.isFd ? 'CAN FD' : 'CAN 2.0'}</span>
           <div class="ctx-actions">
             {#if msg.transmitter}
@@ -409,6 +551,7 @@
                     Open Signals tab →
                   </button>
                 {/if}
+                {@render muxSelector()}
                 <label class="link-pick">
                   <span class="sr-only">Signal from pool</span>
                   <select bind:value={linkPick} title="Signals must exist in the pool">
@@ -452,6 +595,7 @@
                     <thead>
                       <tr>
                         <th class="col-name">Signal</th>
+                        <th class="col-mux">Mux</th>
                         <th class="col-start">Start</th>
                         <th class="col-bits">Bits</th>
                         <th class="col-endian">Endian</th>
@@ -461,10 +605,18 @@
                     <tbody>
                       {#if msg.signals.length === 0}
                         <tr>
-                          <td colspan="5" class="cell-empty">No signals linked — add from pool</td>
+                          <td colspan={signalColSpan} class="cell-empty"
+                            >No signals linked — add from pool</td
+                          >
+                        </tr>
+                      {:else if visibleSignals.length === 0}
+                        <tr>
+                          <td colspan={signalColSpan} class="cell-empty">
+                            No signals in mux group {selectedMuxValue} — pick another group.
+                          </td>
                         </tr>
                       {:else}
-                        {#each msg.signals as s, si}
+                        {#each visibleSignals as s, si}
                           <tr
                             class:selected={selectedSignalIndex === si}
                             onclick={() => {
@@ -487,6 +639,36 @@
                               {:else}
                                 {s.name}
                               {/if}
+                            </td>
+                            <td class="cell-mux">
+                              <div class="mux-edit" onclick={(e) => e.stopPropagation()} role="none">
+                                <select
+                                  class="mux-role-select"
+                                  class:is-multiplexor={s.multiplex === 'multiplexor'}
+                                  value={muxRole(s)}
+                                  title="Multiplexing role — M = multiplexor, m# = multiplexed group, — = plain signal"
+                                  onchange={(e) =>
+                                    onMuxRoleChange(s, (e.currentTarget as HTMLSelectElement).value)}
+                                >
+                                  <option value="none">—</option>
+                                  <option value="multiplexor">M</option>
+                                  <option value="multiplexed">m#</option>
+                                </select>
+                                {#if typeof s.multiplex === 'number'}
+                                  <input
+                                    type="number"
+                                    class="mux-value-input"
+                                    min="0"
+                                    value={s.multiplex}
+                                    title="Multiplexed group value — signal is present when the multiplexor equals this"
+                                    onchange={(e) =>
+                                      onMuxValueChange(
+                                        s,
+                                        Number((e.currentTarget as HTMLInputElement).value),
+                                      )}
+                                  />
+                                {/if}
+                              </div>
                             </td>
                             <td class="cell-start">
                               <input
@@ -632,8 +814,11 @@
                 </table>
               </div>
             {:else if messageDetailTab === 'layout'}
+              {#if hasMultiplexing}
+                <div class="layout-mux-bar">{@render muxSelector()}</div>
+              {/if}
               <div class="layout-bit-wrap">
-                <BitLayoutView message={msg} {onNavigateToSignal} />
+                <BitLayoutView message={layoutMessage ?? msg} {onNavigateToSignal} />
               </div>
             {:else if messageDetailTab === 'attributes'}
               <p class="empty-tab">
@@ -775,6 +960,67 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
+  }
+
+  .mux-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+  }
+
+  .mux-picker span {
+    white-space: nowrap;
+  }
+
+  .layout-mux-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .cell-mux {
+    color: var(--vscode-descriptionForeground);
+    text-align: center;
+  }
+
+  .mux-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mux-role-select {
+    padding: 2px 4px;
+    background: var(--vscode-dropdown-background);
+    color: var(--vscode-dropdown-foreground);
+    border: 1px solid var(--vscode-dropdown-border, transparent);
+    border-radius: 4px;
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 12px;
+  }
+
+  .mux-role-select.is-multiplexor {
+    color: var(--vscode-charts-blue, #3b82f6);
+    font-weight: 600;
+  }
+
+  .mux-value-input {
+    width: 3.5rem;
+    padding: 2px 4px;
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border, transparent);
+    border-radius: 4px;
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 12px;
+    box-sizing: border-box;
+  }
+
+  .mux-value-input:focus,
+  .mux-role-select:focus {
+    outline: 1px solid var(--vscode-focusBorder);
   }
 
   .ecu-table-wrap {
@@ -1112,7 +1358,8 @@
     white-space: nowrap;
   }
 
-  .link-pick select {
+  .link-pick select,
+  .mux-picker select {
     padding: 4px 8px;
     min-width: 160px;
     max-width: 220px;

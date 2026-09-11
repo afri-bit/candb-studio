@@ -4,6 +4,17 @@ All notable changes to the **candb-studio** extension are documented in this fil
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.1] - 2026-09-11
+
+### Fixed
+
+- Extended and Standard CAN ID handling and visualization. Extended CAN IDs are marked with the most significant bit of the ID set to 1 (mask 0x80000000). The UI now displays Extended CAN IDs with a 'x' suffix instead of the MSB set in order to differentiate them from Standard CAN IDs. For example ID 0x064x is an Extended CAN ID with value 100d and ID 0x064 is a Standard CAN ID with value 100d. On the CAN bus, these are 2 different frames. The UI 'x' suffix convention for Extended CAN IDs matches CANdb++. A test fixture dbc file has been updated with an additional low value Extended ID message.
+
+### Added
+
+- Multiplex role editing (M / mN) on a per-message-signal basis, with multiplex-aware bit layout.
+- Peak USB CAN adapter. Requires Python-CAN to be installed and candb-bridge to be launched. See README.md in /bridge for instructions.
+
 ## [0.3.0] - 2026-09-08
 
 ### Fixed

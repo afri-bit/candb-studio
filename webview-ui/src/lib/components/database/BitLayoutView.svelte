@@ -3,6 +3,7 @@
    * Vector-style payload visualization with overlap detection, hover highlight, and issue banners.
    */
   import type { MessageDescriptor, SignalDescriptor } from '../../types';
+  import { formatMessageId } from '../../formatMessageId';
   import {
     analyzeMessageLayout,
     getSignalLsbMsbPhysicalBits,
@@ -181,7 +182,7 @@
     <span>Payload layout</span>
     <span class="meta">
       <span class="dbc-pill">{message.name}</span>
-      <span class="id">0x{message.id.toString(16).toUpperCase()}</span>
+      <span class="id">{formatMessageId(message.id)}</span>
       <span class="dlc">DLC {message.dlc}</span>
     </span>
   </div>

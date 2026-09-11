@@ -2,7 +2,7 @@
   "name": "candb-studio",
   "displayName": "CANdb Studio",
   "description": "CAN database editor and bus connectivity tools for VS Code",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "afri-bit",
   "repository": {
     "type": "git",
@@ -144,6 +144,11 @@
           "type": "boolean",
           "default": false,
           "description": "Show the Overall View sidebar in the DBC editor by default."
+        },
+        "candb-studio.bridgePythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Executable used to launch the candb-bridge process for hardware CAN adapters (e.g. PEAK/PCAN via python-can). Use \"py\" on Windows or an absolute path to a Python interpreter that has candb-bridge installed (pip install candb-bridge)."
         }
       }
     }

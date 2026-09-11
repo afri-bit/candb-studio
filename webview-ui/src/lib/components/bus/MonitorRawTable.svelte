@@ -4,6 +4,7 @@
    * Separate instances for Rx (bus receive) vs Tx (transmit echo / loopback).
    */
   import { monitorStore, type LiveMessageSnapshot } from '../../stores/monitorStore';
+  import { formatFrameId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     filterText: string;
@@ -16,8 +17,7 @@
   let { filterText, which, noDatabaseHint = false }: Props = $props();
 
   function formatId(id: number, ext: boolean): string {
-    const w = ext ? 8 : 3;
-    return `0x${id.toString(16).toUpperCase().padStart(w, '0')}`;
+    return formatFrameId(id, ext);
   }
 
   function formatTime(ts: number): string {
@@ -38,7 +38,7 @@
       const snap = live[id];
       if (!snap) continue;
       if (q) {
-        const hex = id.toString(16);
+        const hex = arbitrationId(id).toString(16);
         const hay = `${hex} 0x${hex} ${id} ${snap.messageName}`.toLowerCase();
         if (!hay.includes(q)) continue;
       }

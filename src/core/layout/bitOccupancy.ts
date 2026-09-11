@@ -5,11 +5,14 @@
 
 export type OccupancyByteOrder = 'little_endian' | 'big_endian';
 
+export type OccupancyMultiplexIndicator = 'none' | 'multiplexor' | number;
+
 export interface OccupancySignal {
     name: string;
     startBit: number;
     bitLength: number;
     byteOrder: OccupancyByteOrder;
+    multiplex: OccupancyMultiplexIndicator;
 }
 
 export interface OccupancyMessage {
@@ -203,4 +206,52 @@ export function analyzeMessageLayout(message: OccupancyMessage): MessageLayoutAn
         unallocatedBits,
         issues,
     };
+}
+
+/** Distinct multiplexed selector values used by a message's signals, ascending. */
+export function multiplexorValues(message: OccupancyMessage): number[] {
+  const values = new Set<number>();
+  for (const s of message.signals) {
+    if (typeof s.multiplex === 'number') {
+      values.add(s.multiplex);
+    }
+  }
+  return [...values].sort((a, b) => a - b);
+}
+
+/**
+ * Whether a signal is present for the given multiplexor selector value.
+ * Non-multiplexed signals and the multiplexor itself are always present; a
+ * multiplexed signal is present only when its value matches `muxValue`.
+ * `muxValue === null` shows every signal.
+ */
+export function signalActiveForMux(
+  sig: Pick<OccupancySignal, 'multiplex'>,
+  muxValue: number | null,
+): boolean {
+  if (muxValue === null) {
+    return true;
+  }
+  if (typeof sig.multiplex === 'number') {
+    return sig.multiplex === muxValue;
+  }
+  return true;
+}
+
+/**
+ * A shallow copy of `message` whose signals are limited to the selected mux group
+ * (non-multiplexed signals and the multiplexor are always kept). Returns the
+ * original message when `muxValue` is `null`.
+ */
+export function messageForMux(
+  message: OccupancyMessage,
+  muxValue: number | null,
+): OccupancyMessage {
+  if (muxValue === null) {
+    return message;
+  }
+  return {
+    ...message,
+    signals: message.signals.filter((s) => signalActiveForMux(s, muxValue)),
+  };
 }

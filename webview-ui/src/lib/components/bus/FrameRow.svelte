@@ -4,6 +4,7 @@
    */
   import type { DecodedFrameDescriptor } from '../../types';
   import SignalValueDisplay from './SignalValueDisplay.svelte';
+  import { formatFrameId } from '../../formatMessageId';
 
   interface Props {
     decoded: DecodedFrameDescriptor;
@@ -23,12 +24,7 @@
 
   let timeStr = $derived(formatTime(decoded.frame.timestamp));
 
-  let idHex = $derived(
-    `0x${decoded.frame.id
-      .toString(16)
-      .toUpperCase()
-      .padStart(decoded.frame.isExtended ? 8 : 3, '0')}`,
-  );
+  let idHex = $derived(formatFrameId(decoded.frame.id, decoded.frame.isExtended));
 </script>
 
 <div class="frame-row monitor-table-grid">

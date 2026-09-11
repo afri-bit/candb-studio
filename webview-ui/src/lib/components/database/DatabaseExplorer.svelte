@@ -9,6 +9,7 @@
     NodeDescriptor,
     SignalDescriptor,
   } from '../../types';
+  import { formatMessageId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     version: string;
@@ -52,8 +53,9 @@
       (m) =>
         matches(m.name) ||
         matches(m.transmitter) ||
-        matches(`0x${m.id.toString(16)}`) ||
-        matches(String(m.id)),
+        matches(formatMessageId(m.id)) ||
+        matches(arbitrationId(m.id).toString(16)) ||
+        matches(String(arbitrationId(m.id))),
     ),
   );
 
@@ -281,7 +283,7 @@
                           >
                           <span class="label truncate"
                             >{m.name}
-                            <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                            <span class="id">({formatMessageId(m.id)})</span></span
                           >
                         </button>
                       {:else}
@@ -442,7 +444,7 @@
                             >
                             <span class="label truncate"
                               >{m.name}
-                              <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                              <span class="id">({formatMessageId(m.id)})</span></span
                             >
                           </button>
                         {:else}
@@ -477,7 +479,7 @@
                             >
                             <span class="label truncate"
                               >{m.name}
-                              <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                              <span class="id">({formatMessageId(m.id)})</span></span
                             >
                           </button>
                         {:else}
@@ -545,7 +547,7 @@
                   >
                   <span class="label truncate"
                     >{m.name}
-                    <span class="id">(0x{m.id.toString(16).toUpperCase()})</span></span
+                    <span class="id">({formatMessageId(m.id)})</span></span
                   >
                 </button>
               </div>

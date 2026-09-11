@@ -862,7 +862,7 @@ suite('DbcParser', () => {
   // ───────────────────────────────────────────────────────────────────────────
 
   suite('parse — extended CAN IDs', () => {
-    test('parses raw extended ID > 0x7FF without truncation', () => {
+    test('preserves the raw extended id (0x80000000 marker kept in the data layer)', () => {
       const db = parser.parse([
         'VERSION ""',
         'BU_: GW',
@@ -870,18 +870,24 @@ suite('DbcParser', () => {
         ' SG_ Speed : 0|16@1+ (0.01,0) [0|655.35] "kph" GW',
       ].join('\n'));
       const msg = db.findMessageById(2566903870);
-      assert.ok(msg, 'extended ID message must be found');
+      assert.ok(msg, 'extended ID message must be found by its raw id');
       assert.strictEqual(msg!.name, 'ExtMsg');
+      assert.strictEqual(msg!.isExtended, true, 'isExtended is derived from the marker bit');
+      assert.strictEqual(msg!.arbitrationId, 419420222, 'marker-free id (2566903870 & 0x7fffffff)');
     });
 
-    test('parses extended_ids.dbc fixture preserving raw IDs', () => {
+    test('parses extended_ids.dbc fixture keeping the raw ids', () => {
       const content = fs.readFileSync(
         path.join(FIXTURES_DIR, 'dbc', 'extended_ids.dbc'),
         'utf-8',
       );
       const db = parser.parse(content);
-      assert.ok(db.findMessageById(2566903870), 'J1939 extended ID must be preserved');
-      assert.ok(db.findMessageById(100), 'standard ID message must also be parsed');
+      const ext = db.findMessageById(2566903870);
+      assert.ok(ext, 'J1939 extended ID must be preserved');
+      assert.strictEqual(ext!.isExtended, true);
+      const std = db.findMessageById(100);
+      assert.ok(std, 'standard ID message must also be parsed');
+      assert.strictEqual(std!.isExtended, false);
     });
 
     test('extended ID message signals are accessible', () => {
