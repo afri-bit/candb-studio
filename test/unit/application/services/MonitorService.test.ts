@@ -11,6 +11,8 @@ import type { CanChannel } from '../../../../src/core/models/bus/CanChannel';
 import type { Disposable } from '../../../../src/core/types';
 import { CanBusState } from '../../../../src/core/enums/CanBusState';
 import { ByteOrder } from '../../../../src/core/enums/ByteOrder';
+import { MultiplexIndicator } from '../../../../src/core/enums/MultiplexIndicator';
+import { SignalDecoder } from '../../../../src/infrastructure/codec/SignalDecoder';
 
 /** Minimal CAN bus adapter that allows test code to push frames. */
 function makeAdapter(): ICanBusAdapter & { pushFrame(frame: CanFrame): void } {
@@ -177,6 +179,35 @@ suite('MonitorService', () => {
       assert.strictEqual(lastDecodedDirection, 'rx');
     });
 
+    test('decodes an extended frame (marker-free id) against a DB message stored with the 0x80000000 marker', () => {
+      const database = new CanDatabase();
+      database.signalPool.push(new Signal({ name: 'EngineSpeed', startBit: 0, bitLength: 16 }));
+      // 0x8CF004FE == 0x0CF004FE | 0x80000000 (extended marker kept in the data layer).
+      const msg = new Message({ id: 0x8cf004fe, name: 'EEC1', dlc: 8 });
+      msg.addSignalRef({
+        signalName: 'EngineSpeed',
+        startBit: 0,
+        bitLength: 16,
+        byteOrder: ByteOrder.LittleEndian,
+      });
+      database.addMessage(msg);
+
+      service.setDatabase(database);
+      service.start();
+
+      let decodedName = '';
+      let rawCount = 0;
+      eventBus.on('bus:messageDecoded', (p) => { decodedName = p.decoded.message.name; });
+      eventBus.on('bus:frameReceived', () => { rawCount++; });
+
+      // Bus frame carries the marker-free arbitration id + extended flag.
+      adapter.pushFrame(
+        new CanFrame({ id: 0x0cf004fe, data: new Uint8Array(8), isExtended: true }),
+      );
+      assert.strictEqual(decodedName, 'EEC1');
+      assert.strictEqual(rawCount, 0);
+    });
+
     test('does not emit bus:messageDecoded for unknown frame IDs', () => {
       service.setDatabase(new CanDatabase()); // empty database
       service.start();
@@ -231,6 +262,103 @@ suite('MonitorService', () => {
       adapter.pushFrame(new CanFrame({ id: 0x100, data: new Uint8Array(8) }));
       assert.strictEqual(decoded, 1);
       assert.strictEqual(raw, 1);
+    });
+  });
+
+  suite('multiplexing', () => {
+    /** Build a message mirroring test/fixtures/dbc/multiplexed.dbc (GearboxStatus, id 500). */
+    function makeMultiplexedDatabase(): CanDatabase {
+      const database = new CanDatabase();
+      database.signalPool.push(
+        new Signal({
+          name: 'GearSelector',
+          startBit: 0,
+          bitLength: 4,
+          multiplexIndicator: MultiplexIndicator.Multiplexor,
+        }),
+        new Signal({
+          name: 'DriveData',
+          startBit: 4,
+          bitLength: 8,
+          multiplexIndicator: MultiplexIndicator.MultiplexedSignal,
+          multiplexValue: 0,
+        }),
+        new Signal({
+          name: 'ReverseData',
+          startBit: 4,
+          bitLength: 8,
+          multiplexIndicator: MultiplexIndicator.MultiplexedSignal,
+          multiplexValue: 1,
+        }),
+        new Signal({
+          name: 'NeutralFlag',
+          startBit: 12,
+          bitLength: 1,
+          multiplexIndicator: MultiplexIndicator.MultiplexedSignal,
+          multiplexValue: 2,
+        }),
+      );
+      const msg = new Message({ id: 500, name: 'GearboxStatus', dlc: 8 });
+      for (const s of database.signalPool) {
+        msg.addSignalRef({
+          signalName: s.name,
+          startBit: s.startBit,
+          bitLength: s.bitLength,
+          byteOrder: ByteOrder.LittleEndian,
+        });
+      }
+      database.addMessage(msg);
+      return database;
+    }
+
+    /** Capture the decoded signal-value map for one pushed frame. */
+    function decodeFrame(data: Uint8Array): Map<string, number> {
+      const database = makeMultiplexedDatabase();
+      const realService = new MonitorService(adapter, new SignalDecoder(), eventBus, database);
+      let values = new Map<string, number>();
+      eventBus.on('bus:messageDecoded', (p) => { values = p.decoded.signalValues; });
+      realService.start();
+      adapter.pushFrame(new CanFrame({ id: 500, data }));
+      realService.stop();
+      return values;
+    }
+
+    test('includes only the multiplexed signal matching the selector (GearSelector=0)', () => {
+      // byte0 low nibble = selector (0), byte0 high nibble + byte1 low = DriveData payload
+      const values = decodeFrame(new Uint8Array([0x50, 0x00, 0, 0, 0, 0, 0, 0]));
+      assert.strictEqual(values.has('GearSelector'), true);
+      assert.strictEqual(values.get('GearSelector'), 0);
+      assert.strictEqual(values.has('DriveData'), true);
+      assert.strictEqual(values.get('DriveData'), 5);
+      assert.strictEqual(values.has('ReverseData'), false);
+      assert.strictEqual(values.has('NeutralFlag'), false);
+    });
+
+    test('includes only the multiplexed signal matching the selector (GearSelector=1)', () => {
+      const values = decodeFrame(new Uint8Array([0x71, 0x00, 0, 0, 0, 0, 0, 0]));
+      assert.strictEqual(values.get('GearSelector'), 1);
+      assert.strictEqual(values.has('ReverseData'), true);
+      assert.strictEqual(values.get('ReverseData'), 7);
+      assert.strictEqual(values.has('DriveData'), false);
+      assert.strictEqual(values.has('NeutralFlag'), false);
+    });
+
+    test('includes only the multiplexed signal matching the selector (GearSelector=2)', () => {
+      // selector=2 (byte0 low nibble); NeutralFlag is bit 12 (byte1 bit4)
+      const values = decodeFrame(new Uint8Array([0x02, 0x10, 0, 0, 0, 0, 0, 0]));
+      assert.strictEqual(values.get('GearSelector'), 2);
+      assert.strictEqual(values.has('NeutralFlag'), true);
+      assert.strictEqual(values.get('NeutralFlag'), 1);
+      assert.strictEqual(values.has('DriveData'), false);
+      assert.strictEqual(values.has('ReverseData'), false);
+    });
+
+    test('excludes all multiplexed signals when the selector matches no group', () => {
+      const values = decodeFrame(new Uint8Array([0x0F, 0x00, 0, 0, 0, 0, 0, 0]));
+      assert.strictEqual(values.get('GearSelector'), 15);
+      assert.strictEqual(values.has('DriveData'), false);
+      assert.strictEqual(values.has('ReverseData'), false);
+      assert.strictEqual(values.has('NeutralFlag'), false);
     });
   });
 });

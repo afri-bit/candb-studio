@@ -11,6 +11,11 @@ import { mergeEffectiveValueDescriptions } from './valueDescriptionMerge';
  * in the database {@link CanDatabase.signalPool} (placement per frame only).
  */
 export class Message {
+    /**
+     * Raw CAN arbitration id. Extended (29-bit) frames carry the 0x80000000 marker
+     * bit in this value; standard (11-bit) frames do not. Use {@link arbitrationId}
+     * for the marker-free identifier and {@link isExtended} to test the format.
+     */
     public id: number;
     public name: string;
     public dlc: number;
@@ -135,8 +140,21 @@ export class Message {
         return this.getResolvedSignals(pool, db).some((s) => s.isMultiplexor);
     }
 
-    /** Format the message ID as a hex string (e.g. "0x1A3"). */
+    /** True if this message uses a 29-bit extended CAN identifier (0x80000000 marker set). */
+    get isExtended(): boolean {
+        return (this.id & 0x80000000) !== 0;
+    }
+
+    /** Marker-free CAN arbitration id (the 0x80000000 extended bit removed). */
+    get arbitrationId(): number {
+        return this.id & 0x7fffffff;
+    }
+
+    /**
+     * Display form of the id: marker-free hex with an `x` suffix for extended frames
+     * (e.g. standard `0x64`, extended `0x64x`).
+     */
     get idHex(): string {
-        return `0x${this.id.toString(16).toUpperCase()}`;
+        return `0x${this.arbitrationId.toString(16).toUpperCase()}${this.isExtended ? 'x' : ''}`;
     }
 }

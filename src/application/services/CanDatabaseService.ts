@@ -252,15 +252,17 @@ export class CanDatabaseService {
         if ('name' in changes && typeof changes.name === 'string') {
             msg.name = changes.name;
         }
+        if ('isFd' in changes && typeof changes.isFd === 'boolean') {
+            msg.isFd = changes.isFd;
+        }
+        // The extended/standard format is encoded in the id's 0x80000000 bit, so a
+        // format change arrives as a new `id` value — no separate flag is needed.
         if ('id' in changes && typeof changes.id === 'number') {
-            const nid = changes.id;
+            const nid = changes.id >>> 0;
             if (nid !== msg.id && db.findMessageById(nid)) {
                 throw new Error(`Message ID ${nid} already exists`);
             }
             msg.id = nid;
-        }
-        if ('isFd' in changes && typeof changes.isFd === 'boolean') {
-            msg.isFd = changes.isFd;
         }
         if ('dlc' in changes && typeof changes.dlc === 'number') {
             const isFd = msg.isFd;

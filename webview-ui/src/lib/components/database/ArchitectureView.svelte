@@ -4,6 +4,7 @@
    * Describes the CAN data model in this DBC, not the VS Code extension.
    */
   import type { MessageDescriptor, NodeDescriptor, SignalDescriptor } from '../../types';
+  import { formatMessageId } from '../../formatMessageId';
 
   interface Props {
     nodes: NodeDescriptor[];
@@ -31,7 +32,7 @@
   let nodeNameSet = $derived(new Set(nodes.map((n) => n.name)));
 
   function idHex(id: number): string {
-    return `0x${id.toString(16).toUpperCase().padStart(3, '0')}`;
+    return formatMessageId(id);
   }
 
   function receiverNamesForMessage(m: MessageDescriptor): string[] {

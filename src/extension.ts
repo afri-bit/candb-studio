@@ -6,6 +6,9 @@ import { Logger } from './shared/utils/Logger';
 import { SignalDecoder } from './infrastructure/codec/SignalDecoder';
 import { SignalEncoder } from './infrastructure/codec/SignalEncoder';
 import { FileSystemRepository } from './infrastructure/repositories/FileSystemRepository';
+import { AdapterFactory } from './infrastructure/adapters/AdapterFactory';
+import { BridgeCanAdapter } from './infrastructure/adapters/BridgeCanAdapter';
+import { AdapterType } from './core/enums/AdapterType';
 
 // Application
 import { CanDatabaseService } from './application/services/CanDatabaseService';
@@ -50,6 +53,19 @@ export function activate(context: vscode.ExtensionContext): void {
     const signalDecoder = new SignalDecoder();
     const signalEncoder = new SignalEncoder();
     void signalEncoder; // available for TransmitService encoding in a future phase
+
+    // Bridge-backed hardware adapters resolve the interpreter from settings at
+    // connect time so `candb-studio.bridgePythonPath` changes need no reload.
+    AdapterFactory.register(
+        AdapterType.PCAN,
+        () =>
+            new BridgeCanAdapter({
+                interfaceName: 'pcan',
+                pythonPath: vscode.workspace
+                    .getConfiguration('candb-studio')
+                    .get<string>('bridgePythonPath'),
+            }),
+    );
 
     // ── Application layer ───────────────────────────────────────────────────
     const validationService = new ValidationService();

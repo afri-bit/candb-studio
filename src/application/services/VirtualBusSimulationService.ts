@@ -93,10 +93,11 @@ export class VirtualBusSimulationService {
         }
         const msgDef = database?.findMessageById(canId);
         const frame: CanFrame = new CanFrameCtor({
-            id: canId,
+            // Emit the marker-free arbitration id + extended flag (as a real adapter would).
+            id: msgDef ? msgDef.arbitrationId : (canId & 0x7fffffff) >>> 0,
             data: new Uint8Array(data),
             dlc: data.length,
-            isExtended,
+            isExtended: msgDef ? msgDef.isExtended : isExtended || (canId & 0x80000000) !== 0,
             timestamp: Date.now(),
             isFd: msgDef?.isFd ?? false,
         });

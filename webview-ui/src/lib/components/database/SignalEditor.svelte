@@ -18,6 +18,7 @@
   import SearchFilter from '../shared/SearchFilter.svelte';
   import { vscode } from '../../vscode';
   import { documentUri } from '../../stores/editorContext';
+  import { formatMessageId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     signalPool: SignalDescriptor[];
@@ -154,8 +155,9 @@
     return list.filter(
       (m) =>
         m.name.toLowerCase().includes(lower) ||
-        `0x${m.id.toString(16)}`.includes(lower) ||
-        m.id.toString().includes(lower),
+        formatMessageId(m.id).toLowerCase().includes(lower) ||
+        arbitrationId(m.id).toString(16).includes(lower) ||
+        arbitrationId(m.id).toString().includes(lower),
     );
   });
 
@@ -650,7 +652,7 @@
                       <option value="">Choose message…</option>
                       {#each filteredMessagesToLink as m}
                         <option value={String(m.id)}>
-                          {m.name} (0x{m.id.toString(16).toUpperCase()}) · DLC {m.dlc}
+                          {m.name} ({formatMessageId(m.id)}) · DLC {m.dlc}
                         </option>
                       {/each}
                     </select>

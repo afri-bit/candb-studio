@@ -10,6 +10,9 @@ export {
   analyzeMessageLayout,
   getSignalLsbMsbPhysicalBits,
   signalPhysicalBits,
+  multiplexorValues,
+  signalActiveForMux,
+  messageForMux
 } from '@bit-occupancy';
 export type {
   BitCellAnalysis,

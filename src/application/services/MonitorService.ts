@@ -129,13 +129,31 @@ export class MonitorService implements ICanBusMonitor {
         const direction = this.classifyDirection(frame);
 
         if (this.database) {
-            const messageDef = this.database.findMessageById(frame.id);
+            // Bus frames carry the marker-free arbitration id + an extended flag; the DB stores
+            // extended ids with the 0x80000000 marker, so apply it before looking up.
+            const lookupId = frame.isExtended ? (frame.id | 0x80000000) >>> 0 : frame.id;
+            const messageDef = this.database.findMessageById(lookupId);
             if (messageDef) {
                 const signalValues = new Map<string, number>();
-                for (const signal of messageDef.getResolvedSignals(
+                const resolvedSignals = messageDef.getResolvedSignals(
                     this.database.signalPool,
                     this.database,
-                )) {
+                );
+                // Decode the multiplexor first; multiplexed signals are only valid
+                // when their multiplexValue matches this frame's selector.
+                const multiplexor = resolvedSignals.find((s) => s.isMultiplexor);
+                let selectorRaw: number | undefined;
+                if (multiplexor) {
+                    const physical = this.decoder.decode(multiplexor, frame.data);
+                    selectorRaw = Math.round(multiplexor.physicalToRaw(physical));
+                }
+                for (const signal of resolvedSignals) {
+                    if (
+                        signal.isMultiplexed &&
+                        (selectorRaw === undefined || signal.multiplexValue !== selectorRaw)
+                    ) {
+                        continue;
+                    }
                     signalValues.set(signal.name, this.decoder.decode(signal, frame.data));
                 }
                 const decoded = new DecodedMessage({

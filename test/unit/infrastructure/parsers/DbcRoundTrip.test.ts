@@ -331,12 +331,27 @@ suite('DbcRoundTrip', () => {
     });
 
     suite('extended CAN IDs survive round-trip', () => {
-        test('raw extended ID is preserved through round-trip', () => {
-            const { db } = roundTrip(
+        // 2566903870 == 0x99000ABE == 0x19000ABE | 0x80000000 (the DBC extended-ID marker).
+        const EXTENDED_RAW_ID = 2566903870;
+
+        test('raw extended ID (with marker) is preserved through round-trip', () => {
+            const { db, serialized } = roundTrip(
                 fs.readFileSync(path.join(FIXTURES_DIR, 'dbc', 'extended_ids.dbc'), 'utf-8'),
             );
-            assert.ok(db.findMessageById(2566903870), 'extended ID message must survive');
-            assert.ok(db.findMessageById(100), 'standard ID message must survive');
+            // The data layer keeps the raw id (marker bit included) and derives isExtended.
+            const ext = db.findMessageById(EXTENDED_RAW_ID);
+            assert.ok(ext, 'extended ID message must survive');
+            assert.strictEqual(ext!.isExtended, true, 'isExtended derived from the marker bit');
+            assert.strictEqual(ext!.arbitrationId, EXTENDED_RAW_ID & 0x7fffffff);
+
+            const std = db.findMessageById(100);
+            assert.ok(std, 'standard ID message must survive');
+            assert.strictEqual(std!.isExtended, false, 'standard message must not be extended');
+
+            assert.ok(
+                serialized.includes(`BO_ ${EXTENDED_RAW_ID} `),
+                'serialized DBC must carry the 0x80000000 marker',
+            );
         });
     });
 

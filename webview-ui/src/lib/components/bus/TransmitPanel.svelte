@@ -21,6 +21,7 @@
     formatPayloadHex,
     sanitizeHexDigits,
   } from '../../transmitCodec';
+  import { formatMessageId, arbitrationId } from '../../formatMessageId';
 
   interface Props {
     messages: MessageDescriptor[];
@@ -39,7 +40,7 @@
     if (!filterText) return messages;
     const lower = filterText.toLowerCase();
     return messages.filter(
-      (m) => m.name.toLowerCase().includes(lower) || m.id.toString(16).includes(lower),
+      (m) => m.name.toLowerCase().includes(lower) || arbitrationId(m.id).toString(16).includes(lower),
     );
   });
 
@@ -140,7 +141,7 @@
   }
 
   function messageNameForId(id: number): string {
-    return messages.find((m) => m.id === id)?.name ?? `0x${id.toString(16).toUpperCase()}`;
+    return messages.find((m) => m.id === id)?.name ?? formatMessageId(id);
   }
 
   function handleSendOnce() {
@@ -248,7 +249,7 @@
           class:selected={$transmitFormStore.selectedMessageId === msg.id}
           onclick={() => selectMessage(msg)}
         >
-          <span class="msg-id">0x{msg.id.toString(16).toUpperCase().padStart(3, '0')}</span>
+          <span class="msg-id">{formatMessageId(msg.id)}</span>
           <span class="msg-name">{msg.name}</span>
           {#if msg.isFd}
             <span class="fd-badge" title="CAN FD message">FD</span>
@@ -275,7 +276,7 @@
 
     {#if selectedMessage}
       <div class="transmit-form">
-        <h3>{selectedMessage.name} (0x{selectedMessage.id.toString(16).toUpperCase()})</h3>
+        <h3>{selectedMessage.name} ({formatMessageId(selectedMessage.id)})</h3>
 
         <label class="field">
           <span

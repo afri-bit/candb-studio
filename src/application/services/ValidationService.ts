@@ -25,7 +25,7 @@ export class ValidationService implements IValidationService {
             const message = database.messages[mi];
             const prefix = `messages[${mi}]`;
 
-            // Duplicate CAN ID
+            // Duplicate CAN ID (the 0x80000000 extended bit makes std/ext ids distinct).
             if (idsSeen.has(message.id)) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
@@ -45,17 +45,13 @@ export class ValidationService implements IValidationService {
             }
             namesSeen.set(message.name, message.id);
 
-            // ID range
-            if (message.id < 0 || message.id > MAX_EXTENDED_CAN_ID) {
+            // ID range — validate the marker-free arbitration id against the frame format.
+            const maxId = message.isExtended ? MAX_EXTENDED_CAN_ID : MAX_STANDARD_CAN_ID;
+            if (message.arbitrationId > maxId) {
+                const fmt = message.isExtended ? 'extended (29-bit)' : 'standard (11-bit)';
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
-                    message: `Message ID ${message.id} is out of valid range [0, ${MAX_EXTENDED_CAN_ID}]`,
-                    path: `${prefix}.id`,
-                });
-            } else if (message.id > MAX_STANDARD_CAN_ID) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Info,
-                    message: `Message ID ${message.idHex} is an extended (29-bit) frame ID`,
+                    message: `Message ID ${message.idHex} is out of valid range for a ${fmt} frame [0, 0x${maxId.toString(16).toUpperCase()}]`,
                     path: `${prefix}.id`,
                 });
             }

@@ -9,6 +9,7 @@
   import PropertyGrid from '../shared/PropertyGrid.svelte';
   import { vscode } from '../../vscode';
   import { documentUri } from '../../stores/editorContext';
+  import { formatMessageId } from '../../formatMessageId';
 
   interface Props {
     nodes: NodeDescriptor[];
@@ -179,7 +180,7 @@
     txMessages.map((m) => ({
       messageId: m.id,
       name: m.name,
-      idHex: `0x${m.id.toString(16).toUpperCase()}`,
+      idHex: formatMessageId(m.id),
       dlc: m.dlc,
       sigCount: m.signals.length,
     })),

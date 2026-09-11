@@ -16,6 +16,8 @@ import { TransmitTask } from '../../core/models/bus/TransmitTask';
 import type { CanDatabase } from '../../core/models/database/CanDatabase';
 import { Message } from '../../core/models/database/Message';
 import { Node } from '../../core/models/database/Node';
+import { isHardwareAdapter } from '../../infrastructure/adapters/AdapterKind';
+import { BridgeCanAdapter } from '../../infrastructure/adapters/BridgeCanAdapter';
 import { SocketCanAdapter } from '../../infrastructure/adapters/SocketCanAdapter';
 import { VirtualCanAdapter } from '../../infrastructure/adapters/VirtualCanAdapter';
 import type { ConnectBusCommand } from '../commands/ConnectBusCommand';
@@ -152,6 +154,9 @@ export class WebviewMessageHandler {
         }
         if (a instanceof VirtualCanAdapter) {
             return AdapterType.Virtual;
+        }
+        if (a instanceof BridgeCanAdapter) {
+            return a.adapterType;
         }
         if (a instanceof SocketCanAdapter) {
             return AdapterType.SocketCAN;
@@ -446,10 +451,13 @@ export class WebviewMessageHandler {
                 const busDb = this.databaseService.getDatabaseForBus();
                 const msgDef = busDb?.findMessageById(message.messageId);
                 const frame = new CanFrame({
-                    id: message.messageId,
+                    id: msgDef ? msgDef.arbitrationId : (message.messageId & 0x7fffffff) >>> 0,
                     data: new Uint8Array(data),
                     dlc: data.length,
                     timestamp: Date.now(),
+                    isExtended: msgDef
+                        ? msgDef.isExtended
+                        : (message.messageId & 0x80000000) !== 0,
                     isFd: msgDef?.isFd ?? false,
                 });
                 await this.transmitService?.sendOnce(frame);
@@ -488,10 +496,15 @@ export class WebviewMessageHandler {
                     const periodicBusDb = this.databaseService.getDatabaseForBus();
                     const periodicMsgDef = periodicBusDb?.findMessageById(p.messageId);
                     const frame = new CanFrame({
-                        id: p.messageId,
+                        id: periodicMsgDef
+                            ? periodicMsgDef.arbitrationId
+                            : (p.messageId & 0x7fffffff) >>> 0,
                         data: new Uint8Array(p.data),
                         dlc: p.data.length,
                         timestamp: Date.now(),
+                        isExtended: periodicMsgDef
+                            ? periodicMsgDef.isExtended
+                            : (p.messageId & 0x80000000) !== 0,
                         isFd: periodicMsgDef?.isFd ?? false,
                     });
                     const task = new TransmitTask({
@@ -596,7 +609,7 @@ export class WebviewMessageHandler {
 
             case 'virtualBus.start': {
                 const cur = this.connectBusCommand?.getAdapter();
-                if (cur instanceof SocketCanAdapter && cur.state === CanBusState.Connected) {
+                if (cur && isHardwareAdapter(cur) && cur.state === CanBusState.Connected) {
                     this.postSignalLabError(
                         'Disconnect hardware (status bar → Disconnect) before starting virtual simulation.',
                         'HARDWARE_ACTIVE',
