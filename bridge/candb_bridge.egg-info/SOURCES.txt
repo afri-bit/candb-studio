@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+candb_bridge/__init__.py
+candb_bridge/__main__.py
+candb_bridge.egg-info/PKG-INFO
+candb_bridge.egg-info/SOURCES.txt
+candb_bridge.egg-info/dependency_links.txt
+candb_bridge.egg-info/entry_points.txt
+candb_bridge.egg-info/requires.txt
+candb_bridge.egg-info/top_level.txt

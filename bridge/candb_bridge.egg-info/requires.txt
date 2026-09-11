@@ -1,0 +1,10 @@
+python-can>=4.0
+
+[kvaser]
+python-can[kvaser]>=4.0
+
+[pcan]
+python-can[pcan]>=4.0
+
+[vector]
+python-can[vector]>=4.0

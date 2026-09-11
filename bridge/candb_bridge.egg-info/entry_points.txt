@@ -1,0 +1,2 @@
+[console_scripts]
+candb-bridge = candb_bridge:main

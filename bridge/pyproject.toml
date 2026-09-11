@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "candb-bridge"
+version = "1.0.0"
+description = "python-can ⇆ candb-studio JSON-RPC 2.0 bridge over stdio"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["python-can>=4.0"]
+
+[project.optional-dependencies]
+pcan = ["python-can[pcan]>=4.0"]
+kvaser = ["python-can[kvaser]>=4.0"]
+vector = ["python-can[vector]>=4.0"]
+
+[project.scripts]
+candb-bridge = "candb_bridge:main"
+
+[tool.setuptools]
+packages = ["candb_bridge"]
